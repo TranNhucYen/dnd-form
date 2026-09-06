@@ -11,18 +11,20 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ColorPickerPopover, EditableSelect } from "../components";
+import {
+  ColorPickerPopover,
+  EditableSelect,
+  TextFormatGroup,
+} from "../components";
 import {
   FONT_OPTIONS,
   FONT_SIZE_OPTIONS,
   TEXT_ALIGN_ITEMS,
-  TEXT_FORMAT_ITEMS,
 } from "../constants/toolbar.constants";
 
 export function HomeTabContent() {
   const [fontFamily, setFontFamily] = useState("Roboto");
   const [fontSize, setFontSize] = useState("14");
-  const [textFormats, setTextFormats] = useState<string[]>([]);
   const [textAlign, setTextAlign] = useState<string>("left");
   const [textColor, setTextColor] = useState("black");
   const [bgColor, setBgColor] = useState("transparent");
@@ -55,28 +57,10 @@ export function HomeTabContent() {
         />
       </div>
 
-      <Separator orientation="vertical"/>
+      <Separator orientation="vertical" />
 
       {/* Nhóm: Định dạng: Đậm, Nghiêng, Gạch chân */}
-      <ToggleGroup
-        type="multiple"
-        size="sm"
-        value={textFormats}
-        onValueChange={setTextFormats}
-      >
-        {TEXT_FORMAT_ITEMS.map(({ value, label, icon: Icon }) => (
-          <ToggleGroupItem
-            key={value}
-            value={value}
-            aria-label={label}
-            className="
-              data-[state=on]:bg-neutral-200 data-[state=on]:text-neutral-900 
-              dark:data-[state=on]:bg-neutral-700 dark:data-[state=on]:text-neutral-50"
-          >
-            <Icon className="size-3" />
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <TextFormatGroup />
 
       <Separator orientation="vertical" />
 

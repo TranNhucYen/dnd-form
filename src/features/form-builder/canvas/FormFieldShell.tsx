@@ -54,7 +54,7 @@ export function FormFieldShell({
 }: FormFieldShellProps) {
   const shellRef = useRef<HTMLDivElement | null>(null);
 
-  // Bỏ qua drag khi bấm vào resize handle
+  // Bỏ qua drag khi bấm vào resize handle hoặc khi đang ở chế độ gõ / bôi đen text
   const sensors = useMemo(
     () => [
       PointerSensor.configure({
@@ -65,7 +65,9 @@ export function FormFieldShell({
             return false;
           }
 
-          return target.closest('[data-resize-handle="true"]') !== null;
+          return (
+            target.closest('[data-resize-handle="true"], [contenteditable="true"], input, textarea') !== null
+          );
         },
       }),
     ],
