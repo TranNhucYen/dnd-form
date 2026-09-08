@@ -112,7 +112,7 @@ export function FormFieldShell({
   });
 
   return (
-    <FieldContextMenu fieldId={id}>
+    <FieldContextMenu fieldId={id} type={type}>
       {/* field shell trên canvas */}
       <div
         ref={setShellRef}

@@ -110,7 +110,7 @@ export const FIELD_DEFINITIONS: FieldDefinition[] = [
     label: "Bảng dữ liệu",
     icon: <Table />,
     resizeMode: "8-way",
-    defaultSize: { width: 440, height: 150 },
+    defaultSize: { width: 440, height: 70 },
   },
 ];
 
