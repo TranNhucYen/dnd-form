@@ -89,7 +89,7 @@ export const FIELD_DEFINITIONS: FieldDefinition[] = [
     label: "Chữ ký",
     icon: <Signature />,
     resizeMode: "8-way",
-    defaultSize: { width: 300, height: 120 },
+    defaultSize: { width: 130, height: 140 },
   },
   {
     type: "qrcode",
