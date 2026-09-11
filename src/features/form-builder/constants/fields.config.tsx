@@ -96,7 +96,7 @@ export const FIELD_DEFINITIONS: FieldDefinition[] = [
     label: "Mã QR",
     icon: <QrCode />,
     resizeMode: "8-way",
-    defaultSize: { width: 180, height: 180 },
+    defaultSize: { width: 100, height: 100 },
   },
   {
     type: "image",
