@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Baseline, ChevronDown, PaintBucket } from "lucide-react";
 import {
   Select,
@@ -21,19 +20,28 @@ import {
   FONT_SIZE_OPTIONS,
   TEXT_ALIGN_ITEMS,
 } from "../constants/toolbar.constants";
+import { useActiveToolbarState } from "../hooks";
 
 export function HomeTabContent() {
-  const [fontFamily, setFontFamily] = useState("Roboto");
-  const [fontSize, setFontSize] = useState("14");
-  const [textAlign, setTextAlign] = useState<string>("left");
-  const [textColor, setTextColor] = useState("black");
-  const [bgColor, setBgColor] = useState("transparent");
+  const {
+    fontFamily,
+    fontSize,
+    textAlign,
+    textColor,
+    bgColor,
+    setFontFamily,
+    setFontSize,
+    setTextAlign,
+    setTextColor,
+    setBgColor,
+    isDisabled,
+  } = useActiveToolbarState();
 
   return (
     <div className="flex items-center gap-1.5">
       {/* Nhóm: Font chữ & Cỡ chữ */}
       <div className="flex items-center gap-1">
-        <Select value={fontFamily} onValueChange={setFontFamily}>
+        <Select value={fontFamily} onValueChange={setFontFamily} disabled={isDisabled}>
           <SelectTrigger size="sm" className="h-7 w-[145px] rounded-md text-xs">
             <SelectValue />
           </SelectTrigger>
@@ -54,6 +62,7 @@ export function HomeTabContent() {
           options={FONT_SIZE_OPTIONS}
           className="h-7 w-[56px] text-xs"
           popoverClassName="w-20"
+          disabled={isDisabled}
         />
       </div>
 
@@ -69,7 +78,8 @@ export function HomeTabContent() {
         type="single"
         size="sm"
         value={textAlign}
-        onValueChange={(val) => val && setTextAlign(val)}
+        onValueChange={(val) => val && setTextAlign(val as any)}
+        disabled={isDisabled}
       >
         {TEXT_ALIGN_ITEMS.map(({ value, label, icon: Icon }) => (
           <ToggleGroupItem
@@ -99,6 +109,7 @@ export function HomeTabContent() {
             type="button"
             variant="ghost"
             size="sm"
+            disabled={isDisabled}
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
             title="Màu chữ"
           >
@@ -121,6 +132,7 @@ export function HomeTabContent() {
             type="button"
             variant="ghost"
             size="sm"
+            disabled={isDisabled}
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
             title="Màu nền"
           >

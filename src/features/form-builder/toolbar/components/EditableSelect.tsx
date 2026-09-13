@@ -21,6 +21,7 @@ type EditableSelectProps = {
   inputClassName?: string;
   popoverClassName?: string;
   placeholder?: string;
+  disabled?: boolean;
 };
 
 export function EditableSelect({
@@ -32,6 +33,7 @@ export function EditableSelect({
   inputClassName,
   popoverClassName,
   placeholder,
+  disabled = false,
 }: EditableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -61,6 +63,7 @@ export function EditableSelect({
       className={cn(
         `flex h-7 items-center rounded-md border border-input bg-background 
         transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring`,
+        disabled && "opacity-50 pointer-events-none",
         className,
       )}
     >
@@ -69,6 +72,7 @@ export function EditableSelect({
         value={value}
         onChange={handleInputChange}
         placeholder={placeholder}
+        disabled={disabled}
         className={cn(
           "h-full w-full min-w-0 bg-transparent px-1.5 text-center text-xs outline-none select-none",
           inputClassName,
@@ -79,6 +83,7 @@ export function EditableSelect({
         <PopoverTrigger asChild>
           <button
             type="button"
+            disabled={disabled}
             className="flex h-full items-center px-1 text-muted-foreground hover:text-foreground focus:outline-none"
             title="Mở danh sách tùy chọn"
           >
