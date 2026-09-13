@@ -4,6 +4,7 @@ import { PAGE_PRESETS } from "../constants/form.constants";
 import type { FieldResizeChange } from "../canvas/types/canvas.types";
 import type {
   CanvasField,
+  FieldStyle,
   FieldType,
   Orientation,
   PageMargins,
@@ -34,6 +35,8 @@ export interface FormBuilderState {
   selectAllFields: () => void;
   addField: (type: FieldType, coordinates: { x: number; y: number }) => void;
   updateFieldPosition: (fieldId: string, coordinates: { x: number; y: number }) => void;
+  /** Cập nhật font, cỡ chữ, căn lề, màu sắc cho phần tử */
+  updateFieldStyle: (fieldId: string, style: Partial<FieldStyle>) => void;
   /** Cập nhật x,y và width,height mới sau khi hoàn tất thao tác resize */
   updateFieldResize: (fieldId: string, change: FieldResizeChange) => void;
   /** Tự động đo và lưu kích thước DOM thực tế lần đầu tiên cho các phần tử co giãn theo nội dung */
@@ -100,6 +103,21 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
     set((state) => ({
       fields: state.fields.map((field) =>
         field.id === fieldId ? { ...field, ...coordinates } : field,
+      ),
+    })),
+
+  updateFieldStyle: (fieldId, style) =>
+    set((state) => ({
+      fields: state.fields.map((field) =>
+        field.id === fieldId
+          ? {
+              ...field,
+              style: {
+                ...field.style,
+                ...style,
+              },
+            }
+          : field,
       ),
     })),
 
