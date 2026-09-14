@@ -86,9 +86,9 @@ export function HomeTabContent() {
             key={value}
             value={value}
             aria-label={label}
+            onMouseDown={(e) => e.preventDefault()}
             className="
               data-[state=on]:bg-neutral-200 data-[state=on]:text-neutral-900 
-              
               dark:data-[state=on]:bg-neutral-700 dark:data-[state=on]:text-neutral-50"
           >
             <Icon className="size-3" />

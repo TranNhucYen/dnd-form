@@ -1,4 +1,5 @@
 export type FieldProps = {
+  id?: string;
   label?: string;
   value?: string;
   width?: number;

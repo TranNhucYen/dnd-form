@@ -149,6 +149,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
             >
               <FieldRenderer
                 type={field.type}
+                id={field.id}
                 width={field.width}
                 height={field.height}
               />

@@ -3,7 +3,7 @@ import { HomeTabContent, PageTabContent } from "./tabs";
 
 export function EditorToolbar() {
   return (
-    <header className="flex w-full shrink-0 flex-col border-b border-border/80 bg-background select-none">
+    <header data-toolbar className="flex w-full shrink-0 flex-col border-b border-border/80 bg-background select-none">
       {/* các tab  */}
       <Tabs defaultValue="home" className="w-full gap-0">
         <div className="flex h-8 items-center bg-transparent">

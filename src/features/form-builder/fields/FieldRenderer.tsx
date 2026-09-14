@@ -36,6 +36,7 @@ const fieldRegistry: Record<FieldType, FieldComponent> = {
  */
 export function FieldRenderer({
   type,
+  id,
   width,
   height,
   label,
@@ -43,5 +44,5 @@ export function FieldRenderer({
 }: { type: FieldType } & FieldProps) {
   const Field = fieldRegistry[type];
 
-  return <Field width={width} height={height} label={label} value={value} />;
+  return <Field id={id} width={width} height={height} label={label} value={value} />;
 }
