@@ -29,9 +29,8 @@ export function useActiveToolbarState() {
     },
   });
 
-  const isTiptapActive = Boolean(
-    editor && editor.isEditable && selectedField?.type === "textarea"
-  );
+  const isTiptapField = selectedField?.type === "textarea" || selectedField?.type === "datatable";
+  const isTiptapActive = Boolean(editor && editor.isEditable && isTiptapField);
   const isCanvasFieldActive = Boolean(selectedField);
   const isDisabled = !isTiptapActive && !isCanvasFieldActive;
 

@@ -3,16 +3,29 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import type { FieldProps } from "../types/field.types";
 import StarterKit from "@tiptap/starter-kit";
 import { TableKit } from "@tiptap/extension-table";
+import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
+import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import "./datatable.css";
 
-export function DatatableField({ }: FieldProps = {}) {
+export function DatatableField({ id }: FieldProps = {}) {
   const setEditor = useEditorStore((state) => state.setEditor);
+  const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
+
+  const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
+
+  // Khi click ra ngoài canvas hoặc unselect field này thì tự động tắt editing
+  useEffect(() => {
+    if (!isFieldSelected && isEditing) {
+      setIsEditing(false);
+    }
+  }, [isFieldSelected, isEditing]);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Underline,
       TableKit.configure({
         table: {
           resizable: true,
@@ -24,6 +37,7 @@ export function DatatableField({ }: FieldProps = {}) {
       }),
     ],
     immediatelyRender: false,
+    editable: false,
     content: `
       <table>
         <tbody>
@@ -46,26 +60,39 @@ export function DatatableField({ }: FieldProps = {}) {
         }
         return false;
       },
-
-    },
-    onCreate: ({ editor }) => {
-      setEditor(editor);
-      editor.setEditable(false);
     },
     onFocus: ({ editor }) => setEditor(editor),
-    onBlur: () => {
+    onBlur: ({ event }) => {
+      const relatedTarget = event?.relatedTarget as HTMLElement | null;
+      if (
+        relatedTarget &&
+        (relatedTarget.closest("[data-toolbar]") ||
+          relatedTarget.closest("[data-radix-popper-content-wrapper]") ||
+          relatedTarget.closest("[role='dialog']"))
+      ) {
+        return;
+      }
       setIsEditing(false);
     },
-    onDestroy: () => setEditor(null),
+    onDestroy: () => {
+      if (useEditorStore.getState().editor === editor) {
+        setEditor(null);
+      }
+    },
   });
 
   useEffect(() => {
     if (!editor) return;
     editor.setEditable(isEditing);
     if (isEditing) {
+      setEditor(editor);
       editor.commands.focus();
+    } else {
+      if (useEditorStore.getState().editor === editor) {
+        setEditor(null);
+      }
     }
-  }, [isEditing, editor]);
+  }, [isEditing, editor, setEditor]);
 
   const handleDoubleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
