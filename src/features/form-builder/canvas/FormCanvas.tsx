@@ -129,6 +129,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
                   ? { width: field.width!, height: field.height! }
                   : undefined
               }
+              fieldStyle={field.style}
               fields={fields}
               canvasSize={{ width: canvasStyle.width, height: canvasStyle.height }}
               margins={marginPx}

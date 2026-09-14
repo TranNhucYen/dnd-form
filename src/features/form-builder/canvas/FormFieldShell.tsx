@@ -1,6 +1,6 @@
 import { PointerSensor, useDraggable } from "@dnd-kit/react";
 import { useEffectEvent, useMemo, useRef } from "react";
-import type { FieldType } from "../types/formBuilder.types";
+import type { FieldStyle, FieldType } from "../types/formBuilder.types";
 import type {
   CanvasField,
   FieldResizeChange,
@@ -16,6 +16,7 @@ type FormFieldShellProps = {
   id: string;
   type: FieldType;
   size?: { width: number; height: number };
+  fieldStyle?: FieldStyle;
   fields?: CanvasField[];
   canvasSize?: { width: number; height: number };
   margins?: MarginBounds;
@@ -39,6 +40,7 @@ export function FormFieldShell({
   id,
   type,
   size: controlledSize,
+  fieldStyle,
   fields,
   canvasSize,
   margins,
@@ -134,7 +136,21 @@ export function FormFieldShell({
           boxSizing: "border-box",
         }}
       >
-        <div className="h-full w-full">{children}</div>
+        <div
+          className="h-full w-full"
+          style={{
+            fontFamily: fieldStyle?.fontFamily,
+            fontSize: fieldStyle?.fontSize ? `${fieldStyle.fontSize}px` : undefined,
+            fontWeight: fieldStyle?.fontWeight,
+            fontStyle: fieldStyle?.fontStyle,
+            textDecoration: fieldStyle?.textDecoration,
+            textAlign: fieldStyle?.textAlign,
+            color: fieldStyle?.color,
+            backgroundColor: fieldStyle?.backgroundColor,
+          }}
+        >
+          {children}
+        </div>
 
         {allowResize && isSelected && !isDragging && (
           <ResizeHandles type={type} onResizeStart={startResize} />

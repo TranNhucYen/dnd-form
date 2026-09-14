@@ -33,7 +33,7 @@ export function LabelField({ value, label }: FieldProps = {}) {
   return (
     <div
       onDoubleClick={handleDoubleClick}
-      className="relative flex h-full w-full shrink-0 overflow-hidden px-1 py-0.5 text-sm text-gray-800 select-none cursor-text"
+      className="relative flex h-full w-full shrink-0 overflow-hidden px-1 py-0.5 select-none cursor-text"
     >
       <span className="relative block h-full w-full">
         <span

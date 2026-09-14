@@ -18,8 +18,8 @@ export function CheckboxField({ label = "Xác nhận" }: FieldProps = {}) {
       onDoubleClick={handleDoubleClick}
       className="flex h-full w-max shrink-0 items-center gap-2 whitespace-nowrap select-none cursor-text"
     >
-      <span className="flex h-4 w-4 items-center justify-center rounded border border-gray-400 bg-white" />
-      <span className="relative inline-block min-w-4 text-sm text-gray-800">
+      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-gray-400 bg-white" />
+      <span className="relative inline-block min-w-4">
         <span className={`select-none whitespace-pre ${isEditing ? "invisible" : ""}`}>
           {labelText || " "}
         </span>
