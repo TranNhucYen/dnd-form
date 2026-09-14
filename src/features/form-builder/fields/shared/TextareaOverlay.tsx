@@ -21,8 +21,8 @@ export function TextareaOverlay({
   return (
     <textarea
       className="
-        absolute inset-0 z-30 m-0 resize-none border-none bg-transparent text-blue-600 p-0 font-[inherit] 
-        text-[inherit] leading-normal outline-none select-text whitespace-pre-wrap break-words"
+        absolute inset-0 z-30 m-0 resize-none border-none bg-transparent p-0 
+        font-[inherit] text-[inherit] leading-normal outline-none select-text whitespace-pre-wrap break-words"
       ref={textareaRef}
       value={value}
       onChange={(event) => onChange(event.target.value)}

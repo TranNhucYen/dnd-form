@@ -34,9 +34,7 @@ export function InputOverlay({
           onCancel();
         }
       }}
-      className="
-        absolute inset-0 z-30 m-0 border-none bg-transparent p-0 
-        font-[inherit] text-[inherit] text-blue-600 outline-none select-text"
+      className="absolute inset-0 z-30 m-0 border-none bg-transparent p-0 font-[inherit] text-[inherit] outline-none select-text"
     />
   );
 }
