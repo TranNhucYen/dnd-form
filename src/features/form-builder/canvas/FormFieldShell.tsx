@@ -139,7 +139,7 @@ export function FormFieldShell({
         <div
           className="h-full w-full"
           style={{
-            fontFamily: fieldStyle?.fontFamily,
+            fontFamily: fieldStyle?.fontFamily || "Times New Roman",
             fontSize: fieldStyle?.fontSize ? `${fieldStyle.fontSize}px` : undefined,
             fontWeight: fieldStyle?.fontWeight,
             fontStyle: fieldStyle?.fontStyle,

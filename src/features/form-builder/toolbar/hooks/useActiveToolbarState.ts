@@ -50,7 +50,7 @@ export function useActiveToolbarState() {
     return [];
   })();
 
-  const fontFamily = selectedField?.style?.fontFamily || "Roboto";
+  const fontFamily = selectedField?.style?.fontFamily || "Times New Roman";
   const fontSize = selectedField?.style?.fontSize || "14";
   const textAlign = selectedField?.style?.textAlign || "left";
   const textColor = selectedField?.style?.color || "#000000";
