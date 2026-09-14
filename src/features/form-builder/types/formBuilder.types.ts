@@ -5,7 +5,7 @@ export type FieldType =
   | "number"
   | "date"
   | "select"
-  | "radio"
+  | "line"
   | "checkbox"
   | "signature"
   | "qrcode"

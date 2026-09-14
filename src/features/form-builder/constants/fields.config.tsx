@@ -2,10 +2,10 @@ import type React from "react";
 import {
   AlignLeft,
   Calendar,
-  CircleDot,
   Hash,
   Image as ImageIcon,
   ListCollapse,
+  Minus,
   QrCode,
   Signature,
   SquareCheck,
@@ -64,11 +64,11 @@ export const FIELD_DEFINITIONS: FieldDefinition[] = [
     defaultSize: { width: 220, height: 24 },
   },
   {
-    type: "radio",
-    label: "Nút chọn",
-    icon: <CircleDot />,
-    resizeMode: "none",
-    defaultSize: { width: 90, height: 24 },
+    type: "line",
+    label: "Đường kẻ",
+    icon: <Minus />,
+    resizeMode: "horizontal",
+    defaultSize: { width: 200, height: 1 },
   },
   {
     type: "checkbox",
@@ -96,7 +96,7 @@ export const FIELD_DEFINITIONS: FieldDefinition[] = [
     label: "Mã QR",
     icon: <QrCode />,
     resizeMode: "8-way",
-    defaultSize: { width: 100, height: 100 },
+    defaultSize: { width: 100, height: 1 },
   },
   {
     type: "image",

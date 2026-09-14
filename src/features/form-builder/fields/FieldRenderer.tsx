@@ -6,7 +6,7 @@ import { TextareaField } from "./textarea/TextareaField";
 import { NumberField } from "./number/NumberField";
 import { DateField } from "./date/DateField";
 import { SelectField } from "./select/SelectField";
-import { RadioField } from "./radio/RadioField";
+import { LineField } from "./line/LineField";
 import { CheckboxField } from "./checkbox/CheckboxField";
 import { SignatureField } from "./signature/SignatureField";
 import { QrCodeField } from "./qrcode/QrCodeField";
@@ -22,7 +22,7 @@ const fieldRegistry: Record<FieldType, FieldComponent> = {
   number: NumberField,
   date: DateField,
   select: SelectField,
-  radio: RadioField,
+  line: LineField,
   checkbox: CheckboxField,
   signature: SignatureField,
   qrcode: QrCodeField,
