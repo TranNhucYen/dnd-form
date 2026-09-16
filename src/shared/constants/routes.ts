@@ -12,6 +12,10 @@ export const ROUTES = {
   NOTIFICATIONS: "/notifications",
   SETTINGS: "/settings",
   ACCOUNT: "/account",
+
+  // Admin Routes
+  ADMIN_DASHBOARD: "/admin",
+  ADMIN_USERS: "/admin/users",
 } as const
 
 export const DYNAMIC_ROUTES = {
