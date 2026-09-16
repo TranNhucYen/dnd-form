@@ -1,0 +1,1 @@
+export const isMockMode = () => process.env.USE_MOCK_DATA !== 'false';

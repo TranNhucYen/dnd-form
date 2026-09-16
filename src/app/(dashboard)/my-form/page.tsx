@@ -1,7 +1,5 @@
-export default function MyForm() {
-    return (
-        <div>
-            <h1>MyForm</h1>
-        </div>
-    )
-}
+import MyFormList from '@/features/my-form/components/MyFormList'
+
+export default function MyFormPage() {
+  return <MyFormList />
+}
