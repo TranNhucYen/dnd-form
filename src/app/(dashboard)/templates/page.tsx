@@ -1,6 +1,5 @@
-import TemplateList from '@/features/templates/components/TemplateList'
+import List from '@/features/templates/components/List'
+
 export default function TemplatesPage() {
-  return (
-    <TemplateList />
-  )
+  return <List />
 }
