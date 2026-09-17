@@ -1,4 +1,4 @@
-import { TemplateDetail } from "@/features/templates/components/TemplateDetail"
+import { Detail } from '@/features/templates/components/Detail'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -6,5 +6,5 @@ interface PageProps {
 
 export default async function TemplateDetailPage({ params }: PageProps) {
   const { id } = await params
-  return <TemplateDetail id={id} />
+  return <Detail id={id} />
 }

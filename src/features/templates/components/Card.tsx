@@ -6,11 +6,11 @@ import { Download, Pencil, FileText } from "lucide-react"
 import Link from "next/link"
 import { Template, TemplatePricingType, TemplateStatus } from "../types/template.type"
 
-interface TemplateCardProps {
+export interface CardProps {
   template: Template
 }
 
-export function TemplateCard({ template }: TemplateCardProps) {
+export function Card({ template }: CardProps) {
   const isPaid = template.pricingType === TemplatePricingType.PAID
 
   const renderStatusBadge = () => {
@@ -129,7 +129,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   )
 }
 
-export function TemplateCardSkeleton() {
+export function CardSkeleton() {
   return (
     <div
       className="
@@ -176,3 +176,5 @@ export function TemplateCardSkeleton() {
   )
 }
 
+export const TemplateCard = Card
+export const TemplateCardSkeleton = CardSkeleton
