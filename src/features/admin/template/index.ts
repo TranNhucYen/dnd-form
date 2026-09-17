@@ -1,0 +1,6 @@
+export * from './types/template.type'
+export * from './components'
+export * from './hooks/useTemplate'
+export * from './services/template.service'
+export * from './actions/template.action'
+export * from './repositories'

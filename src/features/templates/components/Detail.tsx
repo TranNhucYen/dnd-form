@@ -20,15 +20,15 @@ import Link from "next/link"
 import { useTemplateDetail } from "../hooks/useTemplate"
 import { TemplatePricingType } from "../types/template.type"
 
-interface TemplateDetailProps {
+export interface DetailProps {
   id: string
 }
 
-export function TemplateDetail({ id }: TemplateDetailProps) {
+export function Detail({ id }: DetailProps) {
   const { template, isLoading, error, refetch } = useTemplateDetail(Number(id))
 
   if (isLoading) {
-    return <TemplateDetailSkeleton />
+    return <DetailSkeleton />
   }
 
   if (error || !template) {
@@ -242,7 +242,7 @@ export function TemplateDetail({ id }: TemplateDetailProps) {
   )
 }
 
-function TemplateDetailSkeleton() {
+export function DetailSkeleton() {
   return (
     <div className="w-full mx-auto flex flex-col gap-6">
       {/* Back button placeholder */}
@@ -307,3 +307,5 @@ function TemplateDetailSkeleton() {
   )
 }
 
+export const TemplateDetail = Detail
+export const TemplateDetailSkeleton = DetailSkeleton
