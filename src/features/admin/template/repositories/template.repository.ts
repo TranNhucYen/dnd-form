@@ -1,4 +1,5 @@
-import { AdminTemplate, Category, UpdateTemplateInput } from '../types/template.type'
+import { AdminTemplate, UpdateTemplateInput } from '../types/template.type'
+import { Category } from '../../category/types/category.type'
 
 export interface ITemplateRepository {
   getTemplates(): Promise<AdminTemplate[]>

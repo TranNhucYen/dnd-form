@@ -1,9 +1,4 @@
-export interface Category {
-  id: number
-  name: string
-  slug: string
-  createdAt?: string
-}
+import type { Category } from '../../category/types/category.type'
 
 export enum TemplateStatus {
   PENDING = 'pending',

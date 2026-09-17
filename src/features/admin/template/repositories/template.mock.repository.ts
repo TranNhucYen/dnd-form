@@ -1,19 +1,12 @@
 import { ITemplateRepository } from './template.repository'
 import {
   AdminTemplate,
-  Category,
   TemplateStatus,
   UpdateTemplateInput,
 } from '../types/template.type'
-
-export let mockCategories: Category[] = [
-  { id: 1, name: 'Khảo sát', slug: 'khao-sat', createdAt: '01/01/2026' },
-  { id: 2, name: 'Đăng ký', slug: 'dang-ky', createdAt: '01/01/2026' },
-  { id: 3, name: 'Đơn từ', slug: 'don-tu', createdAt: '01/01/2026' },
-  { id: 4, name: 'Đánh giá', slug: 'danh-gia', createdAt: '01/01/2026' },
-  { id: 5, name: 'Liên hệ', slug: 'lien-he', createdAt: '01/01/2026' },
-  { id: 6, name: 'Sự kiện', slug: 'su-kien', createdAt: '01/01/2026' },
-]
+import { Category } from '../../category/types/category.type'
+import { mockCategories } from '../../category/repositories/category.mock.repository'
+export { mockCategories }
 
 export let mockAdminTemplates: AdminTemplate[] = [
   {
