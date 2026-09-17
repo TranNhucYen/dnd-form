@@ -7,13 +7,15 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card'
-import { Users, LayoutDashboard, LayoutTemplate, Download } from 'lucide-react'
+import { Users, LayoutDashboard, LayoutTemplate, Download, ChartBarStacked } from 'lucide-react'
 import { mockAdminUsers } from '../user'
 import { mockAdminTemplates } from '../template'
+import { mockCategories } from '../category'
 
 export function AdminDashboardView() {
   const totalUsers = mockAdminUsers.length
   const totalTemplates = mockAdminTemplates.length
+  const totalCategories = mockCategories.length
   const totalDownloads = '4,508'
 
   return (
@@ -73,6 +75,25 @@ export function AdminDashboardView() {
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Biểu mẫu mẫu trong thư viện hệ thống
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/80 shadow-xs bg-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardDescription className="text-xs font-medium">
+              Tổng loại biểu mẫu
+            </CardDescription>
+            <div className="size-8 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+              <ChartBarStacked className="size-4" />
+            </div>
+          </CardHeader>
+          <CardContent className="pt-1">
+            <CardTitle className="text-2xl font-bold text-foreground">
+              {totalCategories}
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Danh mục loại biểu mẫu trong hệ thống
             </p>
           </CardContent>
         </Card>

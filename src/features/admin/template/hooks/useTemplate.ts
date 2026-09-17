@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   AdminTemplate,
-  Category,
   TemplateStatus,
   UpdateTemplateInput,
 } from '../types/template.type'
+import { Category } from '../../category/types/category.type'
+import { getCategoriesAction } from '../../category/actions/category.action'
 import {
-  getCategoriesAction,
   getTemplatesAction,
   updateTemplateAction,
 } from '../actions/template.action'

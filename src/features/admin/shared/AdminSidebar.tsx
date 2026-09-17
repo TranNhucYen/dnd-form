@@ -17,7 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/shared/constants/routes'
-import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate } from 'lucide-react'
+import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate, ChartBarStacked } from 'lucide-react'
 
 const adminNavItems = [
   {
@@ -34,6 +34,11 @@ const adminNavItems = [
     title: 'Quản lý form mẫu',
     url: ROUTES.ADMIN_TEMPLATES,
     icon: LayoutTemplate,
+  },
+  {
+    title: 'Quản lý loại biểu mẫu',
+    url: ROUTES.ADMIN_CATEGORIES,
+    icon: ChartBarStacked,
   },
 ]
 
