@@ -110,12 +110,12 @@ export function UserTable() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-5">
+    <div className="w-full h-full flex-1 min-h-0 flex flex-col gap-3">
       {/* Header */}
       <div
         className="
-          flex flex-col sm:flex-row items-start sm:items-center
-          justify-between gap-3 border-b pb-4"
+          shrink-0 flex flex-col sm:flex-row items-start sm:items-center
+          justify-between gap-3 border-b pb-3"
       >
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
@@ -151,11 +151,11 @@ export function UserTable() {
         </div>
       </div>
 
-      {/* Users Table Card */}
-      <Card className="border-border/80 shadow-xs overflow-hidden">
-        <CardContent className="p-0">
+      {/* Users Table Card (Tự động chiếm trọn chiều cao còn lại) */}
+      <Card className="flex-1 min-h-0 flex flex-col border-border/80 shadow-xs overflow-hidden">
+        <CardContent className="flex-1 min-h-0 p-0 overflow-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 z-10 bg-card">
               <TableRow className="text-xs hover:bg-transparent">
                 <TableHead className="h-11 px-4 w-28 font-bold text-foreground">ID</TableHead>
                 <TableHead className="h-11 px-4 font-bold text-foreground">Họ và tên</TableHead>
@@ -245,11 +245,11 @@ export function UserTable() {
       </Card>
 
       {/* Pagination Controls */}
-      {totalPages > 1 && (
+      {totalItems > 0 && (
         <div
           className="
-            flex flex-col sm:flex-row items-center
-            justify-between gap-3 pt-2 text-xs text-muted-foreground"
+            shrink-0 flex flex-col sm:flex-row items-center
+            justify-between gap-3 pt-1 text-xs text-muted-foreground"
         >
           <span>
             Hiển thị{' '}
