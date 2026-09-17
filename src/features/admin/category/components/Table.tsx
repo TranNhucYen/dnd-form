@@ -34,6 +34,7 @@ export function Table() {
     setSearchQuery,
     currentPage,
     setCurrentPage,
+    pageSize,
     totalPages,
     totalItems,
     createCategory,
@@ -62,12 +63,12 @@ export function Table() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-5">
+    <div className="w-full h-full flex-1 min-h-0 flex flex-col gap-3">
       {/* Tiêu đề trang và các nút tác vụ */}
       <div
         className="
-          flex flex-col sm:flex-row items-start sm:items-center
-          justify-between gap-3 border-b pb-4"
+          shrink-0 flex flex-col sm:flex-row items-start sm:items-center
+          justify-between gap-3 border-b pb-3"
       >
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
@@ -106,22 +107,11 @@ export function Table() {
         </div>
       </div>
 
-      {/* Thông tin số lượng bản ghi */}
-      <div className="flex items-center justify-between">
-        <div className="text-xs text-muted-foreground">
-          Hiển thị{' '}
-          <strong className="font-semibold text-foreground">
-            {paginatedCategories.length}
-          </strong>{' '}
-          / {totalItems} loại biểu mẫu
-        </div>
-      </div>
-
-      {/* Bảng danh sách loại biểu mẫu */}
-      <Card className="border-border/80 shadow-xs overflow-hidden">
-        <CardContent className="p-0">
+      {/* Bảng danh sách loại biểu mẫu (Tự động chiếm trọn chiều cao còn lại) */}
+      <Card className="flex-1 min-h-0 flex flex-col border-border/80 shadow-xs overflow-hidden">
+        <CardContent className="flex-1 min-h-0 p-0 overflow-auto">
           <UITable>
-            <TableHeader className="bg-muted/30">
+            <TableHeader className="sticky top-0 z-10 bg-muted/30 backdrop-blur-md">
               <TableRow className="text-xs hover:bg-transparent">
                 <TableHead className="h-9 px-3 w-20 font-bold text-foreground text-center">
                   ID
@@ -199,8 +189,28 @@ export function Table() {
 
       {/* Thanh chuyển trang (Pagination) */}
       {totalItems > 0 && (
-        <div className="flex justify-end pt-2">
-          <Pagination className="mx-0 w-auto justify-end">
+        <div
+          className="
+            shrink-0 flex flex-col sm:flex-row items-center
+            justify-between gap-3 pt-1 text-xs text-muted-foreground"
+        >
+          <span>
+            Hiển thị{' '}
+            <strong className="font-semibold text-foreground">
+              {totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+            </strong>
+            -
+            <strong className="font-semibold text-foreground">
+              {Math.min(currentPage * pageSize, totalItems)}
+            </strong>{' '}
+            trên tổng số{' '}
+            <strong className="font-semibold text-foreground">
+              {totalItems}
+            </strong>{' '}
+            loại biểu mẫu
+          </span>
+
+          <Pagination className="mx-0 w-auto">
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
