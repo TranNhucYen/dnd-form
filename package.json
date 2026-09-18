@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx --env-file=.env src/db/seed/init-system-data.ts"
   },
   "dependencies": {
     "@dnd-kit/react": "^0.5.0",
@@ -21,7 +23,9 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cn": "^0.2.6",
+    "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.21.0",
+    "mysql2": "^3.24.4",
     "next": "16.2.6",
     "next-themes": "^0.4.6",
     "qrcode.react": "^4.2.0",
@@ -39,11 +43,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5.9.3"
   }
 }
