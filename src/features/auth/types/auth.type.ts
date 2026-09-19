@@ -1,3 +1,5 @@
+import { UserRole, UserStatus } from '@/shared/types/user.type'
+
 export interface UserLogin {
   email: string
   password: string
@@ -11,8 +13,8 @@ export interface AuthUser {
   id: number
   fullName: string
   email: string
-  role: string
-  status: 'active' | 'blocked'
+  role: UserRole
+  status: UserStatus
 }
 
 export interface ActionResponse<T> {

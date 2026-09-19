@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ROUTES } from "@/shared/constants/routes"
+import { UserRole } from "@/shared/types/user.type"
 import { useLogin } from "../hooks/useLogin"
 
 export function LoginForm() {
@@ -21,7 +22,7 @@ export function LoginForm() {
     const user = await login({ email, password })
     if (user) {
 
-      if (user.role === "super_admin" || user.role === "admin") {
+      if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.ADMIN) {
         router.push(ROUTES.ADMIN_DASHBOARD)
       } else {
         router.push(ROUTES.HOME)

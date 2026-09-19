@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { authRepository } from "../repositories";
 import { AuthUser, UserLogin } from "../types/auth.type";
+import { UserStatus } from "@/shared/types/user.type";
 
 export const authService = {
   async login(userInfo: UserLogin): Promise<AuthUser> {
@@ -16,7 +17,7 @@ export const authService = {
       throw new Error("Email hoặc mật khẩu không chính xác");
     }
 
-    if (foundUser.status === "blocked") {
+    if (foundUser.status === UserStatus.BLOCKED) {
       throw new Error("Tài khoản đã bị khóa");
     }
 
