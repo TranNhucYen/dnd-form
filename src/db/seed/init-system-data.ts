@@ -1,7 +1,7 @@
 import { and, eq, inArray, or } from "drizzle-orm";
+import bcrypt from "bcrypt";
 import { db } from "..";
-import { permission, role, rolePermission } from "../schema";
-
+import { permission, role, rolePermission, user } from "../schema";
 
 // quyền áp dụng lên các đối tượng (user,template,form) trong hệ thống
 const permissionCode = {
@@ -118,12 +118,43 @@ async function rolePermissionSeed(tx: Transaction) {
   }
 }
 
+async function superAdminDataSeed(tx: Transaction) {
+  const [superAdminRole] = await tx
+    .select({ id: role.id })
+    .from(role)
+    .where(eq(role.roleCode, 'super_admin'));
+
+  if (!superAdminRole) {
+    throw new Error('Không tìm thấy role super_admin');
+  }
+
+  const fullName = process.env.SUPER_ADMIN_FULL_NAME;
+  const email = process.env.SUPER_ADMIN_EMAIL;
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+
+  if (!fullName || !email || !password) {
+    throw new Error('Không đủ thông tin để seed SuperAdmin');
+  }
+
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  await tx.insert(user).ignore().values({
+    fullName,
+    email,
+    password: hashedPassword,
+    roleId: superAdminRole.id,
+    status: 'active',
+  });
+}
+
 async function main() {
   console.log('---Đang khởi tạo system data---');
   await db.transaction(async (tx) => {
     await roleSeed(tx);
     await permissionSeed(tx);
     await rolePermissionSeed(tx);
+    await superAdminDataSeed(tx);
   });
 
   console.log('---Khởi tạo system data thành công---');
