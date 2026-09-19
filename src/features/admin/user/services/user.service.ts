@@ -2,6 +2,7 @@ import { User, CreateUserInput, UserStatus, UserRole } from '../types/user.type'
 import { userRepository } from '../repositories'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
+import { createUserValidation, updateUserStatusValidation } from '../validation/user.validation'
 
 export const userService = {
   async getUsers(): Promise<User[]> {
@@ -17,6 +18,11 @@ export const userService = {
   },
 
   async updateUserStatus(id: number, status: UserStatus): Promise<User | null> {
+    const parsed = updateUserStatusValidation.safeParse({ id, status })
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0].message)
+    }
+
     const existingUser = await userRepository.getUserById(id)
     if (!existingUser) {
       throw new Error('Người dùng không tồn tại')
@@ -30,20 +36,22 @@ export const userService = {
   },
 
   async createUser(input: CreateUserInput): Promise<User> {
-    if (!input.fullName?.trim() || !input.email?.trim()) {
-      throw new Error('Họ tên và email không được để trống')
+    const parsed = createUserValidation.safeParse(input)
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0].message)
     }
 
-    const existingUser = await userRepository.getUserByEmail(input.email)
+    const validData = parsed.data
+
+    const existingUser = await userRepository.getUserByEmail(validData.email)
     if (existingUser) {
       throw new Error('Email này đã tồn tại')
     }
 
-    // tạo random password bằng crypt
-    const plainPassword = input.password?.trim() || crypto.randomBytes(8).toString('hex')
+    const plainPassword = validData.password?.trim() || crypto.randomBytes(8).toString('hex')
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(plainPassword, saltRounds)
-    const created = await userRepository.createUser({ ...input, password: hashedPassword })
+    const created = await userRepository.createUser({ ...validData, password: hashedPassword })
     if (!created) {
       throw new Error('Tạo người dùng thất bại')
     }
