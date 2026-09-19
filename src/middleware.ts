@@ -36,6 +36,49 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  const userRoutePrefixes = [
+    ROUTES.HOME,
+    ROUTES.MY_FORM,
+    ROUTES.EDITOR,
+    ROUTES.TEMPLATES,
+    ROUTES.COMMUNITY,
+    ROUTES.NOTIFICATIONS,
+    ROUTES.SETTINGS,
+    ROUTES.ACCOUNT,
+  ]
+
+  const isUserRoute =
+    pathname === '/' ||
+    userRoutePrefixes.some((route) => pathname === route || pathname.startsWith(route + '/'))
+
+  if (isUserRoute) {
+    if (!user) {
+      const loginUrl = new URL(ROUTES.LOGIN, request.url)
+      loginUrl.searchParams.set('callbackUrl', pathname)
+
+      const response = NextResponse.redirect(loginUrl)
+      if (token) {
+        response.cookies.delete('auth_token')
+      }
+      return response
+    }
+
+    // kiểm tra trạng thái tài khoản xem active hay blocked
+    if (user.status === UserStatus.BLOCKED) {
+      const loginUrl = new URL(ROUTES.LOGIN, request.url)
+      loginUrl.searchParams.set('error', 'blocked')
+
+      const response = NextResponse.redirect(loginUrl)
+      response.cookies.delete('auth_token')
+      return response
+    }
+
+    // Tài khoản không phải phải user thường thì chuyển hướng qua trang admin
+    if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.ADMIN) {
+      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, request.url))
+    }
+  }
+
   if (pathname === ROUTES.LOGIN || pathname === ROUTES.REGISTER) {
     if (user && user.status !== UserStatus.BLOCKED) {
       const target =
@@ -50,5 +93,18 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login', '/register'],
+  matcher: [
+    '/admin/:path*',
+    '/login',
+    '/register',
+    '/',
+    '/home/:path*',
+    '/my-form/:path*',
+    '/editor/:path*',
+    '/templates/:path*',
+    '/community/:path*',
+    '/notifications/:path*',
+    '/settings/:path*',
+    '/account/:path*',
+  ],
 }
