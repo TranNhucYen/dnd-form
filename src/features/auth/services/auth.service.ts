@@ -2,17 +2,18 @@ import bcrypt from "bcrypt";
 import { authRepository } from "../repositories";
 import { AuthUser, UserLogin } from "../types/auth.type";
 import { UserStatus } from "@/shared/types/user.type";
+import { loginValidation } from "../validation/auth.validation";
 
 export const authService = {
   async login(userInfo: UserLogin): Promise<AuthUser> {
-    const email = userInfo.email?.trim().toLowerCase();
-    const password = userInfo.password;
-
-    if (!email || !password) {
-      throw new Error("Email và mật khẩu không được để trống");
+    const parsed = loginValidation.safeParse(userInfo);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0].message);
     }
 
-    const foundUser = await authRepository.getUserByEmail(email);
+    const { email, password } = parsed.data;
+
+    const foundUser = await authRepository.getUserByEmail(email.toLowerCase());
     if (!foundUser) {
       throw new Error("Email hoặc mật khẩu không chính xác");
     }
