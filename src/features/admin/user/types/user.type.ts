@@ -9,9 +9,9 @@ export enum UserStatus {
   BLOCKED = 'blocked',
 }
 
-export interface AdminUser {
+export interface User {
   id: number
-  name: string
+  fullName: string
   email: string
   role: UserRole
   status: UserStatus
@@ -20,8 +20,9 @@ export interface AdminUser {
 }
 
 export interface CreateUserInput {
-  name: string
+  fullName: string
   email: string
   role: UserRole
-  status?: UserStatus
+  status: UserStatus
+  password?: string
 }
