@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifyJwtToken } from '@/lib/jwt'
 import { ROUTES } from '@/shared/constants/routes'
+import { UserRole, UserStatus } from '@/shared/types/user.type'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -21,7 +22,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // kiểm tra trạng thái tài khoản xem active hay blocked
-    if (user.status === 'blocked') {
+    if (user.status === UserStatus.BLOCKED) {
       const loginUrl = new URL(ROUTES.LOGIN, request.url)
       loginUrl.searchParams.set('error', 'blocked')
 
@@ -30,15 +31,15 @@ export async function middleware(request: NextRequest) {
       return response
     }
     // kiểm tra quyền để vào trang admin
-    if (user.role !== 'super_admin' && user.role !== 'admin') {
+    if (user.role !== UserRole.SUPER_ADMIN && user.role !== UserRole.ADMIN) {
       return NextResponse.redirect(new URL(ROUTES.HOME, request.url))
     }
   }
 
   if (pathname === ROUTES.LOGIN || pathname === ROUTES.REGISTER) {
-    if (user && user.status !== 'blocked') {
+    if (user && user.status !== UserStatus.BLOCKED) {
       const target =
-        user.role === 'super_admin' || user.role === 'admin'
+        user.role === UserRole.SUPER_ADMIN || user.role === UserRole.ADMIN
           ? ROUTES.ADMIN_DASHBOARD
           : ROUTES.HOME
       return NextResponse.redirect(new URL(target, request.url))

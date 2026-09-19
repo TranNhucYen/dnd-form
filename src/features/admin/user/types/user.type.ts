@@ -1,13 +1,5 @@
-export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
-  ADMIN = 'admin',
-  USER = 'user',
-}
-
-export enum UserStatus {
-  ACTIVE = 'active',
-  BLOCKED = 'blocked',
-}
+export { UserRole, UserStatus } from '@/shared/types/user.type'
+import { UserRole, UserStatus } from '@/shared/types/user.type'
 
 export interface User {
   id: number
