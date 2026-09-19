@@ -8,7 +8,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Users, LayoutDashboard, LayoutTemplate, Download, ChartBarStacked } from 'lucide-react'
-import { mockAdminUsers } from '../user'
+import { mockAdminUsers } from '../user/repositories/user.mock.repository'
 import { mockAdminTemplates } from '../template'
 import { mockCategories } from '../category'
 

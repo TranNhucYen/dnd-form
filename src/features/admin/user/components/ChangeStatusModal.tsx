@@ -12,10 +12,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Loader2 } from 'lucide-react'
-import { AdminUser, UserStatus } from '../types/user.type'
+import { User, UserStatus } from '../types/user.type'
 
 interface ChangeStatusModalProps {
-  user: AdminUser | null
+  user: User | null
   newStatus: UserStatus | null
   open: boolean
   onOpenChange: (open: boolean) => void
