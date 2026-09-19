@@ -1,18 +1,37 @@
 "use client"
 
-import { useState, type FormEvent } from 'react'
+import React, { useState } from 'react'
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ROUTES } from "@/shared/constants/routes"
+import { useRegister } from "../hooks/useRegister"
 
 export function RegisterForm() {
   const router = useRouter()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
+
+  const { register, isLoading, error } = useRegister()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.SubmitEvent) => {
+    e.preventDefault()
+
+    const user = await register(formData)
+    if (user) {
+      router.push(ROUTES.HOME)
+    }
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -21,16 +40,25 @@ export function RegisterForm() {
           <h1 className="text-2xl font-bold tracking-tight">Tạo tài khoản</h1>
           <p className="text-sm text-muted-foreground">Nhập thông tin bên dưới để tạo tài khoản</p>
         </div>
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+
+        {error && (
+          <div className="rounded-md bg-destructive/15 p-3 text-xs font-medium text-destructive">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3">
             <div className="space-y-1.5">
               <label className="text-sm font-medium">Họ và tên</label>
               <Input
                 type="text"
+                name="fullName"
                 placeholder="Nguyễn Văn A"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={formData.fullName}
+                onChange={handleChange}
                 required
+                disabled={isLoading}
                 className="h-9.5 px-3"
               />
             </div>
@@ -38,10 +66,12 @@ export function RegisterForm() {
               <label className="text-sm font-medium">Email</label>
               <Input
                 type="email"
+                name="email"
                 placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 required
+                disabled={isLoading}
                 className="h-9.5 px-3"
               />
             </div>
@@ -49,10 +79,25 @@ export function RegisterForm() {
               <label className="text-sm font-medium">Mật khẩu</label>
               <Input
                 type="password"
+                name="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 required
+                disabled={isLoading}
+                className="h-9.5 px-3"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Xác nhận mật khẩu</label>
+              <Input
+                type="password"
+                name="confirmPassword"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                disabled={isLoading}
                 className="h-9.5 px-3"
               />
             </div>
