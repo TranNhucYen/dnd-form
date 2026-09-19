@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Sidebar,
   SidebarContent,
@@ -14,10 +15,21 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/shared/constants/routes'
-import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate, ChartBarStacked } from 'lucide-react'
+import { logoutAction } from '@/features/auth/actions/auth.action'
+import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate, ChartBarStacked, LogOut, Loader2 } from 'lucide-react'
 
 const adminNavItems = [
   {
@@ -44,6 +56,21 @@ const adminNavItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [logoutOpen, setLogoutOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await logoutAction()
+      setLogoutOpen(false)
+      router.push(ROUTES.LOGIN)
+      router.refresh()
+    } catch {
+      setIsLoggingOut(false)
+    }
+  }
 
   return (
     <Sidebar>
@@ -101,6 +128,16 @@ export function AdminSidebar() {
                   </SidebarMenuItem>
                 )
               })}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setLogoutOpen(true)}
+                  className="flex items-center gap-3 px-3 py-6 rounded-md transition-colors hover:bg-destructive/10 hover:text-destructive text-muted-foreground cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Đăng xuất</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -117,6 +154,49 @@ export function AdminSidebar() {
           <span>Về trang người dùng</span>
         </Link>
       </SidebarFooter>
+
+      <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  'size-8 rounded-full bg-destructive/10 text-destructive',
+                  'flex items-center justify-center'
+                )}
+              >
+                <LogOut className="size-4" />
+              </div>
+              <AlertDialogTitle className="text-base">
+                Xác nhận đăng xuất
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-xs leading-relaxed text-muted-foreground pt-1">
+              Bạn có chắc chắn muốn đăng xuất khỏi tài khoản quản trị? Bạn sẽ cần đăng nhập lại để tiếp tục quản lý hệ thống.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoggingOut} className="text-xs">
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleConfirmLogout}
+              disabled={isLoggingOut}
+              className="text-xs"
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin mr-1.5" />
+                  Đang đăng xuất...
+                </>
+              ) : (
+                'Đăng xuất'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sidebar>
   )
 }
