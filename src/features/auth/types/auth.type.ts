@@ -7,6 +7,7 @@ export interface UserLogin {
 
 export interface UserRegister extends UserLogin {
   fullName: string
+  confirmPassword?: string
 }
 
 export interface AuthUser {
