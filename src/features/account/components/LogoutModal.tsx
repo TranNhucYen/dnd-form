@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 import { LogOut, Loader2 } from 'lucide-react'
+import { logoutAction } from '@/features/auth/actions/auth.action'
+import { ROUTES } from '@/shared/constants/routes'
 
 interface LogoutModalProps {
   open: boolean
@@ -24,12 +26,16 @@ export function LogoutModal({ open, onOpenChange }: LogoutModalProps) {
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
     setIsLoggingOut(true)
-    setTimeout(() => {
+    try {
+      await logoutAction()
       onOpenChange(false)
-      router.push('/login')
-    }, 600)
+      router.push(ROUTES.LOGIN)
+      router.refresh()
+    } catch {
+      setIsLoggingOut(false)
+    }
   }
 
   return (
