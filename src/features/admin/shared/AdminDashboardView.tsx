@@ -10,7 +10,7 @@ import {
 import { Users, LayoutDashboard, LayoutTemplate, Download, ChartBarStacked } from 'lucide-react'
 import { mockAdminUsers } from '../user/repositories/user.mock.repository'
 import { mockAdminTemplates } from '../template'
-import { mockCategories } from '../category'
+import { mockCategories } from '../category/repositories/category.mock.repository'
 
 export function AdminDashboardView() {
   const totalUsers = mockAdminUsers.length

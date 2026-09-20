@@ -24,8 +24,8 @@ export function useCategory(initialPageSize = 5) {
     try {
       const data = await getCategoriesAction()
       setCategories(data)
-    } catch {
-      setError('Không thể tải danh sách loại biểu mẫu.')
+    } catch (err: any) {
+      setError(err?.message || 'Không thể tải danh sách loại biểu mẫu.')
     } finally {
       setIsLoading(false)
     }
