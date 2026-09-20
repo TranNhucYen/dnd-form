@@ -64,11 +64,12 @@ export function Modal({
         await onSave(trimmed)
       }
       handleClose()
-    } catch {
+    } catch (err: any) {
       setErrorMessage(
-        isEditMode
-          ? 'Có lỗi xảy ra khi cập nhật tên loại biểu mẫu'
-          : 'Có lỗi xảy ra khi tạo loại biểu mẫu'
+        err?.message ||
+          (isEditMode
+            ? 'Có lỗi xảy ra khi cập nhật tên loại biểu mẫu'
+            : 'Có lỗi xảy ra khi tạo loại biểu mẫu')
       )
     } finally {
       setIsSubmitting(false)

@@ -21,11 +21,17 @@ export const categoryMockRepository: ICategoryRepository = {
     return found ? { ...found } : null
   },
 
+  async getCategoryBySlug(slug: string): Promise<Category | null> {
+    const found = mockCategories.find((c) => c.slug === slug.trim())
+    return found ? { ...found } : null
+  },
+
   async createCategory(data: CreateCategoryInput): Promise<Category> {
     const newId =
       mockCategories.length > 0
         ? Math.max(...mockCategories.map((c) => c.id)) + 1
         : 1
+
     const today = new Date().toLocaleDateString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
