@@ -2,13 +2,14 @@ import { DotDecoration } from "../shared/DotDecoration";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
 import type { FieldProps, DateFieldData } from "../types/field.types";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function DateField({
   data,
   width,
   onDataChange,
 }: FieldProps<DateFieldData> = {}) {
-  const location = data?.label ?? "";
+  const location = data?.label ?? DEFAULT_FIELD_DATA.date.label;
   const {
     value: locationText,
     setValue: setLocationText,

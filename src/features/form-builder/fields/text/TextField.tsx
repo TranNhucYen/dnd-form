@@ -1,12 +1,13 @@
 import type { FieldProps, TextFieldData } from "../types/field.types";
 import { DottedFieldLine } from "../shared/DottedFieldLine";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function TextField({
   data,
   width,
   onDataChange,
 }: FieldProps<TextFieldData> = {}) {
-  const currentLabel = data?.label ?? "Họ và tên";
+  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.text.label;
   const currentValue = data?.value;
 
   return (

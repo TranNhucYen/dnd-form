@@ -5,8 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
-
-const DEFAULT_TEXTAREA_CONTENT = "<p>Đoạn văn</p>";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function TextareaField({
   id,
@@ -28,7 +27,7 @@ export function TextareaField({
 
   const editor = useEditor({
     extensions: [StarterKit, Underline],
-    content: data?.content ?? data?.html ?? DEFAULT_TEXTAREA_CONTENT,
+    content: data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.textarea.html,
     immediatelyRender: false,
     editable: false,
     onUpdate: ({ editor }) => {

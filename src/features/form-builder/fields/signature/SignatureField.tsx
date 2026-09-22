@@ -6,6 +6,8 @@ import { SignatureModal } from "./SignatureModal";
 import { PenLine, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { DEFAULT_FIELD_DATA } from "../../constants";
+
 export function SignatureField({
   data,
   onDataChange,
@@ -15,18 +17,20 @@ export function SignatureField({
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const titleEdit = useInlineEdit(data?.label ?? "Người làm đơn", (newTitle) => {
+  const defaultSig = DEFAULT_FIELD_DATA.signature;
+
+  const titleEdit = useInlineEdit(data?.label ?? defaultSig.label, (newTitle) => {
     onDataChange?.({ label: newTitle });
   });
   const noteEdit = useInlineEdit(
-    data?.subTitle ?? "(Ký, ghi rõ họ tên)",
+    data?.subTitle ?? defaultSig.subTitle ?? "",
     (newNote) => {
       onDataChange?.({ subTitle: newNote });
     },
   );
 
   const nameEdit = useInlineEdit(
-    data?.signerName ?? "Trần Văn A",
+    data?.signerName ?? defaultSig.signerName ?? "",
     (newName) => {
       onDataChange?.({ signerName: newName });
     },
