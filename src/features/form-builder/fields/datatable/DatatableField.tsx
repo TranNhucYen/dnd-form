@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, DatatableFieldData } from "../types/field.types";
 import StarterKit from "@tiptap/starter-kit";
 import { TableKit } from "@tiptap/extension-table";
 import Underline from "@tiptap/extension-underline";
@@ -8,7 +8,26 @@ import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import "./datatable.css";
 
-export function DatatableField({ id }: FieldProps = {}) {
+const DEFAULT_TABLE_CONTENT = `
+  <table>
+    <tbody>
+      <tr>
+        <th>Cột 1</th>
+        <th>Cột 2</th>
+      </tr>
+      <tr>
+        <td>Hàng 1</td>
+        <td>Hàng 2</td>
+      </tr>
+    </tbody>
+  </table>
+`;
+
+export function DatatableField({
+  id,
+  data,
+  onDataChange,
+}: FieldProps<DatatableFieldData> = {}) {
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
@@ -38,20 +57,13 @@ export function DatatableField({ id }: FieldProps = {}) {
     ],
     immediatelyRender: false,
     editable: false,
-    content: `
-      <table>
-        <tbody>
-          <tr>
-            <th>Cột 1</th>
-            <th>Cột 2</th>
-          </tr>
-          <tr>
-            <td>Hàng 1</td>
-            <td>Hàng 2</td>
-          </tr>
-        </tbody>
-      </table>
-    `,
+    content: data?.content ?? data?.html ?? DEFAULT_TABLE_CONTENT,
+    onUpdate: ({ editor }) => {
+      onDataChange?.({
+        content: editor.getJSON(),
+        html: editor.getHTML(),
+      });
+    },
     editorProps: {
       handleKeyDown: (_, event) => {
         if (event.key === "Escape") {

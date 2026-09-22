@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import type { FieldProps, TextareaFieldData } from "../types/field.types";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+
+const DEFAULT_TEXTAREA_CONTENT = "<p>Đoạn văn</p>";
 
 export function TextareaField({
   id,
@@ -24,12 +27,15 @@ export function TextareaField({
   }, [isFieldSelected, isEditing]);
 
   const editor = useEditor({
-    extensions: [StarterKit],
-    content: data?.value ?? "<p>Đoạn văn</p>",
+    extensions: [StarterKit, Underline],
+    content: data?.content ?? data?.html ?? DEFAULT_TEXTAREA_CONTENT,
     immediatelyRender: false,
     editable: false,
     onUpdate: ({ editor }) => {
-      onDataChange?.({ value: editor.getHTML() });
+      onDataChange?.({
+        content: editor.getJSON(),
+        html: editor.getHTML(),
+      });
     },
     editorProps: {
       attributes: {
