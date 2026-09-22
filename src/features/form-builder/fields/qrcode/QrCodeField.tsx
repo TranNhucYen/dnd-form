@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, QrCodeFieldData } from "../types/field.types";
 import { QrCodeModal } from "./QrCodeModal";
 
-export function QrCodeField({ value }: FieldProps = {}) {
-  const [qrValue, setQrValue] = useState(value || "https://example.com");
+export function QrCodeField({
+  data,
+  onDataChange,
+}: FieldProps<QrCodeFieldData> = {}) {
+  const initialValue = data?.value ?? "https://example.com";
+  const [qrValue, setQrValue] = useState(initialValue);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (value !== undefined) {
-      setQrValue(value || "https://example.com");
+    if (data?.value !== undefined) {
+      setQrValue(data.value || "https://example.com");
     }
-  }, [value]);
+  }, [data?.value]);
+
+  const handleSave = (newValue: string) => {
+    setQrValue(newValue);
+    onDataChange?.({ value: newValue });
+  };
 
   return (
     <>
@@ -31,7 +40,7 @@ export function QrCodeField({ value }: FieldProps = {}) {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         value={qrValue}
-        onSave={setQrValue}
+        onSave={handleSave}
       />
     </>
   );

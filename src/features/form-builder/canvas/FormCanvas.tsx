@@ -32,6 +32,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
 
   const effectiveDimensions = useEffectivePageDimensions();
   const margins = useFormBuilderStore((state) => state.margins);
+  const updateFieldData = useFormBuilderStore((state) => state.updateFieldData);
 
   const internalSize = {
     width: toInternalUnit(effectiveDimensions.width),
@@ -152,6 +153,8 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
                 id={field.id}
                 width={field.width}
                 height={field.height}
+                data={field.data}
+                onDataChange={(patch) => updateFieldData(field.id, patch)}
               />
             </FormFieldShell>
           );

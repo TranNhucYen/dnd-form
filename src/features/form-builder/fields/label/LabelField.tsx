@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, LabelFieldData } from "../types/field.types";
 import { TextareaOverlay } from "../shared/TextareaOverlay";
 
-export function LabelField({ value, label }: FieldProps = {}) {
-  const initialText = value ?? label ?? "label";
+export function LabelField({
+  data,
+  onDataChange,
+}: FieldProps<LabelFieldData> = {}) {
+  const initialText = data?.value ?? "Nhãn";
   const [text, setText] = useState(initialText);
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,7 +48,10 @@ export function LabelField({ value, label }: FieldProps = {}) {
           <TextareaOverlay
             value={text}
             onChange={setText}
-            onSubmit={() => setIsEditing(false)}
+            onSubmit={() => {
+              setIsEditing(false);
+              onDataChange?.({ value: text });
+            }}
             onCancel={() => {
               setText(initialText);
               setIsEditing(false);
@@ -57,3 +63,4 @@ export function LabelField({ value, label }: FieldProps = {}) {
     </div>
   );
 }
+

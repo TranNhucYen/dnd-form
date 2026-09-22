@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, TextareaFieldData } from "../types/field.types";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 
-export function TextareaField({ id }: FieldProps = {}) {
+export function TextareaField({
+  id,
+  data,
+  onDataChange,
+}: FieldProps<TextareaFieldData> = {}) {
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
@@ -21,9 +25,12 @@ export function TextareaField({ id }: FieldProps = {}) {
 
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "<p>Đoạn văn</p>",
+    content: data?.value ?? "<p>Đoạn văn</p>",
     immediatelyRender: false,
     editable: false,
+    onUpdate: ({ editor }) => {
+      onDataChange?.({ value: editor.getHTML() });
+    },
     editorProps: {
       attributes: {
         class: "h-full w-full outline-none cursor-text select-text",
