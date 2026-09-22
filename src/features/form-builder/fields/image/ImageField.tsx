@@ -1,9 +1,12 @@
 import { useRef, useState } from "react";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, ImageFieldData } from "../types/field.types";
 import { Image as ImageIcon } from "lucide-react";
 
-export function ImageField({}: FieldProps = {}) {
-  const [url, setUrl] = useState('');
+export function ImageField({
+  data,
+  onDataChange,
+}: FieldProps<ImageFieldData> = {}) {
+  const [url, setUrl] = useState(data?.value ?? "");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -11,6 +14,7 @@ export function ImageField({}: FieldProps = {}) {
     if (file) {
       const newUrl = URL.createObjectURL(file);
       setUrl(newUrl);
+      onDataChange?.({ value: newUrl });
     }
     event.target.value = "";
   };
