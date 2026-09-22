@@ -6,22 +6,8 @@ import { TableKit } from "@tiptap/extension-table";
 import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 import "./datatable.css";
-
-const DEFAULT_TABLE_CONTENT = `
-  <table>
-    <tbody>
-      <tr>
-        <th>Cột 1</th>
-        <th>Cột 2</th>
-      </tr>
-      <tr>
-        <td>Hàng 1</td>
-        <td>Hàng 2</td>
-      </tr>
-    </tbody>
-  </table>
-`;
 
 export function DatatableField({
   id,
@@ -57,7 +43,8 @@ export function DatatableField({
     ],
     immediatelyRender: false,
     editable: false,
-    content: data?.content ?? data?.html ?? DEFAULT_TABLE_CONTENT,
+    content:
+      data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.datatable.html,
     onUpdate: ({ editor }) => {
       onDataChange?.({
         content: editor.getJSON(),

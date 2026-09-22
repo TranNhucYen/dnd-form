@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { FieldProps, LabelFieldData } from "../types/field.types";
 import { TextareaOverlay } from "../shared/TextareaOverlay";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function LabelField({
   data,
   onDataChange,
 }: FieldProps<LabelFieldData> = {}) {
-  const initialText = data?.value ?? "Nhãn";
+  const initialText = data?.value ?? DEFAULT_FIELD_DATA.label.value;
   const [text, setText] = useState(initialText);
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);

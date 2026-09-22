@@ -59,50 +59,6 @@ export interface FormBuilderState {
 }
 
 
-// Tạm thời dùng làm giá trị mặc định cho data (label,value,...) các field
-function createDefaultFieldData(type: FieldType): FieldData | undefined {
-  const defaultLabel = FIELD_DEFINITIONS_MAP[type]?.label;
-  switch (type) {
-    case "label":
-      return { value: defaultLabel };
-    case "text":
-      return { label: defaultLabel, value: "" };
-    case "number":
-      return { label: defaultLabel, value: undefined };
-    case "select":
-      return {
-        label: defaultLabel,
-        options: ["Lựa chọn 1", "Lựa chọn 2"],
-        value: undefined,
-      };
-    case "date":
-      return { label: "", value: "24/08/2026" };
-    case "checkbox":
-      return { label: defaultLabel ?? "Hộp kiểm", checked: false };
-    case "line":
-      return {};
-    case "qrcode":
-      return { value: "https://example.com" };
-    case "textarea":
-      return { html: "<p>Đoạn văn</p>" };
-    case "signature":
-      return {
-        label: "Người làm đơn",
-        subTitle: "(Ký, ghi rõ họ tên)",
-        signerName: "Trần Văn A",
-        value: undefined,
-      };
-    case "image":
-      return { value: undefined };
-    case "datatable":
-      return {
-        html: `<table><tbody><tr><th>Cột 1</th><th>Cột 2</th></tr><tr><td>Hàng 1</td><td>Hàng 2</td></tr></tbody></table>`,
-      };
-    default:
-      return undefined;
-  }
-}
-
 export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   pageSizePreset: "A4",
   orientation: "PORTRAIT",
@@ -136,15 +92,15 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   selectAllFields: () => { },
 
   addField: (type, coordinates) => {
-    const defaultSize = FIELD_DEFINITIONS_MAP[type]?.defaultSize;
+    const def = FIELD_DEFINITIONS_MAP[type];
     const newField: CanvasField = {
       id: globalThis.crypto.randomUUID(),
       type,
       ...coordinates,
-      width: defaultSize?.width,
-      height: defaultSize?.height,
-      data: createDefaultFieldData(type) as any,
-    };
+      width: def?.defaultSize?.width,
+      height: def?.defaultSize?.height,
+      data: def?.defaultData ? structuredClone(def.defaultData) : undefined,
+    } as CanvasField;
 
     set((state) => ({
       fields: [...state.fields, newField],
