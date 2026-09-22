@@ -1,3 +1,5 @@
+import type { JSONContent } from "@tiptap/react";
+
 export type FieldType =
   | "label"
   | "text"
@@ -64,7 +66,8 @@ export type QrCodeFieldData = {
 };
 
 export type TextareaFieldData = {
-  value?: string;
+  content?: JSONContent;
+  html?: string;
 };
 
 export type SignatureFieldData = {
@@ -79,7 +82,8 @@ export type ImageFieldData = {
 };
 
 export type DatatableFieldData = {
-  [key: string]: unknown;
+  content?: JSONContent;
+  html?: string;
 };
 
 export type FieldDataMap = {

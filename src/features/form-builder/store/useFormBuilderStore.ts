@@ -84,7 +84,7 @@ function createDefaultFieldData(type: FieldType): FieldData | undefined {
     case "qrcode":
       return { value: "https://example.com" };
     case "textarea":
-      return { value: "<p>Đoạn văn</p>" };
+      return { html: "<p>Đoạn văn</p>" };
     case "signature":
       return {
         label: "Người làm đơn",
@@ -95,7 +95,9 @@ function createDefaultFieldData(type: FieldType): FieldData | undefined {
     case "image":
       return { value: undefined };
     case "datatable":
-      return {};
+      return {
+        html: `<table><tbody><tr><th>Cột 1</th><th>Cột 2</th></tr><tr><td>Hàng 1</td><td>Hàng 2</td></tr></tbody></table>`,
+      };
     default:
       return undefined;
   }
@@ -237,7 +239,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         id: globalThis.crypto.randomUUID(),
         x: target.x + 10,
         y: target.y + 10,
-        data: target.data ? { ...target.data } : undefined,
+        data: target.data ? structuredClone(target.data) : undefined,
       } as CanvasField;
 
       return {
@@ -279,7 +281,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         x: state.clipboardField.x + offset.x,
         y: state.clipboardField.y + offset.y,
         data: state.clipboardField.data
-          ? { ...state.clipboardField.data }
+          ? structuredClone(state.clipboardField.data)
           : undefined,
       } as CanvasField;
 
