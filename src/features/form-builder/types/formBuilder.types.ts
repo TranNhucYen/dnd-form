@@ -1,5 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import type { PagePresetKey } from "../constants/form.constants";
+import type { InternalUnit } from "../domain/units";
 
 export type { PagePresetKey };
 
@@ -141,14 +142,44 @@ export interface FormBuilderSnapshot {
   fields: CanvasField[];
   selectedFieldId: string | null;
 }
+// ==========================================================================================
+// Type của schema lưu ở DB (toàn bộ field, margins và page dimensions đều dùng InternalUnit số nguyên)
+// ==========================================================================================
+export type BaseSchemaField<T extends FieldType = FieldType> = {
+  id: string;
+  type: T;
+  x: InternalUnit;
+  y: InternalUnit;
+  width?: InternalUnit;
+  height?: InternalUnit;
+  style?: FieldStyle;
+  data?: FieldDataMap[T];
+};
 
-// Cấu trúc object sẽ lưu vào db kiểu json
+export type SchemaField = {
+  [K in FieldType]: BaseSchemaField<K>;
+}[FieldType];
+
+export interface SchemaPageMargins {
+  top: InternalUnit;
+  bottom: InternalUnit;
+  left: InternalUnit;
+  right: InternalUnit;
+}
+
+export interface SchemaPageDimensions {
+  width: InternalUnit;
+  height: InternalUnit;
+}
+
+// Cấu trúc JSON lưu ở DB (toàn bộ x, y, w, h, margins và dimensions đều là InternalUnit)
 export interface FormSchemaJson {
   page: {
-    preset: string;
+    preset: PagePresetKey;
     orientation: Orientation;
-    margins: PageMargins;
-    dimensions: PageSize;
+    margins: SchemaPageMargins;
+    dimensions: SchemaPageDimensions;
   };
-  fields: CanvasField[];
+  fields: SchemaField[];
 }
+
