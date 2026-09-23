@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { FIELD_DEFINITIONS_MAP } from "../constants/fields.config";
 import { PAGE_PRESETS } from "../constants/form.constants";
+import { exportFormSchema } from "../domain/transformers";
 import type { FieldResizeChange } from "../canvas/types/canvas.types";
 import type {
   CanvasField,
@@ -388,18 +389,16 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   getFormSchema: () => {
     const state = get();
-    return {
-      page: {
-        preset: state.pageSizePreset,
-        orientation: state.orientation,
-        margins: state.margins,
-        dimensions: getEffectivePageDimensions(
-          state.pageSizePreset,
-          state.orientation,
-        ),
-      },
+    return exportFormSchema({
+      pageSizePreset: state.pageSizePreset,
+      orientation: state.orientation,
+      margins: state.margins,
+      dimensions: getEffectivePageDimensions(
+        state.pageSizePreset,
+        state.orientation,
+      ),
       fields: state.fields,
-    };
+    });
   },
 }));
 
