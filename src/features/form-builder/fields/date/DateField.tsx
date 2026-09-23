@@ -1,13 +1,15 @@
 import { DotDecoration } from "../shared/DotDecoration";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, DateFieldData } from "../types/field.types";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function DateField({
-  label = "",
-  value = "24/08/2026",
+  data,
   width,
-}: FieldProps = {}) {
+  onDataChange,
+}: FieldProps<DateFieldData> = {}) {
+  const location = data?.label ?? DEFAULT_FIELD_DATA.date.label;
   const {
     value: locationText,
     setValue: setLocationText,
@@ -16,7 +18,9 @@ export function DateField({
     handleDoubleClick,
     handleSubmit,
     handleCancel,
-  } = useInlineEdit(label);
+  } = useInlineEdit(location, (newLabel) => {
+    onDataChange?.({ label: newLabel });
+  });
 
   return (
     <span

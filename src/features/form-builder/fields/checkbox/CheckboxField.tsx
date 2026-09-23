@@ -1,8 +1,13 @@
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, CheckboxFieldData } from "../types/field.types";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
-export function CheckboxField({ label = "Xác nhận" }: FieldProps = {}) {
+export function CheckboxField({
+  data,
+  onDataChange,
+}: FieldProps<CheckboxFieldData> = {}) {
+  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.checkbox.label;
   const {
     value: labelText,
     setValue: setLabelText,
@@ -11,7 +16,9 @@ export function CheckboxField({ label = "Xác nhận" }: FieldProps = {}) {
     handleDoubleClick,
     handleSubmit,
     handleCancel,
-  } = useInlineEdit(label);
+  } = useInlineEdit(currentLabel, (newLabel) => {
+    onDataChange?.({ label: newLabel });
+  });
 
   return (
     <div

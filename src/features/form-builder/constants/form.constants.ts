@@ -15,6 +15,8 @@ export const PAGE_PRESETS = {
   },
 } as const satisfies Record<string, PageSize>;
 
+export type PagePresetKey = keyof typeof PAGE_PRESETS;
+
 /**
  * Bán kính hít đường gióng thông minh tính theo pixel
  */
