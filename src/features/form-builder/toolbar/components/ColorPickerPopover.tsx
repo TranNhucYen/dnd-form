@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Check, Pipette } from "lucide-react";
 import {
   Popover,
@@ -42,10 +42,30 @@ export function ColorPickerPopover({
     currentColor === "transparent" ? "white" : currentColor,
   );
   const nativeColorInputRef = useRef<HTMLInputElement>(null);
+  const nativeColorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (nativeColorTimerRef.current) {
+        clearTimeout(nativeColorTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleSelectColor = (color: string) => {
     onChange(color);
     setHexInput(color === "transparent" ? "white" : color);
+  };
+
+  const handleNativeColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setHexInput(val);
+    if (nativeColorTimerRef.current) {
+      clearTimeout(nativeColorTimerRef.current);
+    }
+    nativeColorTimerRef.current = setTimeout(() => {
+      onChange(val);
+    }, 300);
   };
 
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,7 +161,7 @@ export function ColorPickerPopover({
               ref={nativeColorInputRef}
               type="color"
               value={getNativeHexValue(currentColor)}
-              onChange={(e) => handleSelectColor(e.target.value)}
+              onChange={handleNativeColorChange}
               className="sr-only"
             />
           </Button>

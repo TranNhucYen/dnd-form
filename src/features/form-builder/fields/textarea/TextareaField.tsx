@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FieldProps, TextareaFieldData } from "../types/field.types";
 import { useEditor, EditorContent } from "@tiptap/react";
+import { closeHistory } from "@tiptap/pm/history";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
@@ -15,6 +16,8 @@ export function TextareaField({
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
+  const hasRecordedHistoryRef = useRef(false);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
 
@@ -25,26 +28,72 @@ export function TextareaField({
     }
   }, [isFieldSelected, isEditing]);
 
+  useEffect(() => {
+    if (isEditing) {
+      hasRecordedHistoryRef.current = false;
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    return () => {
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+    };
+  }, []);
+
   const editor = useEditor({
-    extensions: [StarterKit, Underline],
+    extensions: [
+      StarterKit.configure({
+        undoRedo: {
+          newGroupDelay: 300,
+        },
+      }),
+      Underline,
+    ],
     content: data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.textarea.html,
     immediatelyRender: false,
     editable: false,
     onUpdate: ({ editor }) => {
-      onDataChange?.({
-        content: editor.getJSON(),
-        html: editor.getHTML(),
-      });
+      if (!hasRecordedHistoryRef.current) {
+        hasRecordedHistoryRef.current = true;
+        useFormBuilderStore.getState().recordHistory();
+      }
+
+      // Tự động phân đoạn lịch sử nếu người dùng tạm dừng gõ > 1.2s (kết thúc một câu / một ý)
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+      idleTimerRef.current = setTimeout(() => {
+        hasRecordedHistoryRef.current = false;
+        editor.view.dispatch(closeHistory(editor.state.tr));
+      }, 1200);
+
+      onDataChange?.(
+        {
+          content: editor.getJSON(),
+          html: editor.getHTML(),
+        },
+        { skipHistory: true },
+      );
     },
     editorProps: {
       attributes: {
         class: "h-full w-full outline-none cursor-text select-text",
       },
-      handleKeyDown: (_, event) => {
+      handleKeyDown: (view, event) => {
         if (event.key === "Escape") {
           setIsEditing(false);
           return true;
         }
+
+        if (event.key === "Enter") {
+          // Khi nhấn Enter xuống dòng (đoạn văn mới): chốt ngay nhóm lịch sử của dòng trước
+          view.dispatch(closeHistory(view.state.tr));
+          hasRecordedHistoryRef.current = false;
+          return false;
+        }
+
         return false;
       },
     },
@@ -82,6 +131,18 @@ export function TextareaField({
       }
     }
   }, [isEditing, editor, setEditor]);
+
+  // Đồng bộ ngược khi dữ liệu từ store thay đổi (ví dụ khi Undo / Redo)
+  useEffect(() => {
+    if (!editor || isEditing) return;
+    const currentHtml = editor.getHTML();
+    const targetHtml = data?.html ?? "";
+    if (targetHtml && currentHtml !== targetHtml) {
+      editor.commands.setContent(data?.content ?? targetHtml, {
+        emitUpdate: false,
+      });
+    }
+  }, [data?.content, data?.html, editor, isEditing]);
 
   const handleDoubleClick = (event: React.MouseEvent) => {
     event.stopPropagation();

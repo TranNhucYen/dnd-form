@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { closeHistory } from "@tiptap/pm/history";
+import type { EditorState } from "@tiptap/pm/state";
 import type { FieldProps, DatatableFieldData } from "../types/field.types";
 import StarterKit from "@tiptap/starter-kit";
 import { TableKit } from "@tiptap/extension-table";
@@ -9,6 +11,20 @@ import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 import "./datatable.css";
 
+/**
+ * Helper: Xác định vị trí bắt đầu (offset) của ô bảng (tableCell hoặc tableHeader) hiện tại
+ */
+function getActiveCellPos(state: EditorState): number | null {
+  const { $from } = state.selection;
+  for (let d = $from.depth; d > 0; d--) {
+    const node = $from.node(d);
+    if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+      return $from.before(d);
+    }
+  }
+  return null;
+}
+
 export function DatatableField({
   id,
   data,
@@ -17,6 +33,8 @@ export function DatatableField({
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
+  const hasRecordedCellHistoryRef = useRef(false);
+  const lastCellPosRef = useRef<number | null>(null);
 
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
 
@@ -27,9 +45,20 @@ export function DatatableField({
     }
   }, [isFieldSelected, isEditing]);
 
+  useEffect(() => {
+    if (isEditing) {
+      hasRecordedCellHistoryRef.current = false;
+      lastCellPosRef.current = null;
+    }
+  }, [isEditing]);
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        undoRedo: {
+          newGroupDelay: 300,
+        },
+      }),
       Underline,
       TableKit.configure({
         table: {
@@ -45,11 +74,42 @@ export function DatatableField({
     editable: false,
     content:
       data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.datatable.html,
+    onSelectionUpdate: ({ editor }) => {
+      const currentCellPos = getActiveCellPos(editor.state);
+      if (
+        currentCellPos !== null &&
+        lastCellPosRef.current !== null &&
+        currentCellPos !== lastCellPosRef.current
+      ) {
+        // Chuyển sang ô khác trong bảng: đóng nhóm undo cũ để không gộp với ô mới
+        editor.view.dispatch(closeHistory(editor.state.tr));
+        hasRecordedCellHistoryRef.current = false;
+      }
+      lastCellPosRef.current = currentCellPos;
+    },
     onUpdate: ({ editor }) => {
-      onDataChange?.({
-        content: editor.getJSON(),
-        html: editor.getHTML(),
-      });
+      const currentCellPos = getActiveCellPos(editor.state);
+      if (
+        currentCellPos !== null &&
+        lastCellPosRef.current !== null &&
+        currentCellPos !== lastCellPosRef.current
+      ) {
+        editor.view.dispatch(closeHistory(editor.state.tr));
+        hasRecordedCellHistoryRef.current = false;
+      }
+      lastCellPosRef.current = currentCellPos;
+
+      if (!hasRecordedCellHistoryRef.current) {
+        hasRecordedCellHistoryRef.current = true;
+        useFormBuilderStore.getState().recordHistory();
+      }
+      onDataChange?.(
+        {
+          content: editor.getJSON(),
+          html: editor.getHTML(),
+        },
+        { skipHistory: true },
+      );
     },
     editorProps: {
       handleKeyDown: (_, event) => {
@@ -92,6 +152,18 @@ export function DatatableField({
       }
     }
   }, [isEditing, editor, setEditor]);
+
+  // Đồng bộ ngược khi dữ liệu từ store thay đổi (ví dụ khi Undo / Redo)
+  useEffect(() => {
+    if (!editor || isEditing) return;
+    const currentHtml = editor.getHTML();
+    const targetHtml = data?.html ?? "";
+    if (targetHtml && currentHtml !== targetHtml) {
+      editor.commands.setContent(data?.content ?? targetHtml, {
+        emitUpdate: false,
+      });
+    }
+  }, [data?.content, data?.html, editor, isEditing]);
 
   const handleDoubleClick = (event: React.MouseEvent) => {
     event.stopPropagation();

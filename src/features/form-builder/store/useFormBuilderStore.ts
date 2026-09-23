@@ -7,13 +7,21 @@ import type {
   FieldData,
   FieldStyle,
   FieldType,
+  FormBuilderSnapshot,
   FormSchemaJson,
   Orientation,
   PageMargins,
+  PagePresetKey,
   PageSize,
 } from "../types/formBuilder.types";
 
-export type PagePresetKey = keyof typeof PAGE_PRESETS;
+export type { PagePresetKey };
+
+export interface HistoryOptions {
+  skipHistory?: boolean;
+}
+
+export const MAX_HISTORY_STEPS = 50;
 
 export interface FormBuilderState {
   // Cấu hình trang in (Page Settings)
@@ -25,6 +33,18 @@ export interface FormBuilderState {
   fields: CanvasField[];
   selectedFieldId: string | null;
   clipboardField: CanvasField | null;
+
+  // Quản lý Lịch sử (Undo / Redo History)
+  past: FormBuilderSnapshot[];
+  future: FormBuilderSnapshot[];
+  canUndo: boolean;
+  canRedo: boolean;
+
+  // Actions quản lý lịch sử
+  undo: () => void;
+  redo: () => void;
+  clearHistory: () => void;
+  recordHistory: (customSelectedId?: string | null) => void;
 
   // Actions cấu hình trang
   setPageSizePreset: (preset: PagePresetKey) => void;
@@ -40,7 +60,11 @@ export interface FormBuilderState {
   /** Cập nhật font, cỡ chữ, căn lề, màu sắc cho phần tử */
   updateFieldStyle: (fieldId: string, style: Partial<FieldStyle>) => void;
   /** Cập nhật dữ liệu nội dung của phần tử (label, placeholder, value,...) */
-  updateFieldData: (fieldId: string, data: Partial<FieldData>) => void;
+  updateFieldData: (
+    fieldId: string,
+    data: Partial<FieldData>,
+    options?: HistoryOptions,
+  ) => void;
   /** Cập nhật x,y và width,height mới sau khi hoàn tất thao tác resize */
   updateFieldResize: (fieldId: string, change: FieldResizeChange) => void;
   /** Tự động đo và lưu kích thước DOM thực tế lần đầu tiên cho các phần tử co giãn theo nội dung */
@@ -73,6 +97,111 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   selectedFieldId: null,
   clipboardField: null,
 
+  past: [],
+  future: [],
+  canUndo: false,
+  canRedo: false,
+
+  recordHistory: (customSelectedId) => {
+    const state = get();
+    const currentSnapshot: FormBuilderSnapshot = {
+      fields: structuredClone(state.fields),
+      selectedFieldId:
+        customSelectedId !== undefined
+          ? customSelectedId
+          : state.selectedFieldId,
+    };
+
+    // No-Op Guard: Kiểm tra nếu snapshot mới không khác gì snapshot trên đỉnh past
+    const lastSnapshot = state.past[state.past.length - 1];
+    if (lastSnapshot) {
+      if (
+        lastSnapshot.fields.length === currentSnapshot.fields.length &&
+        JSON.stringify(lastSnapshot.fields) ===
+          JSON.stringify(currentSnapshot.fields)
+      ) {
+        return;
+      }
+    }
+
+    const newPast = [
+      ...state.past.slice(-(MAX_HISTORY_STEPS - 1)),
+      currentSnapshot,
+    ];
+    set({
+      past: newPast,
+      future: [],
+      canUndo: true,
+      canRedo: false,
+    });
+  },
+
+  undo: () => {
+    const { past, future } = get();
+    if (past.length === 0) return;
+
+    const previousSnapshot = past[past.length - 1];
+    const newPast = past.slice(0, -1);
+
+    const currentSnapshot: FormBuilderSnapshot = {
+      fields: structuredClone(get().fields),
+      selectedFieldId: get().selectedFieldId,
+    };
+
+    const targetSelectedId = previousSnapshot.selectedFieldId;
+    const isValidSelection = Boolean(
+      targetSelectedId &&
+        previousSnapshot.fields.some((f) => f.id === targetSelectedId),
+    );
+
+    set({
+      fields: structuredClone(previousSnapshot.fields),
+      selectedFieldId: isValidSelection ? targetSelectedId : null,
+      past: newPast,
+      future: [currentSnapshot, ...future].slice(0, MAX_HISTORY_STEPS),
+      canUndo: newPast.length > 0,
+      canRedo: true,
+    });
+  },
+
+  redo: () => {
+    const { past, future } = get();
+    if (future.length === 0) return;
+
+    const nextSnapshot = future[0];
+    const newFuture = future.slice(1);
+
+    const currentSnapshot: FormBuilderSnapshot = {
+      fields: structuredClone(get().fields),
+      selectedFieldId: get().selectedFieldId,
+    };
+
+    const targetSelectedId = nextSnapshot.selectedFieldId;
+    const isValidSelection = Boolean(
+      targetSelectedId &&
+        nextSnapshot.fields.some((f) => f.id === targetSelectedId),
+    );
+
+    const newPast = [...past.slice(-(MAX_HISTORY_STEPS - 1)), currentSnapshot];
+
+    set({
+      fields: structuredClone(nextSnapshot.fields),
+      selectedFieldId: isValidSelection ? targetSelectedId : null,
+      past: newPast,
+      future: newFuture,
+      canUndo: true,
+      canRedo: newFuture.length > 0,
+    });
+  },
+
+  clearHistory: () =>
+    set({
+      past: [],
+      future: [],
+      canUndo: false,
+      canRedo: false,
+    }),
+
   setPageSizePreset: (preset) => set({ pageSizePreset: preset }),
 
   setOrientation: (orientation) => set({ orientation }),
@@ -92,6 +221,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   selectAllFields: () => { },
 
   addField: (type, coordinates) => {
+    get().recordHistory();
     const def = FIELD_DEFINITIONS_MAP[type];
     const newField: CanvasField = {
       id: globalThis.crypto.randomUUID(),
@@ -108,14 +238,17 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     }));
   },
 
-  updateFieldPosition: (fieldId, coordinates) =>
+  updateFieldPosition: (fieldId, coordinates) => {
+    get().recordHistory();
     set((state) => ({
       fields: state.fields.map((field) =>
         field.id === fieldId ? { ...field, ...coordinates } : field,
       ),
-    })),
+    }));
+  },
 
-  updateFieldStyle: (fieldId, style) =>
+  updateFieldStyle: (fieldId, style) => {
+    get().recordHistory();
     set((state) => ({
       fields: state.fields.map((field) =>
         field.id === fieldId
@@ -128,9 +261,13 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
           }
           : field,
       ),
-    })),
+    }));
+  },
 
-  updateFieldData: (fieldId, data) =>
+  updateFieldData: (fieldId, data, options) => {
+    if (!options?.skipHistory) {
+      get().recordHistory();
+    }
     set((state) => ({
       fields: state.fields.map((field) =>
         field.id === fieldId
@@ -143,9 +280,11 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
           } as CanvasField)
           : field,
       ),
-    })),
+    }));
+  },
 
-  updateFieldResize: (fieldId, change) =>
+  updateFieldResize: (fieldId, change) => {
+    get().recordHistory();
     set((state) => ({
       fields: state.fields.map((item) =>
         item.id === fieldId
@@ -157,7 +296,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
           }
           : item,
       ),
-    })),
+    }));
+  },
 
   measureField: (fieldId, size) =>
     set((state) => {
@@ -176,76 +316,75 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       };
     }),
 
-  removeField: (fieldId) =>
+  removeField: (fieldId) => {
+    get().recordHistory();
     set((state) => ({
       fields: state.fields.filter((field) => field.id !== fieldId),
       selectedFieldId:
         state.selectedFieldId === fieldId ? null : state.selectedFieldId,
-    })),
+    }));
+  },
 
-  duplicateField: (fieldId) =>
-    set((state) => {
-      const target = state.fields.find((field) => field.id === fieldId);
-      if (!target) {
-        return state;
-      }
+  duplicateField: (fieldId) => {
+    const target = get().fields.find((field) => field.id === fieldId);
+    if (!target) {
+      return;
+    }
+    get().recordHistory();
+    const duplicatedField: CanvasField = {
+      ...target,
+      id: globalThis.crypto.randomUUID(),
+      x: target.x + 10,
+      y: target.y + 10,
+      data: target.data ? structuredClone(target.data) : undefined,
+    } as CanvasField;
 
-      const duplicatedField: CanvasField = {
-        ...target,
-        id: globalThis.crypto.randomUUID(),
-        x: target.x + 10,
-        y: target.y + 10,
-        data: target.data ? structuredClone(target.data) : undefined,
-      } as CanvasField;
+    set((state) => ({
+      fields: [...state.fields, duplicatedField],
+      selectedFieldId: duplicatedField.id,
+    }));
+  },
 
-      return {
-        fields: [...state.fields, duplicatedField],
-        selectedFieldId: duplicatedField.id,
-      };
-    }),
+  copyField: (fieldId) => {
+    const target = get().fields.find((field) => field.id === fieldId);
+    return target ? { clipboardField: { ...target } } : get();
+  },
 
-  copyField: (fieldId) =>
-    set((state) => {
-      const target = state.fields.find((field) => field.id === fieldId);
-      return target ? { clipboardField: { ...target } } : state;
-    }),
+  cutField: (fieldId) => {
+    const target = get().fields.find((field) => field.id === fieldId);
+    if (!target) {
+      return;
+    }
+    get().recordHistory();
+    set((state) => ({
+      clipboardField: { ...target },
+      fields: state.fields.filter((field) => field.id !== fieldId),
+      selectedFieldId:
+        state.selectedFieldId === fieldId ? null : state.selectedFieldId,
+    }));
+  },
 
-  cutField: (fieldId) =>
-    set((state) => {
-      const target = state.fields.find((field) => field.id === fieldId);
-      if (!target) {
-        return state;
-      }
+  pasteField: (offset = { x: 10, y: 10 }) => {
+    const { clipboardField } = get();
+    if (!clipboardField) {
+      return;
+    }
+    get().recordHistory();
+    const pastedField: CanvasField = {
+      ...clipboardField,
+      id: globalThis.crypto.randomUUID(),
+      x: clipboardField.x + offset.x,
+      y: clipboardField.y + offset.y,
+      data: clipboardField.data
+        ? structuredClone(clipboardField.data)
+        : undefined,
+    } as CanvasField;
 
-      return {
-        clipboardField: { ...target },
-        fields: state.fields.filter((field) => field.id !== fieldId),
-        selectedFieldId:
-          state.selectedFieldId === fieldId ? null : state.selectedFieldId,
-      };
-    }),
-
-  pasteField: (offset = { x: 10, y: 10 }) =>
-    set((state) => {
-      if (!state.clipboardField) {
-        return state;
-      }
-
-      const pastedField: CanvasField = {
-        ...state.clipboardField,
-        id: globalThis.crypto.randomUUID(),
-        x: state.clipboardField.x + offset.x,
-        y: state.clipboardField.y + offset.y,
-        data: state.clipboardField.data
-          ? structuredClone(state.clipboardField.data)
-          : undefined,
-      } as CanvasField;
-
-      return {
-        fields: [...state.fields, pastedField],
-        selectedFieldId: pastedField.id,
-      };
-    }),
+    set((state) => ({
+      fields: [...state.fields, pastedField],
+      selectedFieldId: pastedField.id,
+    }));
+  },
 
   getFormSchema: () => {
     const state = get();

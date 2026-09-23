@@ -36,6 +36,13 @@ export function EditableSelect({
   disabled = false,
 }: EditableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [localValue, setLocalValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setLocalValue(value);
+  }
 
   // Chuẩn hóa danh sách options sang format { value, label }
   const normalizedOptions: EditableSelectOption[] = options.map((opt) => {
@@ -50,10 +57,26 @@ export function EditableSelect({
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+    setLocalValue(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (localValue !== value) {
+        onChange(localValue);
+      }
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  const handleBlur = () => {
+    if (localValue !== value) {
+      onChange(localValue);
+    }
   };
 
   const handleSelectOption = (optValue: string) => {
+    setLocalValue(optValue);
     onChange(optValue);
     setIsOpen(false);
   };
@@ -69,8 +92,10 @@ export function EditableSelect({
     >
       <input
         type="text"
-        value={value}
+        value={localValue}
         onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
