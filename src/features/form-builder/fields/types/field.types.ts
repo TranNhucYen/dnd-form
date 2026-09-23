@@ -22,7 +22,10 @@ export type FieldProps<T = FieldData> = {
   data?: T;
   width?: number;
   height?: number;
-  onDataChange?: (patch: Partial<T>) => void;
+  onDataChange?: (
+    patch: Partial<T>,
+    options?: { skipHistory?: boolean },
+  ) => void;
 };
 
 export type FieldComponent<T = FieldData> = (props: FieldProps<T>) => React.ReactNode;

@@ -1,4 +1,7 @@
 import type { JSONContent } from "@tiptap/react";
+import type { PagePresetKey } from "../constants/form.constants";
+
+export type { PagePresetKey };
 
 export type FieldType =
   | "label"
@@ -132,6 +135,11 @@ export interface PageMargins {
   bottom: string;
   left: string;
   right: string;
+}
+
+export interface FormBuilderSnapshot {
+  fields: CanvasField[];
+  selectedFieldId: string | null;
 }
 
 // Cấu trúc object sẽ lưu vào db kiểu json

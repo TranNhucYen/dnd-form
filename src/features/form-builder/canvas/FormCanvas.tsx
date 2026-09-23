@@ -154,7 +154,9 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
                 width={field.width}
                 height={field.height}
                 data={field.data}
-                onDataChange={(patch) => updateFieldData(field.id, patch)}
+                onDataChange={(patch, options) =>
+                  updateFieldData(field.id, patch, options)
+                }
               />
             </FormFieldShell>
           );
