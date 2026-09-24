@@ -21,7 +21,7 @@ export const ROUTES = {
 } as const
 
 export const DYNAMIC_ROUTES = {
-  FORM_EDIT: (id: string | number) => `/editor/${id}`,
+  FORM_EDIT: (id: string | number) => `/editor?formId=${id}`,
   FORM_DETAIL: (id: string | number) => `/my-form/${id}`,
   TEMPLATE_DETAIL: (id: string | number) => `/templates/${id}`,
 } as const
