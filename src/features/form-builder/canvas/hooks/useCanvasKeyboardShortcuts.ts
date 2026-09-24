@@ -11,9 +11,21 @@ export function useCanvasKeyboardShortcuts() {
   const removeField = useFormBuilderStore((state) => state.removeField);
   const undo = useFormBuilderStore((state) => state.undo);
   const redo = useFormBuilderStore((state) => state.redo);
+  const triggerSave = useFormBuilderStore((state) => state.triggerSave);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+
+      // Lưu biểu mẫu (Ctrl+S / Cmd+S): Ưu tiên xử lý trước để chặn trình duyệt mở hộp thoại lưu trang 
+      // và cho phép lưu ngay cả khi đang nhập liệu
+      if (isCtrlOrCmd && key === "s") {
+        event.preventDefault();
+        triggerSave();
+        return;
+      }
+
       const target = event.target as HTMLElement | null;
       const isInputOrEditing =
         target &&
@@ -26,9 +38,6 @@ export function useCanvasKeyboardShortcuts() {
       if (isInputOrEditing) {
         return;
       }
-
-      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
-      const key = event.key.toLowerCase();
 
       // Undo: Ctrl+Z (Windows) hoặc Cmd+Z (Mac)
       if (isCtrlOrCmd && !event.shiftKey && key === "z") {
@@ -103,5 +112,6 @@ export function useCanvasKeyboardShortcuts() {
     removeField,
     undo,
     redo,
+    triggerSave,
   ]);
 }

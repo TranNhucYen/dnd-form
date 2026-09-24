@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { FIELD_DEFINITIONS_MAP } from "../constants/fields.config";
 import { PAGE_PRESETS } from "../constants/form.constants";
-import { exportFormSchema } from "../domain/transformers";
+import { exportFormSchema, importSchemaFieldToCanvasField } from "../domain/transformers";
+import { toMm } from "../domain/units";
 import type { FieldResizeChange } from "../canvas/types/canvas.types";
 import type {
   CanvasField,
@@ -81,6 +82,21 @@ export interface FormBuilderState {
 
   /** Trích xuất schema snapshot hiện tại của Form */
   getFormSchema: () => FormSchemaJson;
+
+  // Adapter lưu trữ và giao tiếp với Host App
+  onSave?: (schema: FormSchemaJson) => Promise<void> | void;
+  setOnSave: (
+    handler?: (schema: FormSchemaJson) => Promise<void> | void,
+  ) => void;
+  isSaving: boolean;
+  setIsSaving: (isSaving: boolean) => void;
+  triggerSave: () => Promise<void>;
+
+  /** Nạp schema chuẩn hóa vào Canvas */
+  loadFormSchema: (schema: FormSchemaJson) => void;
+
+  /** Đặt lại Canvas về trạng thái ban đầu */
+  resetForm: () => void;
 }
 
 
@@ -93,6 +109,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     left: "20",
     right: "20",
   },
+
+  onSave: undefined,
+  isSaving: false,
 
   fields: [],
   selectedFieldId: null,
@@ -398,6 +417,62 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         state.orientation,
       ),
       fields: state.fields,
+    });
+  },
+
+  setOnSave: (handler) => set({ onSave: handler }),
+
+  setIsSaving: (isSaving) => set({ isSaving }),
+
+  triggerSave: async () => {
+    const { onSave, isSaving, getFormSchema } = get();
+    if (isSaving || !onSave) return;
+    try {
+      set({ isSaving: true });
+      await onSave(getFormSchema());
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  loadFormSchema: (schema) => {
+    const canvasFields = schema.fields.map(importSchemaFieldToCanvasField);
+
+    set({
+      pageSizePreset: schema.page.preset,
+      orientation: schema.page.orientation,
+      margins: {
+        top: toMm(schema.page.margins.top).toString(),
+        bottom: toMm(schema.page.margins.bottom).toString(),
+        left: toMm(schema.page.margins.left).toString(),
+        right: toMm(schema.page.margins.right).toString(),
+      },
+      fields: canvasFields,
+      selectedFieldId: null,
+      past: [],
+      future: [],
+      canUndo: false,
+      canRedo: false,
+    });
+  },
+
+  resetForm: () => {
+    set({
+      pageSizePreset: "A4",
+      orientation: "PORTRAIT",
+      margins: {
+        top: "20",
+        bottom: "20",
+        left: "20",
+        right: "20",
+      },
+      fields: [],
+      selectedFieldId: null,
+      clipboardField: null,
+      past: [],
+      future: [],
+      canUndo: false,
+      canRedo: false,
     });
   },
 }));
