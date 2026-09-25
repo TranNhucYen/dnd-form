@@ -21,7 +21,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { UploadCloud, Info, Loader2, CheckCircle2 } from 'lucide-react'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { UploadCloud, Info, Loader2, CheckCircle2, Plus, Trash2 } from 'lucide-react'
 import { COMMUNITY_CATEGORIES } from '../constants/community.constant'
 import { ContributeFormInput } from '../types/community.type'
 
@@ -48,6 +49,7 @@ export function ContributeFormModal({
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<string>(COMMUNITY_CATEGORIES[1])
   const [description, setDescription] = useState('')
+  const [guidelines, setGuidelines] = useState<string[]>([''])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
@@ -60,17 +62,38 @@ export function ContributeFormModal({
     }
   }
 
+  const handleAddStep = () => {
+    setGuidelines((prev) => [...prev, ''])
+  }
+
+  const handleUpdateStep = (index: number, value: string) => {
+    setGuidelines((prev) => {
+      const next = [...prev]
+      next[index] = value
+      return next
+    })
+  }
+
+  const handleRemoveStep = (index: number) => {
+    setGuidelines((prev) => {
+      const next = prev.filter((_, i) => i !== index)
+      return next.length > 0 ? next : ['']
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFormId || !title.trim()) return
 
     setIsSubmitting(true)
     try {
+      const cleanGuidelines = guidelines.map((g) => g.trim()).filter(Boolean)
       await onSubmitContribution({
         sourceFormId: Number(selectedFormId),
         title: title.trim(),
         categoryName: category,
         description: description.trim(),
+        guidelines: cleanGuidelines,
       })
       setIsSuccess(true)
       setTimeout(() => {
@@ -79,6 +102,7 @@ export function ContributeFormModal({
         setSelectedFormId('')
         setTitle('')
         setDescription('')
+        setGuidelines([''])
       }, 1500)
     } catch (err) {
       console.error(err)
@@ -89,8 +113,8 @@ export function ContributeFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col p-6 overflow-hidden">
+        <DialogHeader className="shrink-0">
           <div className="flex items-center gap-2">
             <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <UploadCloud className="size-5" />
@@ -117,89 +141,154 @@ export function ContributeFormModal({
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-            <Alert className="bg-muted/50 border-muted">
-              <Info className="size-4" />
-              <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-                <span className="font-semibold text-foreground">Quy tắc cộng đồng:</span> Template sẽ được tạo từ bản sao độc lập, hoàn toàn không ảnh hưởng đến biểu mẫu cá nhân và dữ liệu phản hồi của bạn.
-              </AlertDescription>
-            </Alert>
+          <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            {/* Scrollable Form Body */}
+            <div className="flex-1 overflow-y-auto px-1.5 pr-2.5 flex flex-col gap-4 py-1">
+              <Alert className="bg-muted/50 border-muted">
+                <Info className="size-4" />
+                <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-semibold text-foreground">Quy tắc cộng đồng:</span>
+                  Template sẽ được tạo từ bản sao độc lập, hoàn toàn không ảnh hưởng đến biểu mẫu cá nhân
+                  và dữ liệu phản hồi của bạn.
+                </AlertDescription>
+              </Alert>
 
-            {/* Select Form from My Forms */}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="source-form" className="text-xs font-semibold">
-                Chọn biểu mẫu của bạn <span className="text-destructive">*</span>
-              </Label>
-              <Select value={selectedFormId} onValueChange={handleFormSelect}>
-                <SelectTrigger id="source-form" className="w-full text-xs">
-                  <SelectValue placeholder="Chọn biểu mẫu muốn chia sẻ..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {AVAILABLE_USER_FORMS.map((f) => (
-                    <SelectItem key={f.id} value={f.id.toString()} className="text-xs">
-                      {f.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Select Form from My Forms */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="source-form" className="text-xs font-semibold">
+                  Chọn biểu mẫu của bạn <span className="text-destructive">*</span>
+                </Label>
+                <Select value={selectedFormId} onValueChange={handleFormSelect}>
+                  <SelectTrigger id="source-form" className="w-full text-xs">
+                    <SelectValue placeholder="Chọn biểu mẫu muốn chia sẻ..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AVAILABLE_USER_FORMS.map((f) => (
+                      <SelectItem key={f.id} value={f.id.toString()} className="text-xs">
+                        {f.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Form Title in Community */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="community-title" className="text-xs font-semibold">
+                  Tên hiển thị trên cộng đồng <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="community-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Nhập tên biểu mẫu rõ ràng, dễ tìm kiếm..."
+                  className="text-xs"
+                  required
+                />
+              </div>
+
+              {/* Category Select */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="community-category" className="text-xs font-semibold">
+                  Danh mục phù hợp <span className="text-destructive">*</span>
+                </Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger id="community-category" className="w-full text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COMMUNITY_CATEGORIES.filter((c) => c !== 'Tất cả').map((c) => (
+                      <SelectItem key={c} value={c} className="text-xs">
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Section 1: Description */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="community-description" className="text-xs font-semibold">
+                  Mô tả biểu mẫu
+                </Label>
+                <Textarea
+                  id="community-description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Mô tả mục đích sử dụng, ngữ cảnh áp dụng của biểu mẫu..."
+                  className="text-xs min-h-20 max-h-24 resize-none overflow-y-auto leading-relaxed shadow-none"
+                />
+              </div>
+
+              {/* Section 2: Guidelines */}
+              <div className="flex flex-col gap-2 p-3 rounded-lg border border-border bg-muted/20">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="text-xs font-semibold text-foreground">
+                      Hướng dẫn sử dụng (Tùy chọn)
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Thiết lập các bước chỉ dẫn để người khác điền đúng dữ liệu.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddStep}
+                    disabled={isSubmitting}
+                    className="text-xs h-7 px-2.5 gap-1 shrink-0 cursor-pointer shadow-none"
+                  >
+                    <Plus className="size-3" />
+                    Thêm bước
+                  </Button>
+                </div>
+
+                {/* Danh sách các bước bọc trong ScrollArea */}
+                <ScrollArea className="max-h-44 w-full pr-2">
+                  <div className="flex flex-col gap-2 py-0.5">
+                    {guidelines.map((step, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <span className="
+                          size-6 rounded-full bg-muted text-muted-foreground 
+                          flex items-center justify-center text-xs font-semibold shrink-0"
+                        >
+                          {index + 1}
+                        </span>
+                        <Input
+                          value={step}
+                          onChange={(e) => handleUpdateStep(index, e.target.value)}
+                          placeholder={`Nhập hướng dẫn bước ${index + 1}...`}
+                          className="text-xs h-8 flex-1 shadow-none"
+                          disabled={isSubmitting}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveStep(index)}
+                          disabled={isSubmitting || (guidelines.length === 1 && !step)}
+                          className="size-8 p-0 text-muted-foreground hover:text-destructive cursor-pointer shrink-0"
+                          title="Xóa bước này"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
             </div>
 
-            {/* Form Title in Community */}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="community-title" className="text-xs font-semibold">
-                Tên hiển thị trên cộng đồng <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="community-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Nhập tên biểu mẫu rõ ràng, dễ tìm kiếm..."
-                className="text-xs"
-                required
-              />
-            </div>
-
-            {/* Category Select */}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="community-category" className="text-xs font-semibold">
-                Danh mục phù hợp <span className="text-destructive">*</span>
-              </Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="community-category" className="w-full text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {COMMUNITY_CATEGORIES.filter((c) => c !== 'Tất cả').map((c) => (
-                    <SelectItem key={c} value={c} className="text-xs">
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Description */}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="community-description" className="text-xs font-semibold">
-                Mô tả & Hướng dẫn sử dụng
-              </Label>
-              <Textarea
-                id="community-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Mô tả mục đích sử dụng và các trường nổi bật của biểu mẫu..."
-                className="text-xs min-h-20 resize-none"
-              />
-            </div>
-
-            <DialogFooter className="pt-2">
+            {/* Fixed Footer */}
+            <DialogFooter className="shrink-0 pt-3 border-t mt-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
-                className="text-xs"
+                className="text-xs cursor-pointer"
               >
                 Hủy bỏ
               </Button>
@@ -207,7 +296,7 @@ export function ContributeFormModal({
                 type="submit"
                 size="sm"
                 disabled={isSubmitting || !selectedFormId || !title.trim()}
-                className="text-xs"
+                className="text-xs cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
