@@ -1,76 +1,97 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import {
-  MyForm,
-  CreateFormInput,
-  UpdateFormInput,
-  FormStatus,
-  SharedUser,
-} from '../types/my-form.type'
+import { toast } from 'sonner'
+import type { MyForm, CreateBlankFormInput } from '../types/my-form.type'
 import {
   getMyFormsAction,
-  createFormAction,
-  updateFormAction,
-  deleteFormAction,
+  createBlankFormAction,
   duplicateFormAction,
-  updateFormStatusAction,
-  updateFormSharingAction,
+  deleteFormAction,
 } from '../actions/my-form.action'
 
 export function useMyFormList() {
   const [data, setData] = useState<MyForm[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [searchTerm, setSearchTermState] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(5)
+  const [pageSize, setPageSize] = useState(10)
 
+  // Tải danh sách biểu mẫu khi component mount
+  useEffect(() => {
+    let ignore = false
+
+    getMyFormsAction()
+      .then((res) => {
+        if (ignore) return
+        if (res.success && res.data) {
+          setData(res.data)
+        } else {
+          const errorMsg = res.error || 'Không thể tải danh sách biểu mẫu'
+          setError(errorMsg)
+          toast.error(errorMsg)
+        }
+      })
+      .catch((err) => {
+        if (ignore) return
+        const errorMsg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra'
+        setError(errorMsg)
+        toast.error(errorMsg)
+      })
+      .finally(() => {
+        if (!ignore) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  // Hàm làm mới danh sách chủ động
   const fetchForms = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
       const res = await getMyFormsAction()
-      setData(res)
+      if (res.success && res.data) {
+        setData(res.data)
+      } else {
+        const errorMsg = res.error || 'Không thể tải danh sách biểu mẫu'
+        setError(errorMsg)
+        toast.error(errorMsg)
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
+      const errorMsg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra'
+      setError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setIsLoading(false)
     }
   }, [])
 
-  useEffect(() => {
-    fetchForms()
-  }, [fetchForms])
-
-  // Reset về trang 1 khi đổi bộ lọc tìm kiếm hoặc trạng thái
-  useEffect(() => {
+  // Đổi từ khóa tìm kiếm và tự động reset về trang 1 trong event handler
+  const setSearchTerm = useCallback((term: string) => {
+    setSearchTermState(term)
     setCurrentPage(1)
-  }, [searchTerm, selectedStatus])
-
-  const counts = useMemo(() => {
-    return {
-      all: data.length,
-      active: data.filter((f) => f.status === FormStatus.ACTIVE).length,
-      draft: data.filter((f) => f.status === FormStatus.DRAFT).length,
-      archived: data.filter((f) => f.status === FormStatus.ARCHIVED).length,
-    }
-  }, [data])
+  }, [])
 
   const filteredForms = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return data
+
     return data.filter((form) => {
-      const matchesSearch =
-        form.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (form.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-        (form.sourceTemplateName?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+      const matchesName = form.name.toLowerCase().includes(term)
+      const matchesDescription =
+        form.description?.toLowerCase().includes(term) ?? false
+      const matchesTemplate =
+        form.sourceTemplateName?.toLowerCase().includes(term) ?? false
 
-      const matchesStatus =
-        selectedStatus === 'all' || form.status === selectedStatus
-
-      return matchesSearch && matchesStatus
+      return matchesName || matchesDescription || matchesTemplate
     })
-  }, [data, searchTerm, selectedStatus])
+  }, [data, searchTerm])
 
   const totalItems = filteredForms.length
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
@@ -80,81 +101,72 @@ export function useMyFormList() {
     return filteredForms.slice(start, start + pageSize)
   }, [filteredForms, currentPage, pageSize])
 
-  const createForm = async (input: CreateFormInput) => {
-    const newForm = await createFormAction(input)
-    setData((prev) => [newForm, ...prev])
-    return newForm
+  const createBlankForm = async (input: CreateBlankFormInput) => {
+    try {
+      const res = await createBlankFormAction(input)
+      if (!res.success || !res.data) {
+        throw new Error(res.error || 'Không thể tạo biểu mẫu')
+      }
+      setData((prev) => [res.data!, ...prev])
+      toast.success('Tạo biểu mẫu mới thành công')
+      return res.data
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Không thể tạo biểu mẫu')
+      throw err
+    }
   }
 
-  const updateForm = async (id: number, input: UpdateFormInput) => {
-    const updated = await updateFormAction(id, input)
-    if (updated) {
-      setData((prev) => prev.map((f) => (f.id === id ? updated : f)))
+  const duplicateForm = async (id: number, customName?: string) => {
+    try {
+      const res = await duplicateFormAction(id, customName)
+      if (res.success && res.data) {
+        setData((prev) => [res.data!, ...prev])
+        toast.success('Nhân bản biểu mẫu thành công')
+        return res.data
+      } else {
+        toast.error(res.error || 'Không thể nhân bản biểu mẫu')
+        return null
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lỗi khi nhân bản biểu mẫu')
+      return null
     }
-    return updated
-  }
-
-  const updateStatus = async (id: number, status: FormStatus) => {
-    const updated = await updateFormStatusAction(id, status)
-    if (updated) {
-      setData((prev) => prev.map((f) => (f.id === id ? updated : f)))
-    }
-    return updated
-  }
-
-  const duplicateForm = async (
-    id: number,
-    customData?: { title?: string; description?: string }
-  ) => {
-    const duplicated = await duplicateFormAction(id, customData)
-    if (duplicated) {
-      setData((prev) => [duplicated, ...prev])
-    }
-    return duplicated
   }
 
   const deleteForm = async (id: number) => {
-    const success = await deleteFormAction(id)
-    if (success) {
-      setData((prev) => prev.filter((f) => f.id !== id))
+    try {
+      const res = await deleteFormAction(id)
+      if (res.success) {
+        setData((prev) => prev.filter((f) => f.id !== id))
+        toast.success('Xóa biểu mẫu thành công')
+        return true
+      } else {
+        toast.error(res.error || 'Không thể xóa biểu mẫu')
+        return false
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lỗi khi xóa biểu mẫu')
+      return false
     }
-    return success
-  }
-
-  const updateSharing = async (
-    id: number,
-    sharing: { isPublic: boolean; sharedWith: SharedUser[] }
-  ) => {
-    const updated = await updateFormSharingAction(id, sharing)
-    if (updated) {
-      setData((prev) => prev.map((f) => (f.id === id ? updated : f)))
-    }
-    return updated
   }
 
   return {
     forms: paginatedForms,
     allFilteredForms: filteredForms,
     rawForms: data,
-    counts,
     isLoading,
     error,
     searchTerm,
     setSearchTerm,
-    selectedStatus,
-    setSelectedStatus,
     currentPage,
     setCurrentPage,
     pageSize,
     setPageSize,
     totalPages,
     totalItems,
-    createForm,
-    updateForm,
-    updateStatus,
+    createBlankForm,
     duplicateForm,
     deleteForm,
-    updateSharing,
     refetch: fetchForms,
   }
 }

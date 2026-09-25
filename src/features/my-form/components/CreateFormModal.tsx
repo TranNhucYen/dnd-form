@@ -15,12 +15,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Plus, LayoutTemplate, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { MyForm } from '../types/my-form.type'
+import type { MyForm, CreateBlankFormInput } from '../types/my-form.type'
 
 interface CreateFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCreateBlank: (data: { title: string; description?: string }) => Promise<MyForm>
+  onCreateBlank: (data: CreateBlankFormInput) => Promise<MyForm>
 }
 
 type Step = 'choose_mode' | 'blank_form'
@@ -32,7 +32,7 @@ export function CreateFormModal({
 }: CreateFormModalProps) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('choose_mode')
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -40,19 +40,19 @@ export function CreateFormModal({
     onOpenChange(false)
     setTimeout(() => {
       setStep('choose_mode')
-      setTitle('')
+      setName('')
       setDescription('')
     }, 200)
   }
 
   const handleCreateBlankSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim()) return
+    if (!name.trim()) return
 
     setIsSubmitting(true)
     try {
       const created = await onCreateBlank({
-        title: title.trim(),
+        name: name.trim(),
         description: description.trim() || undefined,
       })
       handleClose()
@@ -142,7 +142,7 @@ export function CreateFormModal({
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Khám phá kho biểu mẫu mẫu chuẩn (Đơn từ, Hợp đồng, Đánh giá...) để tiết kiệm thời gian.
+                    Khám phá kho biểu mẫu chuẩn (Đơn từ, Hợp đồng, Đánh giá...) để tiết kiệm thời gian.
                   </p>
                 </div>
               </Link>
@@ -164,14 +164,14 @@ export function CreateFormModal({
 
             <div className="flex flex-col gap-4 py-4">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="form-title" className="text-xs font-semibold">
+                <Label htmlFor="form-name" className="text-xs font-semibold">
                   Tên biểu mẫu <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="form-title"
-                  placeholder="Ví dụ: Phiếu đánh giá chất lượng dịch vụ..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  id="form-name"
+                  placeholder="Ví dụ: Phiếu bàn giao thiết bị làm việc..."
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   autoFocus
                   required
                   className="text-xs h-9"
@@ -184,7 +184,7 @@ export function CreateFormModal({
                 </Label>
                 <Input
                   id="form-desc"
-                  placeholder="Ví dụ: Dùng để khảo sát ý kiến khách hàng tháng 8..."
+                  placeholder="Ví dụ: Dùng để ghi nhận danh sách tài sản..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="text-xs h-9"
@@ -206,7 +206,7 @@ export function CreateFormModal({
               <Button
                 type="submit"
                 size="sm"
-                disabled={!title.trim() || isSubmitting}
+                disabled={!name.trim() || isSubmitting}
                 className="cursor-pointer text-xs"
               >
                 {isSubmitting ? (
@@ -225,7 +225,3 @@ export function CreateFormModal({
     </Dialog>
   )
 }
-
-
-
-

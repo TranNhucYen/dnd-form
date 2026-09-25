@@ -1,12 +1,6 @@
-export enum FormStatus {
-  DRAFT = 'draft',
-  ACTIVE = 'active',
-  ARCHIVED = 'archived',
-}
-
 export enum ShareRole {
-  VIEWER = 'viewer',
-  EDITOR = 'editor',
+  VIEW = 'view',
+  EDIT = 'edit',
 }
 
 export interface SharedUser {
@@ -18,34 +12,36 @@ export interface SharedUser {
 
 export interface MyForm {
   id: number
-  title: string
-  description?: string
-  status: FormStatus
+  name: string
+  description?: string | null
   fieldsCount: number
-  responsesCount: number
   isPublic: boolean
-  sharedWith: SharedUser[]
-  sourceTemplateId?: number
-  sourceTemplateName?: string
-  createdAt: Date | string
-  updatedAt: Date | string
+  sharedWith?: SharedUser[]
+  sourceTemplateId?: number | null
+  sourceTemplateName?: string | null
+  createdAt: string
+  updatedAt: string
   formattedCreatedAt?: string
   formattedUpdatedAt?: string
-  statusLabel?: string
   shareSummary?: string
 }
 
-export interface CreateFormInput {
-  title: string
+export interface CreateBlankFormInput {
+  name: string
   description?: string
   sourceTemplateId?: number
-  sourceTemplateName?: string
 }
 
 export interface UpdateFormInput {
-  title?: string
+  name?: string
   description?: string
-  status?: FormStatus
   isPublic?: boolean
   sharedWith?: SharedUser[]
+}
+
+/** Cấu trúc phản hồi chuẩn của Server Action */
+export interface ActionResponse<T> {
+  success: boolean
+  data?: T
+  error?: string
 }
