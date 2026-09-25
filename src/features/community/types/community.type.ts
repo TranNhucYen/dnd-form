@@ -32,6 +32,7 @@ export interface ContributionItem {
   reviewedAt?: Date | string
   feedback?: string
   clonesCount?: number
+  guidelines?: string[]
 }
 
 export interface ContributeFormInput {
@@ -39,4 +40,5 @@ export interface ContributeFormInput {
   title: string
   description?: string
   categoryName: string
+  guidelines?: string[]
 }

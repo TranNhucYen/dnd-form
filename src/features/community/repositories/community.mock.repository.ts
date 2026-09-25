@@ -1,4 +1,4 @@
-﻿import { ICommunityRepository } from './community.repository'
+import { ICommunityRepository } from './community.repository'
 import {
   CommunityTemplate,
   ContributionItem,
@@ -129,7 +129,12 @@ let mockMyContributions: ContributionItem[] = [
     status: ContributionStatus.REJECTED,
     submittedAt: '2026-08-10T11:15:00Z',
     reviewedAt: '2026-08-11T09:00:00Z',
-    feedback: 'Mô tả biểu mẫu cần chi tiết hơn và vui lòng bổ sung thêm các điều khoản cam kết bảo quản tài sản trước khi gửi lại.',
+    feedback: 'Biểu mẫu chưa chuẩn font-size',
+    guidelines: [
+      'Kiểm tra tình trạng thiết bị trước khi bàn giao',
+      'Điền đầy đủ số Serial và cấu hình máy',
+      'Đại diện hai bên ký xác nhận vào biên bản',
+    ],
   },
 ]
 
@@ -157,6 +162,7 @@ export const communityMockRepository: ICommunityRepository = {
       categoryName: input.categoryName || 'Khác',
       status: ContributionStatus.PENDING,
       submittedAt: new Date().toISOString(),
+      guidelines: input.guidelines || [],
     }
     mockMyContributions = [newContribution, ...mockMyContributions]
     return { ...newContribution }
