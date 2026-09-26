@@ -14,6 +14,10 @@ export const TEMPLATE_STATUS_LABELS: Record<TemplateStatus, string> = {
 
 export type TemplatePublishStatus = 'active' | 'block' | null
 
+export type ActionResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
+
 export interface AdminTemplate {
   id: number
   title: string
@@ -27,6 +31,7 @@ export interface AdminTemplate {
   review_status: TemplateStatus
   status: TemplatePublishStatus
   approvedBy?: string
+  approvedByEmail?: string
   rejectReason?: string
   downloads: number
   createdAt: string
@@ -42,5 +47,7 @@ export interface UpdateTemplateInput {
   review_status?: TemplateStatus
   status?: TemplatePublishStatus
   approvedBy?: string
+  approvedByEmail?: string
   rejectReason?: string
 }
+
