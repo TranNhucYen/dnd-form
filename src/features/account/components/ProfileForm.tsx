@@ -1,6 +1,6 @@
   'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Card,
   CardHeader,
@@ -26,6 +26,10 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
   const [name, setName] = useState(initialProfile.name)
   const [isSaving, setIsSaving] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
+
+  useEffect(() => {
+    setName(initialProfile.name)
+  }, [initialProfile.name])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

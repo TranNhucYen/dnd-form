@@ -1,10 +1,12 @@
 export interface UserProfile {
-  id: string
+  id: number
   name: string
   email: string
   avatarUrl?: string
-  role: string
+  role?: string
   joinedAt: string
+  formsCount: number
+  contributionsCount: number
 }
 
 export interface UpdateProfileInput {
@@ -17,3 +19,6 @@ export interface ChangePasswordInput {
   confirmPassword: string
 }
 
+export type ActionResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
