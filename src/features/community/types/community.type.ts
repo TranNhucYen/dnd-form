@@ -4,27 +4,27 @@ export enum ContributionStatus {
   REJECTED = 'rejected',
 }
 
-export interface CommunityTemplate {
+export interface CommunityCategory {
+  id: number
+  name: string
+  slug: string
+}
+
+export interface UserFormOption {
   id: number
   title: string
-  description: string
-  categoryId: number
-  categoryName: string
-  authorId: string | number
-  authorName: string
-  authorAvatar?: string
-  clonesCount: number
-  fieldsCount: number
-  tags: string[]
-  createdAt: Date | string
-  updatedAt: Date | string
 }
+
+export type ActionResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
 
 export interface ContributionItem {
   id: number
-  sourceFormId: number
+  sourceFormId?: number
   title: string
   description: string
+  categoryId?: number
   categoryName: string
   status: ContributionStatus
   statusLabel?: string
@@ -39,6 +39,7 @@ export interface ContributeFormInput {
   sourceFormId: number
   title: string
   description?: string
-  categoryName: string
+  categoryId: number
+  categoryName?: string
   guidelines?: string[]
 }

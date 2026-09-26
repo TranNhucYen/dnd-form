@@ -43,15 +43,8 @@ export function CommunityContributions({
 }: CommunityContributionsProps) {
   const [selectedFeedbackItem, setSelectedFeedbackItem] = useState<ContributionItem | null>(null)
 
-  const approvedCount = contributions.filter(
-    (c) => c.status === ContributionStatus.APPROVED
-  ).length
-  const pendingCount = contributions.filter(
-    (c) => c.status === ContributionStatus.PENDING
-  ).length
-  const rejectedCount = contributions.filter(
-    (c) => c.status === ContributionStatus.REJECTED
-  ).length
+  const approvedCount = contributions.filter((c) => c.status === ContributionStatus.APPROVED).length
+  const pendingCount = contributions.filter((c) => c.status === ContributionStatus.PENDING).length
 
   const renderStatusBadge = (status: ContributionStatus) => {
     switch (status) {
