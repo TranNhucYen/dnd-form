@@ -1,5 +1,5 @@
 export interface GuidelineItem {
-  id: string
+  id?: string
   content: string
 }
 
@@ -16,7 +16,7 @@ export enum TemplatePricingType {
 export enum TemplateStatus {
   ACTIVE = 'active',
   ARCHIVED = 'archived',
-  DRAFT = 'draft'
+  DRAFT = 'draft',
 }
 
 export interface Template {
@@ -26,12 +26,21 @@ export interface Template {
   ownerName: string
   categoryId?: number
   categoryName: string
-  type: TemplateType
-  pricingType: TemplatePricingType
-  status: TemplateStatus
-  description?: string
-  guideline?: GuidelineItem[]
+  type?: TemplateType
+  pricingType: TemplatePricingType | 'free' | 'paid'
+  status?: TemplateStatus | string
+  description?: string | null
+  guideline?: (GuidelineItem | string)[] | null
   downloads: number
+  schemaId?: number
   createdAt?: Date | string
   updatedAt: Date | string
+}
+
+export type ActionResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
+
+export interface UseTemplateResult {
+  formId: number
 }

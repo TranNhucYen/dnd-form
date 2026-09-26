@@ -1,24 +1,34 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { Template } from "../types/template.type"
-import { getTemplatesAction, getTemplateByIdAction } from "../actions/template.action"
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { Template } from '../types/template.type'
+import {
+  getTemplatesAction,
+  getTemplateByIdAction,
+  useTemplateAction,
+} from '../actions/template.action'
 
 export function useTemplateList() {
   const [data, setData] = useState<Template[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
       const res = await getTemplatesAction()
-      setData(res)
+      if (res.success) {
+        setData(res.data)
+      } else {
+        setError(res.error)
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Đã có lỗi xảy ra")
+      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
     } finally {
       setIsLoading(false)
     }
@@ -30,13 +40,12 @@ export function useTemplateList() {
 
   const categories = useMemo(() => {
     const unique = Array.from(
-      new Set(
-        data
-          .map((item) => item.categoryName)
-          .filter((c): c is string => Boolean(c))
+      new Set(data
+        .map((item) => item.categoryName)
+        .filter((c): c is string => Boolean(c))
       )
     )
-    return ["all", ...unique]
+    return ['all', ...unique]
   }, [data])
 
   const filteredTemplates = useMemo(() => {
@@ -46,8 +55,7 @@ export function useTemplateList() {
         (template.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
         (template.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
 
-      const matchesCategory =
-        selectedCategory === "all" || template.categoryName === selectedCategory
+      const matchesCategory = selectedCategory === 'all' || template.categoryName === selectedCategory
 
       return matchesSearch && matchesCategory
     })
@@ -67,16 +75,17 @@ export function useTemplateList() {
   }
 }
 
-
 export function useTemplateDetail(id: number) {
   const [template, setTemplate] = useState<Template | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isCopying, setIsCopying] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const fetchTemplate = useCallback(async () => {
     if (!id || isNaN(id)) {
       setIsLoading(false)
-      setError("ID biểu mẫu không hợp lệ")
+      setError('Mã biểu mẫu không hợp lệ')
       return
     }
 
@@ -84,13 +93,13 @@ export function useTemplateDetail(id: number) {
     setError(null)
     try {
       const res = await getTemplateByIdAction(id)
-      if (!res) {
-        setError("Không tìm thấy biểu mẫu")
+      if (res.success) {
+        setTemplate(res.data)
       } else {
-        setTemplate(res)
+        setError(res.error)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Đã có lỗi xảy ra")
+      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
     } finally {
       setIsLoading(false)
     }
@@ -100,11 +109,30 @@ export function useTemplateDetail(id: number) {
     fetchTemplate()
   }, [fetchTemplate])
 
+  const createFormCopy = async () => {
+    if (!template || isCopying) return
+    setIsCopying(true)
+    try {
+      const res = await useTemplateAction(template.id)
+      if (res.success) {
+        toast.success('Tạo bản sao biểu mẫu thành công')
+        router.push(`/editor?formId=${res.data.formId}`)
+      } else {
+        toast.error(res.error)
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Đã có lỗi xảy ra khi tạo bản sao')
+    } finally {
+      setIsCopying(false)
+    }
+  }
+
   return {
     template,
     isLoading,
+    isCopying,
     error,
+    createFormCopy,
     refetch: fetchTemplate,
   }
 }
-

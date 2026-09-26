@@ -4,6 +4,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Download, Pencil, FileText } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 import { Template, TemplatePricingType, TemplateStatus } from "../types/template.type"
 
 export interface CardProps {
@@ -114,7 +115,11 @@ export function Card({ template }: CardProps) {
       </Link>
 
       <div className="flex gap-2 pt-2 border-t border-slate-100">
-        <Button variant="outline" size="sm" className="flex-1 text-xs gap-1.5 cursor-pointer">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 text-xs gap-1.5 cursor-pointer text-muted-foreground"
+        >
           <Download className="size-3.5" />
           Tải xuống
         </Button>
