@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { toast } from 'sonner'
 import {
   AdminTemplate,
   TemplateStatus,
@@ -27,14 +28,22 @@ export function useTemplate(initialPageSize = 8) {
     setIsLoading(true)
     setError(null)
     try {
-      const [templatesData, categoriesData] = await Promise.all([
+      const [templatesRes, categoriesData] = await Promise.all([
         getTemplatesAction(),
-        getCategoriesAction(),
+        getCategoriesAction()
       ])
-      setTemplates(templatesData)
+
+      if (templatesRes.success) {
+        setTemplates(templatesRes.data)
+      } else {
+        setError(templatesRes.error)
+        toast.error(templatesRes.error)
+      }
       setCategories(categoriesData)
     } catch {
-      setError('Không thể tải danh sách biểu mẫu mẫu.')
+      const errorMsg = 'Không thể tải danh sách biểu mẫu mẫu.'
+      setError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setIsLoading(false)
     }
@@ -111,8 +120,15 @@ export function useTemplate(initialPageSize = 8) {
     )
 
     try {
-      await updateTemplateAction(id, data)
-    } catch {
+      const res = await updateTemplateAction(id, data)
+      if (!res.success) {
+        toast.error(res.error)
+        fetchTemplates()
+      } else if (res.data) {
+        setTemplates((prev) => prev.map((t) => (t.id === id ? res.data : t)))
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lỗi khi cập nhật biểu mẫu mẫu.')
       fetchTemplates()
     }
   }

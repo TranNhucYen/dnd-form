@@ -1,4 +1,4 @@
-import { ITemplateRepository } from './template.repository'
+import type { ITemplateRepository } from './template.repository'
 import {
   AdminTemplate,
   TemplateStatus,
@@ -27,6 +27,7 @@ export let mockAdminTemplates: AdminTemplate[] = [
     review_status: TemplateStatus.APPROVED,
     status: 'active',
     approvedBy: 'Trần Nhực Yên',
+    approvedByEmail: 'yen.tran@dragform.io',
     downloads: 980,
     createdAt: '15/08/2026',
   },
@@ -89,6 +90,7 @@ export let mockAdminTemplates: AdminTemplate[] = [
     review_status: TemplateStatus.APPROVED,
     status: 'active',
     approvedBy: 'Trần Nhực Yên',
+    approvedByEmail: 'yen.tran@dragform.io',
     downloads: 630,
     createdAt: '28/08/2026',
   },
@@ -129,6 +131,7 @@ export let mockAdminTemplates: AdminTemplate[] = [
     review_status: TemplateStatus.APPROVED,
     status: 'block',
     approvedBy: 'Nguyễn Văn An',
+    approvedByEmail: 'vanan.nguyen@example.com',
     downloads: 870,
     createdAt: '05/09/2026',
   },
@@ -169,6 +172,7 @@ export let mockAdminTemplates: AdminTemplate[] = [
     review_status: TemplateStatus.APPROVED,
     status: 'active',
     approvedBy: 'Trần Nhực Yên',
+    approvedByEmail: 'yen.tran@dragform.io',
     downloads: 750,
     createdAt: '10/09/2026',
   },
@@ -229,6 +233,7 @@ export let mockAdminTemplates: AdminTemplate[] = [
     review_status: TemplateStatus.APPROVED,
     status: 'active',
     approvedBy: 'Trần Nhực Yên',
+    approvedByEmail: 'yen.tran@dragform.io',
     downloads: 490,
     createdAt: '14/09/2026',
   },
@@ -244,7 +249,7 @@ export const templateMockRepository: ITemplateRepository = {
     return found ? { ...found } : null
   },
 
-  async updateTemplate(id: number, data: UpdateTemplateInput): Promise<AdminTemplate | null> {
+  async updateTemplate(id: number, data: UpdateTemplateInput, _adminUserId?: number): Promise<AdminTemplate | null> {
     const index = mockAdminTemplates.findIndex((t) => t.id === id)
     if (index === -1) return null
 
