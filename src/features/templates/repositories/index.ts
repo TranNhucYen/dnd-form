@@ -5,3 +5,5 @@ import { templateMockRepository } from "./template.mock.repository";
 export const templateRepository = isMockMode()
   ? templateMockRepository
   : drizzleTemplateRepository;
+
+export * from "./template.repository";

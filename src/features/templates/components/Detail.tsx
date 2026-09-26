@@ -15,8 +15,10 @@ import {
   AlertCircle,
   RefreshCw,
   FileText,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 import { useTemplateDetail } from "../hooks/useTemplate"
 import { TemplatePricingType } from "../types/template.type"
 
@@ -25,7 +27,7 @@ export interface DetailProps {
 }
 
 export function Detail({ id }: DetailProps) {
-  const { template, isLoading, error, refetch } = useTemplateDetail(Number(id))
+  const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id))
 
   if (isLoading) {
     return <DetailSkeleton />
@@ -123,16 +125,25 @@ export function Detail({ id }: DetailProps) {
 
         {/* Buttons Action */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button variant="outline" className="flex-1 md:flex-none cursor-pointer gap-1.5">
+          <Button
+            variant="outline"
+            className="flex-1 md:flex-none cursor-pointer gap-1.5 text-muted-foreground"
+          >
             <Download className="size-4" />
             Tải xuống (PDF)
           </Button>
-          <Link href="/editor" className="flex-1 md:flex-none">
-            <Button className="w-full cursor-pointer gap-1.5">
+          <Button
+            onClick={createFormCopy}
+            disabled={isCopying}
+            className="flex-1 md:flex-none cursor-pointer gap-1.5"
+          >
+            {isCopying ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
               <Copy className="size-4" />
-              Tạo bản sao chỉnh sửa
-            </Button>
-          </Link>
+            )}
+            {isCopying ? "Đang tạo bản sao..." : "Tạo bản sao chỉnh sửa"}
+          </Button>
         </div>
       </div>
 
