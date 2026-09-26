@@ -1,59 +1,101 @@
-﻿'use server'
+'use server'
 
+import { cookies } from 'next/headers'
+import { verifyJwtToken } from '@/lib/jwt'
 import {
-  CommunityTemplate,
   ContributionItem,
   ContributeFormInput,
+  CommunityCategory,
+  UserFormOption,
+  ActionResponse,
 } from '../types/community.type'
 import { communityService } from '../services/community.service'
 
-export async function getCommunityTemplatesAction(): Promise<CommunityTemplate[]> {
+async function getAuthenticatedUserId(): Promise<{ userId: number } | { error: string }> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+
+  if (!token) {
+    return { error: 'Bạn cần đăng nhập để thực hiện thao tác này.' }
+  }
+
+  const user = await verifyJwtToken(token)
+  if (!user) {
+    return {
+      error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+    }
+  }
+
+  return { userId: user.id }
+}
+
+export async function getCommunityCategoriesAction(): Promise<ActionResponse<CommunityCategory[]>> {
   try {
-    return await communityService.getCommunityTemplates()
+    const data = await communityService.getCategories()
+    return { success: true, data }
   } catch (error) {
-    console.error('Lỗi khi tải kho biểu mẫu cộng đồng:', error)
-    throw new Error('Không thể tải danh sách biểu mẫu cộng đồng')
+    console.error('Lỗi khi tải danh mục cộng đồng:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Không thể tải danh sách danh mục.',
+    }
   }
 }
 
-export async function getCommunityTemplateByIdAction(
-  id: number
-): Promise<CommunityTemplate | null> {
+export async function getUserFormsForContributeAction(): Promise<ActionResponse<UserFormOption[]>> {
   try {
-    return await communityService.getTemplateById(id)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error }
+    }
+
+    const data = await communityService.getUserFormsForContribute(authResult.userId)
+    return { success: true, data }
   } catch (error) {
-    console.error(`Lỗi khi tải template cộng đồng ${id}:`, error)
-    throw new Error('Không thể tải chi tiết biểu mẫu cộng đồng')
+    console.error('Lỗi khi tải danh sách biểu mẫu của bạn:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Không thể tải danh sách biểu mẫu của bạn.',
+    }
   }
 }
 
-export async function getMyContributionsAction(): Promise<ContributionItem[]> {
+export async function getMyContributionsAction(): Promise<ActionResponse<ContributionItem[]>> {
   try {
-    return await communityService.getMyContributions()
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error }
+    }
+
+    const data = await communityService.getMyContributions(authResult.userId)
+    return { success: true, data }
   } catch (error) {
     console.error('Lỗi khi tải danh sách đóng góp:', error)
-    throw new Error('Không thể tải danh sách đóng góp của bạn')
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Không thể tải danh sách đóng góp của bạn.',
+    }
   }
 }
 
 export async function submitContributionAction(
   input: ContributeFormInput
-): Promise<ContributionItem> {
+): Promise<ActionResponse<ContributionItem>> {
   try {
-    return await communityService.submitContribution(input)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error }
+    }
+
+    const data = await communityService.submitContribution(authResult.userId, input)
+    return { success: true, data }
   } catch (error) {
     console.error('Lỗi khi gửi đóng góp biểu mẫu:', error)
-    throw new Error('Không thể gửi biểu mẫu vào cộng đồng')
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Không thể gửi biểu mẫu vào cộng đồng.',
+    }
   }
 }
 
-export async function useCommunityTemplateAction(
-  id: number
-): Promise<{ newFormId: number; title: string }> {
-  try {
-    return await communityService.useCommunityTemplate(id)
-  } catch (error) {
-    console.error(`Lỗi khi sử dụng template ${id}:`, error)
-    throw new Error('Không thể sao chép biểu mẫu cộng đồng')
-  }
-}
+

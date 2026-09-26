@@ -1,6 +1,8 @@
-﻿import { ICommunityRepository } from './community.repository'
+import { ICommunityRepository, drizzleCommunityRepository } from './community.repository'
 import { communityMockRepository } from './community.mock.repository'
+import { isMockMode } from '@/lib/config'
 
-export const communityRepository: ICommunityRepository = communityMockRepository
-export * from './community.repository'
-export * from './community.mock.repository'
+export const communityRepository = isMockMode()
+  ? communityMockRepository
+  : drizzleCommunityRepository
+

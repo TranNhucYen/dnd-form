@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -23,42 +23,46 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { UploadCloud, Info, Loader2, CheckCircle2, Plus, Trash2 } from 'lucide-react'
-import { COMMUNITY_CATEGORIES } from '../constants/community.constant'
-import { ContributeFormInput } from '../types/community.type'
+import {
+  ContributeFormInput,
+  CommunityCategory,
+  UserFormOption,
+} from '../types/community.type'
 
 interface ContributeFormModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  categories: CommunityCategory[]
+  userForms: UserFormOption[]
   onSubmitContribution: (input: ContributeFormInput) => Promise<unknown>
 }
-
-// Mock my forms for selection
-const AVAILABLE_USER_FORMS = [
-  { id: 1, title: 'Phiếu khảo sát mức độ hài lòng khách hàng Q3/2026', category: 'Khảo sát & Ý kiến' },
-  { id: 2, title: 'Đơn xin nghỉ phép - Phòng Kỹ thuật', category: 'Hành chính - Nhân sự' },
-  { id: 4, title: 'Biên bản bàn giao thiết bị làm việc', category: 'Hành chính - Nhân sự' },
-  { id: 6, title: 'Phiếu đánh giá hiệu suất nhân viên cuối năm', category: 'Hành chính - Nhân sự' },
-]
 
 export function ContributeFormModal({
   open,
   onOpenChange,
+  categories,
+  userForms,
   onSubmitContribution,
 }: ContributeFormModalProps) {
   const [selectedFormId, setSelectedFormId] = useState<string>('')
   const [title, setTitle] = useState('')
-  const [category, setCategory] = useState<string>(COMMUNITY_CATEGORIES[1])
+  const [categoryId, setCategoryId] = useState<string>('')
   const [description, setDescription] = useState('')
   const [guidelines, setGuidelines] = useState<string[]>([''])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
+  useEffect(() => {
+    if (!categoryId && categories.length > 0) {
+      setCategoryId(categories[0].id.toString())
+    }
+  }, [categories, categoryId])
+
   const handleFormSelect = (formIdStr: string) => {
     setSelectedFormId(formIdStr)
-    const found = AVAILABLE_USER_FORMS.find((f) => f.id.toString() === formIdStr)
+    const found = userForms.find((f) => f.id.toString() === formIdStr)
     if (found) {
       setTitle(found.title)
-      setCategory(found.category)
     }
   }
 
@@ -83,15 +87,17 @@ export function ContributeFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedFormId || !title.trim()) return
+    if (!selectedFormId || !title.trim() || !categoryId) return
 
     setIsSubmitting(true)
     try {
       const cleanGuidelines = guidelines.map((g) => g.trim()).filter(Boolean)
+      const selectedCat = categories.find((c) => c.id.toString() === categoryId)
       await onSubmitContribution({
         sourceFormId: Number(selectedFormId),
         title: title.trim(),
-        categoryName: category,
+        categoryId: Number(categoryId),
+        categoryName: selectedCat?.name,
         description: description.trim(),
         guidelines: cleanGuidelines,
       })
@@ -147,9 +153,7 @@ export function ContributeFormModal({
               <Alert className="bg-muted/50 border-muted">
                 <Info className="size-4" />
                 <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-                  <span className="font-semibold text-foreground">Quy tắc cộng đồng:</span>
-                  Template sẽ được tạo từ bản sao độc lập, hoàn toàn không ảnh hưởng đến biểu mẫu cá nhân
-                  và dữ liệu phản hồi của bạn.
+                  <span className="font-semibold text-foreground">Quy tắc cộng đồng:</span> Template sẽ được tạo từ bản sao độc lập, hoàn toàn không ảnh hưởng đến biểu mẫu cá nhân và dữ liệu phản hồi của bạn.
                 </AlertDescription>
               </Alert>
 
@@ -163,7 +167,7 @@ export function ContributeFormModal({
                     <SelectValue placeholder="Chọn biểu mẫu muốn chia sẻ..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {AVAILABLE_USER_FORMS.map((f) => (
+                    {userForms.map((f) => (
                       <SelectItem key={f.id} value={f.id.toString()} className="text-xs">
                         {f.title}
                       </SelectItem>
@@ -192,14 +196,14 @@ export function ContributeFormModal({
                 <Label htmlFor="community-category" className="text-xs font-semibold">
                   Danh mục phù hợp <span className="text-destructive">*</span>
                 </Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={categoryId} onValueChange={setCategoryId}>
                   <SelectTrigger id="community-category" className="w-full text-xs">
-                    <SelectValue />
+                    <SelectValue placeholder="Chọn danh mục..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {COMMUNITY_CATEGORIES.filter((c) => c !== 'Tất cả').map((c) => (
-                      <SelectItem key={c} value={c} className="text-xs">
-                        {c}
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id.toString()} className="text-xs">
+                        {c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -249,10 +253,7 @@ export function ContributeFormModal({
                   <div className="flex flex-col gap-2 py-0.5">
                     {guidelines.map((step, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        <span className="
-                          size-6 rounded-full bg-muted text-muted-foreground 
-                          flex items-center justify-center text-xs font-semibold shrink-0"
-                        >
+                        <span className="size-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-semibold shrink-0">
                           {index + 1}
                         </span>
                         <Input
@@ -295,7 +296,7 @@ export function ContributeFormModal({
               <Button
                 type="submit"
                 size="sm"
-                disabled={isSubmitting || !selectedFormId || !title.trim()}
+                disabled={isSubmitting || !selectedFormId || !title.trim() || !categoryId}
                 className="text-xs cursor-pointer"
               >
                 {isSubmitting ? (

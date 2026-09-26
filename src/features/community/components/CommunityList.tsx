@@ -18,6 +18,8 @@ import { ContributeFormModal } from './ContributeFormModal'
 export function CommunityList() {
   const {
     contributions,
+    categories,
+    userForms,
     isLoading,
     error,
     submitContribution,
@@ -105,6 +107,8 @@ export function CommunityList() {
       <ContributeFormModal
         open={contributeModalOpen}
         onOpenChange={setContributeModalOpen}
+        categories={categories}
+        userForms={userForms}
         onSubmitContribution={submitContribution}
       />
     </div>
