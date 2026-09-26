@@ -8,3 +8,4 @@ export {
   Modal as CategoryModal,
 } from './category'
 export type { Category, CreateCategoryInput, UpdateCategoryInput } from './category'
+export * from './dashboard'
