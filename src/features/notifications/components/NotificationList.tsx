@@ -34,8 +34,9 @@ export function NotificationList() {
             <h1 className="text-xl font-bold text-foreground">Trung tâm thông báo</h1>
           </div>
           <p className="text-xs text-muted-foreground">
-            Theo dõi chia sẻ biểu mẫu, cập nhật phân quyền và kết quả xét duyệt cộng đồng
+            Theo dõi chia sẻ biểu mẫu, thông báo hệ thống và kết quả xét duyệt cộng đồng
           </p>
+
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">

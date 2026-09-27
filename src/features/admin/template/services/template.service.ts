@@ -1,9 +1,11 @@
 import { AdminTemplate, TemplateStatus, UpdateTemplateInput } from '../types/template.type'
 import { Category } from '../../category/types/category.type'
 import { templateRepository } from '../repositories'
+import { notificationService } from '@/features/notifications/services/notification.service'
 
 export const templateService = {
   async getTemplates(): Promise<AdminTemplate[]> {
+
     try {
       return await templateRepository.getTemplates()
     } catch (error) {
@@ -43,12 +45,15 @@ export const templateService = {
       if (!updated) {
         throw new Error('Không thể cập nhật biểu mẫu mẫu.')
       }
+
+      await notificationService.notifyTemplateReview(existing, updated, data, adminUserId)
       return updated
     } catch (error) {
       console.error(`Lỗi khi cập nhật biểu mẫu mẫu id ${id}:`, error)
       throw error instanceof Error ? error : new Error('Không thể cập nhật biểu mẫu mẫu.')
     }
   },
+
 
   async getCategories(): Promise<Category[]> {
     try {
