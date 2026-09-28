@@ -34,6 +34,11 @@ export async function middleware(request: NextRequest) {
     if (user.role !== UserRole.SUPER_ADMIN && user.role !== UserRole.ADMIN) {
       return NextResponse.redirect(new URL(ROUTES.HOME, request.url))
     }
+
+    // kiểm tra quyền super_admin để vào trang quản lý người dùng
+    if (pathname.startsWith(ROUTES.ADMIN_USERS) && user.role !== UserRole.SUPER_ADMIN) {
+      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, request.url))
+    }
   }
 
   const userRoutePrefixes = [

@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils'
 import { ROUTES } from '@/shared/constants/routes'
 import { logoutAction } from '@/features/auth/actions/auth.action'
 import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate, ChartBarStacked, LogOut, Loader2 } from 'lucide-react'
+import { UserRole } from '@/shared/types/user.type'
 
 const adminNavItems = [
   {
@@ -54,11 +55,18 @@ const adminNavItems = [
   },
 ]
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  role?: UserRole;
+}
+
+export function AdminSidebar({ role }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const isSuperAdmin = role === UserRole.SUPER_ADMIN
+  const navItems = adminNavItems.filter((item) => item.url !== ROUTES.ADMIN_USERS || isSuperAdmin)
 
   const handleConfirmLogout = async () => {
     setIsLoggingOut(true)
@@ -92,7 +100,7 @@ export function AdminSidebar() {
               variant="outline"
               className="text-xs px-1.5 py-0 bg-primary/10 text-primary border-primary/30"
             >
-              Admin
+              {isSuperAdmin ? 'Super Admin' : 'Admin'}
             </Badge>
           </span>
         </Link>
@@ -105,7 +113,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent className="mt-2">
             <SidebarMenu>
-              {adminNavItems.map((item) => {
+              {navItems.map((item) => {
                 const isActive =
                   item.url === ROUTES.ADMIN_DASHBOARD
                     ? pathname === item.url
