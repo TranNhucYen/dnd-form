@@ -29,8 +29,9 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/shared/constants/routes'
 import { logoutAction } from '@/features/auth/actions/auth.action'
-import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate, ChartBarStacked, LogOut, Loader2 } from 'lucide-react'
+import { LayoutDashboard, Users, LayoutTemplate, ChartBarStacked, LogOut, Loader2 } from 'lucide-react'
 import { UserRole } from '@/shared/types/user.type'
+import { AuthUser } from '@/features/auth/types/auth.type'
 
 const adminNavItems = [
   {
@@ -56,17 +57,25 @@ const adminNavItems = [
 ]
 
 interface AdminSidebarProps {
-  role?: UserRole;
+  user: AuthUser
 }
 
-export function AdminSidebar({ role }: AdminSidebarProps) {
+export function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const isSuperAdmin = role === UserRole.SUPER_ADMIN
+  const isSuperAdmin = user.role === UserRole.SUPER_ADMIN
   const navItems = adminNavItems.filter((item) => item.url !== ROUTES.ADMIN_USERS || isSuperAdmin)
+
+  const initials = user.fullName
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 
   const handleConfirmLogout = async () => {
     setIsLoggingOut(true)
@@ -152,15 +161,19 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t">
-        <Link
-          href={ROUTES.HOME}
-          className="
-            flex items-center gap-3 px-3 py-3 rounded-md transition-colors
-            hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Về trang người dùng</span>
-        </Link>
+        <div className="flex items-center gap-3 p-1 -m-1 rounded-md">
+          <div
+            className="
+              h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center 
+              font-bold text-sm shrink-0 border border-primary/20"
+          >
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-sm font-semibold truncate leading-none">{user.fullName}</p>
+            <p className="text-xs text-muted-foreground truncate mt-1">{user.email}</p>
+          </div>
+        </div>
       </SidebarFooter>
 
       <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>

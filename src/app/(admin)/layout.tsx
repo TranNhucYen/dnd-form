@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <SidebarProvider className="h-svh overflow-hidden">
-      <AdminSidebar role={user.role} />
+      <AdminSidebar user={user} />
       <main className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
