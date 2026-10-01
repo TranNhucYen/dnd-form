@@ -83,6 +83,7 @@ export type SignatureFieldData = {
 
 export type ImageFieldData = {
   value?: string;
+  key?: string;
 };
 
 export type DatatableFieldData = {

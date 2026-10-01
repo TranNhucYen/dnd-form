@@ -8,6 +8,7 @@ import type { FormDetailResult, SaveFormResult } from "../types/editor.type";
 export interface MediaInsertItem {
   mediaType: "signature" | "image" | "document";
   signatureBase64?: string | null;
+  fileKey?: string | null;
   fileUrl?: string | null;
   fileName?: string | null;
   mimeType?: string | null;
@@ -56,6 +57,7 @@ export const drizzleEditorRepository: IEditorRepository = {
               schemaId,
               mediaType: m.mediaType,
               signatureBase64: m.signatureBase64 ?? null,
+              fileKey: m.fileKey ?? null,
               fileUrl: m.fileUrl ?? null,
               fileName: m.fileName ?? null,
               mimeType: m.mimeType ?? null,
@@ -113,6 +115,7 @@ export const drizzleEditorRepository: IEditorRepository = {
             schemaId,
             mediaType: m.mediaType,
             signatureBase64: m.signatureBase64 ?? null,
+            fileKey: m.fileKey ?? null,
             fileUrl: m.fileUrl ?? null,
             fileName: m.fileName ?? null,
             mimeType: m.mimeType ?? null,
