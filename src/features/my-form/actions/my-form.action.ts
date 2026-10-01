@@ -7,6 +7,8 @@ import type {
   MyForm,
   CreateBlankFormInput,
   ActionResponse,
+  SaveSharingInput,
+  ShareTokenResult,
 } from '../types/my-form.type'
 
 async function getAuthenticatedUserId(): Promise<
@@ -131,3 +133,46 @@ export async function deleteFormAction(id: number): Promise<ActionResponse<boole
     }
   }
 }
+
+export async function getFormShareTokenAction(
+  formId: number
+): Promise<ActionResponse<ShareTokenResult>> {
+  try {
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error }
+    }
+
+    const data = await myFormService.getFormShareToken(authResult.userId, formId)
+    return { success: true, data }
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Đã xảy ra lỗi khi tải thông tin chia sẻ.',
+    }
+  }
+}
+
+export async function saveFormSharingAction(
+  formId: number,
+  input: SaveSharingInput
+): Promise<ActionResponse<ShareTokenResult>> {
+  try {
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error }
+    }
+
+    const data = await myFormService.saveFormSharing(authResult.userId, formId, input)
+    return { success: true, data }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Đã xảy ra lỗi khi lưu cài đặt chia sẻ.',
+    }
+  }
+}
+

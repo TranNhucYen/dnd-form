@@ -14,9 +14,11 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { Plus, Search, RefreshCw, AlertCircle, FolderOpen } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useMyFormList } from '../hooks/useMyForm'
 import type { MyForm } from '../types/my-form.type'
+import { saveFormSharingAction } from '../actions/my-form.action'
 import { MyFormTable } from './MyFormTable'
 import { CreateFormModal } from './CreateFormModal'
 import { DuplicateFormModal } from './DuplicateFormModal'
@@ -266,7 +268,21 @@ export default function MyFormList() {
         form={shareModalForm}
         open={!!shareModalForm}
         onOpenChange={(open) => !open && setShareModalForm(null)}
-        onUpdateSharing={async () => {}}
+        onUpdateSharing={async (id, sharing) => {
+          const res = await saveFormSharingAction(id, {
+            isPublic: sharing.isPublic,
+            sharedUsers: sharing.sharedWith.map((u) => ({
+              email: u.email,
+              role: u.role,
+            })),
+          })
+          if (!res.success) {
+            toast.error(res.error || 'Lưu cài đặt chia sẻ thất bại')
+            throw new Error(res.error)
+          }
+          toast.success('Đã cập nhật cài đặt chia sẻ thành công')
+          refetch()
+        }}
       />
 
       <PreviewFormModal

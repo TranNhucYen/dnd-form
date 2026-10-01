@@ -32,6 +32,7 @@ export interface FormDetailResult {
   }>;
   createdAt: string;
   updatedAt: string;
+  currentUserPermission?: 'owner' | 'edit' | 'view';
 }
 
 /** Cấu trúc phản hồi chuẩn của Server Action */

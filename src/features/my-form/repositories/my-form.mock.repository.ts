@@ -1,5 +1,11 @@
 import type { IMyFormRepository } from './my-form.repository'
-import type { MyForm, CreateBlankFormInput } from '../types/my-form.type'
+import type {
+  MyForm,
+  CreateBlankFormInput,
+  SaveSharingInput,
+  ShareTokenResult,
+  PublicFormDetail,
+} from '../types/my-form.type'
 
 const mockForms: MyForm[] = [
   {
@@ -90,5 +96,57 @@ export const myFormMockRepository: IMyFormRepository = {
     const beforeLen = formsState.length
     formsState = formsState.filter((f) => f.id !== formId)
     return formsState.length < beforeLen
+  },
+
+  async getFormShareToken(formId: number, _userId: number): Promise<ShareTokenResult> {
+    void _userId
+    const found = formsState.find((f) => f.id === formId)
+    const isPublic = !!found?.isPublic
+    const token = isPublic ? `mock-token-${formId}` : null
+    return {
+      isPublic,
+      token,
+      shareUrl: token ? `/share/${token}` : null,
+      sharedWith: found?.sharedWith || [],
+    }
+  },
+
+  async saveFormSharing(
+    formId: number,
+    _userId: number,
+    input: SaveSharingInput
+  ): Promise<ShareTokenResult> {
+    void _userId
+    const found = formsState.find((f) => f.id === formId)
+    if (found) {
+      found.isPublic = input.isPublic
+      if (input.sharedUsers !== undefined) {
+        found.sharedWith = input.sharedUsers.map((u, i) => ({
+          id: `u_${i}`,
+          email: u.email,
+          role: u.role,
+          addedAt: new Date().toISOString(),
+        }))
+      }
+    }
+    const token = input.isPublic ? `mock-token-${formId}` : null
+    return {
+      isPublic: input.isPublic,
+      token,
+      shareUrl: token ? `/share/${token}` : null,
+      sharedWith: found?.sharedWith || [],
+    }
+  },
+
+  async getPublicFormByToken(token: string): Promise<PublicFormDetail | null> {
+    const formId = Number(token.replace('mock-token-', ''))
+    const found = formsState.find((f) => f.id === formId && f.isPublic)
+    if (!found) return null
+    return {
+      id: found.id,
+      name: found.name,
+      description: found.description ?? null,
+      schemaContent: { fields: [] },
+    }
   },
 }
