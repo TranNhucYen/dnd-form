@@ -1,11 +1,22 @@
 import { myFormRepository } from '../repositories'
-import type { MyForm, CreateBlankFormInput } from '../types/my-form.type'
+import type {
+  MyForm,
+  CreateBlankFormInput,
+  SaveSharingInput,
+  ShareTokenResult,
+  PublicFormDetail,
+} from '../types/my-form.type'
 
 function formatForm(form: MyForm): MyForm {
   const createdDate = new Date(form.createdAt)
   const updatedDate = new Date(form.updatedAt)
 
-  const shareSummary = form.isPublic ? 'Công khai (có liên kết)' : 'Riêng tư'
+  let shareSummary = 'Riêng tư'
+  if (form.isPublic) {
+    shareSummary = 'Công khai (có liên kết)'
+  } else if (form.sharedWith && form.sharedWith.length > 0) {
+    shareSummary = `Chia sẻ với ${form.sharedWith.length} người`
+  }
 
   return {
     ...form,
@@ -113,5 +124,45 @@ export const myFormService = {
       throw new Error('Biểu mẫu không tồn tại hoặc bạn không có quyền xóa.')
     }
     return true
+  },
+
+  /**
+   * Lấy token và trạng thái chia sẻ của biểu mẫu
+   */
+  async getFormShareToken(userId: number, formId: number): Promise<ShareTokenResult> {
+    try {
+      return await myFormRepository.getFormShareToken(formId, userId)
+    } catch (error) {
+      console.error(`Lỗi khi lấy thông tin chia sẻ formId ${formId}:`, error)
+      throw new Error(error instanceof Error ? error.message : 'Không thể lấy thông tin chia sẻ.')
+    }
+  },
+
+  /**
+   * Lưu cài đặt chia sẻ biểu mẫu (công khai link & mời người dùng)
+   */
+  async saveFormSharing(
+    userId: number,
+    formId: number,
+    input: SaveSharingInput
+  ): Promise<ShareTokenResult> {
+    try {
+      return await myFormRepository.saveFormSharing(formId, userId, input)
+    } catch (error) {
+      console.error(`Lỗi khi lưu cài đặt chia sẻ formId ${formId}:`, error)
+      throw new Error(error instanceof Error ? error.message : 'Không thể lưu cài đặt chia sẻ.')
+    }
+  },
+
+  /**
+   * Lấy chi tiết biểu mẫu công khai theo token
+   */
+  async getPublicFormByToken(token: string): Promise<PublicFormDetail | null> {
+    try {
+      return await myFormRepository.getPublicFormByToken(token)
+    } catch (error) {
+      console.error(`Lỗi khi lấy biểu mẫu công khai token ${token}:`, error)
+      throw new Error('Không thể tải biểu mẫu công khai.')
+    }
   },
 }

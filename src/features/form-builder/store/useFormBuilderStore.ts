@@ -92,6 +92,10 @@ export interface FormBuilderState {
   setIsSaving: (isSaving: boolean) => void;
   triggerSave: () => Promise<void>;
 
+  /** Trạng thái chỉ xem của biểu mẫu */
+  isReadOnly: boolean;
+  setIsReadOnly: (isReadOnly: boolean) => void;
+
   /** Nạp schema chuẩn hóa vào Canvas */
   loadFormSchema: (schema: FormSchemaJson) => void;
 
@@ -109,6 +113,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     left: "20",
     right: "20",
   },
+
+  isReadOnly: false,
+  setIsReadOnly: (isReadOnly) => set({ isReadOnly }),
 
   onSave: undefined,
   isSaving: false,
@@ -469,6 +476,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       fields: [],
       selectedFieldId: null,
       clipboardField: null,
+      isReadOnly: false,
       past: [],
       future: [],
       canUndo: false,

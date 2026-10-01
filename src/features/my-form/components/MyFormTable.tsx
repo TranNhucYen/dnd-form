@@ -55,6 +55,26 @@ export function MyFormTable({
   const router = useRouter()
 
   const renderAccessBadge = (form: MyForm) => {
+    if (form.isPublic && form.sharedWith && form.sharedWith.length > 0) {
+      return (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onOpenShare(form)
+          }}
+          onDoubleClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800
+            bg-emerald-50/70 hover:bg-emerald-100/70 px-2 py-0.5 rounded-md
+            transition-colors cursor-pointer border border-emerald-200/60"
+          title={`Công khai và đã chia sẻ với ${form.sharedWith.length} người`}
+        >
+          <Globe className="size-3.5 shrink-0" />
+          <span className="truncate max-w-[120px]">Công khai ({form.sharedWith.length})</span>
+        </button>
+      )
+    }
+
     if (form.isPublic) {
       return (
         <button

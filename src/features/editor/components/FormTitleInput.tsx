@@ -8,19 +8,22 @@ export interface FormTitleInputProps {
   inputRef: React.RefObject<HTMLInputElement | null>;
   defaultValue?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function FormTitleInput({
   inputRef,
   defaultValue = "Biểu mẫu chưa đặt tên",
   className,
+  disabled,
 }: FormTitleInputProps) {
   return (
     <Input
       ref={inputRef}
       defaultValue={defaultValue}
+      disabled={disabled}
       placeholder="Nhập tên biểu mẫu..."
-      title="Nhấp đúp chuột để đổi tên"
+      title={disabled ? "Chế độ chỉ xem" : "Nhấp đúp chuột để đổi tên"}
       onDoubleClick={(e) => e.currentTarget.select()}
       onKeyDown={(e) => {
         if (e.key === "Enter") {

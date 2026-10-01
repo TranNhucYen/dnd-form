@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -32,8 +31,8 @@ import {
   Trash2,
   Shield,
 } from 'lucide-react'
-import { getFormShareUrl } from '@/lib/url'
 import { MyForm, ShareRole, SharedUser } from '../types/my-form.type'
+import { useFormSharing } from '../hooks/useFormSharing'
 
 interface ShareFormModalProps {
   form: MyForm | null
@@ -59,70 +58,24 @@ function ShareFormContent({
   onOpenChange,
   onUpdateSharing,
 }: ShareFormContentProps) {
-  const [isPublic, setIsPublic] = useState(() => form.isPublic)
-  const [sharedUsers, setSharedUsers] = useState<SharedUser[]>(
-    () => form.sharedWith || []
-  )
-  const [newEmail, setNewEmail] = useState('')
-  const [newRole, setNewRole] = useState<ShareRole>(ShareRole.VIEW)
-  const [copied, setCopied] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-
-  const shareUrl = getFormShareUrl(form.id)
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleAddUser = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newEmail.trim() || !newEmail.includes('@')) return
-
-    if (
-      sharedUsers.some(
-        (u) => u.email.toLowerCase() === newEmail.trim().toLowerCase()
-      )
-    ) {
-      return
-    }
-
-    const newUser: SharedUser = {
-      id: `u_${Date.now()}`,
-      email: newEmail.trim(),
-      role: newRole,
-      addedAt: new Date().toISOString(),
-    }
-
-    setSharedUsers([...sharedUsers, newUser])
-    setNewEmail('')
-  }
-
-  const handleRemoveUser = (userId: string) => {
-    setSharedUsers(sharedUsers.filter((u) => u.id !== userId))
-  }
-
-  const handleRoleChange = (userId: string, role: ShareRole) => {
-    setSharedUsers(
-      sharedUsers.map((u) => (u.id === userId ? { ...u, role } : u))
-    )
-  }
-
-  const handleSave = async () => {
-    setIsSaving(true)
-    try {
-      await onUpdateSharing(form.id, {
-        isPublic,
-        sharedWith: sharedUsers,
-      })
-      onOpenChange(false)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsSaving(false)
-    }
-  }
+  const {
+    isPublic,
+    shareToken,
+    shareUrl,
+    sharedUsers,
+    newEmail,
+    setNewEmail,
+    newRole,
+    setNewRole,
+    copied,
+    isSaving,
+    handleCopyLink,
+    handleTogglePublic,
+    handleAddUser,
+    handleRemoveUser,
+    handleRoleChange,
+    handleSave,
+  } = useFormSharing({ form, onOpenChange, onUpdateSharing })
 
   return (
     <>
@@ -136,11 +89,11 @@ function ShareFormContent({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="flex flex-col gap-6 py-2">
+      <div className="flex flex-col gap-6 py-2 min-w-0 w-full overflow-hidden">
         {/* Public link section */}
         <div
           className="p-4 rounded-xl bg-muted/50 border border-border
-          flex flex-col gap-3"
+          flex flex-col gap-3 min-w-0 w-full"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -169,20 +122,22 @@ function ShareFormContent({
               type="button"
               variant={isPublic ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setIsPublic(!isPublic)}
+              onClick={handleTogglePublic}
               className="text-xs h-8 cursor-pointer"
             >
               {isPublic ? 'Đang bật' : 'Đang tắt'}
             </Button>
           </div>
 
-          <div className="flex gap-2 items-center pt-1">
+          <div className="flex gap-2 items-center pt-1 min-w-0 w-full">
             <div
-              className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg
+              className="min-w-0 flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg
               bg-background border border-border text-xs text-muted-foreground overflow-hidden"
             >
               <Link2 className="size-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate select-all">{shareUrl}</span>
+              <span className="w-0 flex-1 truncate select-all font-mono" title={shareUrl}>
+                {shareUrl}
+              </span>
             </div>
 
             <Button
@@ -190,7 +145,7 @@ function ShareFormContent({
               variant="secondary"
               size="sm"
               onClick={handleCopyLink}
-              disabled={!isPublic}
+              disabled={!isPublic || !shareToken}
               className="text-xs h-8 shrink-0 cursor-pointer"
             >
               {copied ? (
@@ -331,7 +286,7 @@ function ShareFormContent({
                     onClick={() => handleRemoveUser(user.id)}
                     className="size-7 text-muted-foreground hover:text-destructive cursor-pointer"
                   >
-                    <Trash2 />
+                    <Trash2 className="size-3.5" />
                   </Button>
                 </div>
               </div>
@@ -373,7 +328,7 @@ export function ShareFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px]">
+      <DialogContent className="sm:max-w-[560px] overflow-hidden">
         <ShareFormContent
           key={form.id}
           form={form}

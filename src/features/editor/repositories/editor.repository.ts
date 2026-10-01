@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { form, schemaJson, schemaMedia } from "@/db/schema";
+import { form, formShare, schemaJson, schemaMedia } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
 import type { FormDetailResult, SaveFormResult } from "../types/editor.type";
@@ -75,13 +75,36 @@ export const drizzleEditorRepository: IEditorRepository = {
       }
 
       // Cập nhật biểu mẫu khi đã có formId
-      // Kiểm tra quyền sở hữu biểu mẫu
+      // 1. Kiểm tra biểu mẫu có tồn tại không
       const [existingForm] = await tx
         .select()
         .from(form)
-        .where(and(eq(form.id, params.formId), eq(form.ownerId, params.userId)));
+        .where(eq(form.id, params.formId));
 
       if (!existingForm) {
+        return null;
+      }
+
+      // 2. Kiểm tra quyền chỉnh sửa (chủ sở hữu hoặc có quyền 'edit')
+      let canEdit = existingForm.ownerId === params.userId;
+      if (!canEdit) {
+        const [sharePermission] = await tx
+          .select({ permission: formShare.permission })
+          .from(formShare)
+          .where(
+            and(
+              eq(formShare.formId, params.formId),
+              eq(formShare.userId, params.userId),
+              eq(formShare.subjectType, "user"),
+            ),
+          );
+
+        if (sharePermission?.permission === "edit") {
+          canEdit = true;
+        }
+      }
+
+      if (!canEdit) {
         return null;
       }
 
@@ -144,10 +167,34 @@ export const drizzleEditorRepository: IEditorRepository = {
       })
       .from(form)
       .innerJoin(schemaJson, eq(form.schemaId, schemaJson.id))
-      .where(and(eq(form.id, formId), eq(form.ownerId, userId)));
+      .where(eq(form.id, formId));
 
     if (!existingForm) {
       return null;
+    }
+
+    let currentUserPermission: "owner" | "edit" | "view";
+
+    if (existingForm.form.ownerId === userId) {
+      currentUserPermission = "owner";
+    } else {
+      const [sharePermission] = await db
+        .select({ permission: formShare.permission })
+        .from(formShare)
+        .where(
+          and(
+            eq(formShare.formId, formId),
+            eq(formShare.userId, userId),
+            eq(formShare.subjectType, "user"),
+          ),
+        );
+
+      if (!sharePermission) {
+        return null;
+      }
+
+      currentUserPermission =
+        sharePermission.permission === "edit" ? "edit" : "view";
     }
 
     const mediaRecords = await db
@@ -170,6 +217,7 @@ export const drizzleEditorRepository: IEditorRepository = {
       })),
       createdAt: existingForm.form.createdAt.toISOString(),
       updatedAt: existingForm.form.updatedAt.toISOString(),
+      currentUserPermission,
     };
   },
 };

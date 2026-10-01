@@ -8,7 +8,10 @@ import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.t
 import { DYNAMIC_ROUTES } from "@/shared/constants/routes";
 
 /** Hook quản lý lưu biểu mẫu và đồng bộ tiêu đề qua ref */
-export function useEditorSave(initialFormId?: number | null) {
+export function useEditorSave(
+  initialFormId?: number | null,
+  isReadOnly = false,
+) {
   const [formId, setFormId] = useState<number | null>(initialFormId ?? null);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,6 +60,11 @@ export function useEditorSave(initialFormId?: number | null) {
   });
 
   useEffect(() => {
+    if (isReadOnly) {
+      setOnSave(undefined);
+      return;
+    }
+
     setOnSave(async (schema) => {
       await handleSaveRef.current(schema);
     });
@@ -64,7 +72,7 @@ export function useEditorSave(initialFormId?: number | null) {
     return () => {
       setOnSave(undefined);
     };
-  }, [setOnSave]);
+  }, [setOnSave, isReadOnly]);
 
   return {
     formId,
