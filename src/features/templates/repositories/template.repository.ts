@@ -8,6 +8,8 @@ import {
   GuidelineItem,
   UseTemplateResult,
 } from '../types/template.type'
+import { hydrateImageUrls } from '@/features/editor/utils/schema-hydrate'
+import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
 
 export interface ITemplateRepository {
   getTemplates(): Promise<Template[]>
@@ -78,12 +80,14 @@ export const drizzleTemplateRepository: ITemplateRepository = {
         guideline: template.guideline,
         downloads: template.downloads,
         schemaId: template.schemaId,
+        schemaContent: schemaJson.content,
         createdAt: template.createdAt,
         updatedAt: template.updatedAt,
       })
       .from(template)
       .leftJoin(user, eq(template.createdById, user.id))
       .leftJoin(templateCategory, eq(template.categoryId, templateCategory.id))
+      .leftJoin(schemaJson, eq(template.schemaId, schemaJson.id))
       .where(
         and(
           eq(template.id, id),
@@ -93,6 +97,11 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       )
 
     if (!row) return null
+
+    const schemaContent = (row.schemaContent as FormSchemaJson) ?? null
+    if (schemaContent) {
+      hydrateImageUrls(schemaContent)
+    }
 
     return {
       id: row.id,
@@ -107,6 +116,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       guideline: (row.guideline as (GuidelineItem | string)[]) ?? null,
       downloads: row.downloads ?? 0,
       schemaId: row.schemaId,
+      schemaContent: schemaContent ?? undefined,
       createdAt: row.createdAt?.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
     }

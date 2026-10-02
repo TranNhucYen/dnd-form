@@ -1,3 +1,5 @@
+import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+
 export interface GuidelineItem {
   id?: string
   content: string
@@ -33,6 +35,7 @@ export interface Template {
   guideline?: (GuidelineItem | string)[] | null
   downloads: number
   schemaId?: number
+  schemaContent?: FormSchemaJson
   createdAt?: Date | string
   updatedAt: Date | string
 }
