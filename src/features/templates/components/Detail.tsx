@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -14,13 +15,12 @@ import {
   Tag,
   AlertCircle,
   RefreshCw,
-  FileText,
   Loader2,
 } from "lucide-react"
 import Link from "next/link"
-import { toast } from "sonner"
 import { useTemplateDetail } from "../hooks/useTemplate"
 import { TemplatePricingType } from "../types/template.type"
+import { TemplateCanvasPreview, TemplateZoomModal } from "./preview"
 
 export interface DetailProps {
   id: string
@@ -28,6 +28,7 @@ export interface DetailProps {
 
 export function Detail({ id }: DetailProps) {
   const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id))
+  const [isZoomOpen, setIsZoomOpen] = useState(false)
 
   if (isLoading) {
     return <DetailSkeleton />
@@ -155,15 +156,10 @@ export function Detail({ id }: DetailProps) {
             Xem trước biểu mẫu
           </h3>
           <div className="border border-slate-200 rounded-xl bg-slate-50 p-4 shadow-sm overflow-hidden">
-            <AspectRatio
-              ratio={210 / 297}
-              className="border border-slate-200 rounded-lg bg-white shadow-2xs overflow-hidden flex flex-col items-center justify-center text-slate-400 p-6 text-center"
-            >
-              <FileText className="size-16 text-slate-300 mb-3" />
-              <p className="text-xs text-slate-400 font-medium max-w-xs">
-                Xem trước trang mẫu chuẩn khổ giấy A4
-              </p>
-            </AspectRatio>
+            <TemplateCanvasPreview
+              schema={template.schemaContent}
+              onZoomClick={() => setIsZoomOpen(true)}
+            />
           </div>
         </div>
 
@@ -249,6 +245,16 @@ export function Detail({ id }: DetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Modal phóng to xem chi tiết */}
+      <TemplateZoomModal
+        open={isZoomOpen}
+        onOpenChange={setIsZoomOpen}
+        templateName={template.name}
+        schema={template.schemaContent}
+        onUseTemplate={createFormCopy}
+        isCopying={isCopying}
+      />
     </div>
   )
 }
