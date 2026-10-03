@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useTemplateDetail } from "../hooks/useTemplate"
+import { useExportTemplatePdf } from "../hooks/useExportTemplatePdf"
 import { TemplatePricingType } from "../types/template.type"
 import { TemplateCanvasPreview, TemplateZoomModal } from "./preview"
 
@@ -28,6 +29,7 @@ export interface DetailProps {
 
 export function Detail({ id }: DetailProps) {
   const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id))
+  const { isExporting, downloadPdf } = useExportTemplatePdf()
   const [isZoomOpen, setIsZoomOpen] = useState(false)
 
   if (isLoading) {
@@ -128,10 +130,16 @@ export function Detail({ id }: DetailProps) {
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Button
             variant="outline"
+            onClick={() => template && downloadPdf(template.id, template.name)}
+            disabled={isExporting}
             className="flex-1 md:flex-none cursor-pointer gap-1.5 text-muted-foreground"
           >
-            <Download className="size-4" />
-            Tải xuống (PDF)
+            {isExporting ? (
+              <Loader2 className="size-4 animate-spin text-neutral-500" />
+            ) : (
+              <Download className="size-4" />
+            )}
+            <span>{isExporting ? "Đang tạo PDF..." : "Tải xuống (PDF)"}</span>
           </Button>
           <Button
             onClick={createFormCopy}

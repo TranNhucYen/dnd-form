@@ -6,3 +6,4 @@ allowBuilds:
   msw: false
   esbuild: true
   bcrypt: true
+  puppeteer: true
