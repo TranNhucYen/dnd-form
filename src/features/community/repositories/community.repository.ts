@@ -140,6 +140,7 @@ export const drizzleCommunityRepository: ICommunityRepository = {
           existingMedia.map((m) => ({
             schemaId: newSchemaId,
             mediaType: m.mediaType,
+            fileKey: m.fileKey ?? null,
             fileUrl: m.fileUrl,
             signatureBase64: m.signatureBase64,
             fileName: m.fileName,

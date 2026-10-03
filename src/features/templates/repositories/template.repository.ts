@@ -169,6 +169,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
           existingMedia.map((m) => ({
             schemaId: newSchemaId,
             mediaType: m.mediaType,
+            fileKey: m.fileKey ?? null,
             signatureBase64: m.signatureBase64 ?? null,
             fileUrl: m.fileUrl ?? null,
             fileName: m.fileName ?? null,
