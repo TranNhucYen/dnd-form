@@ -1,9 +1,4 @@
-export interface Category {
-  id: number
-  name: string
-  slug: string
-  createdAt?: string
-}
+export type { Category } from '@/shared/types/category.type'
 
 export interface CreateCategoryInput {
   name: string

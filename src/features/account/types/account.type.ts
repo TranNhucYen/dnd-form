@@ -19,6 +19,4 @@ export interface ChangePasswordInput {
   confirmPassword: string
 }
 
-export type ActionResponse<T> =
-  | { success: true; data: T }
-  | { success: false; error: string }
+export type { ActionResponse } from '@/shared/types/action.type'

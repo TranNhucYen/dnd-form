@@ -3,17 +3,10 @@ import { form, formShare, schemaJson, schemaMedia } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
 import type { FormDetailResult, SaveFormResult } from "../types/editor.type";
+import type { SchemaMediaItem } from "@/shared/types/media.type";
 
 /** Thông tin media cần lưu vào cơ sở dữ liệu */
-export interface MediaInsertItem {
-  mediaType: "signature" | "image" | "document";
-  signatureBase64?: string | null;
-  fileKey?: string | null;
-  fileUrl?: string | null;
-  fileName?: string | null;
-  mimeType?: string | null;
-  fileSize?: number | null;
-}
+export type MediaInsertItem = SchemaMediaItem;
 
 export interface SaveFormRepoParams {
   formId?: number | null;

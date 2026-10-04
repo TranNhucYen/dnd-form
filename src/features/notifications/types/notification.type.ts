@@ -27,6 +27,4 @@ export interface CreateNotificationPayload {
   metadata?: Record<string, unknown> | null
 }
 
-export type ActionResponse<T> =
-  | { success: true; data: T }
-  | { success: false; error: string }
+export type { ActionResponse } from '@/shared/types/action.type'

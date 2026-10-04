@@ -1,14 +1,7 @@
-export enum ShareRole {
-  VIEW = 'view',
-  EDIT = 'edit',
-}
+export { ShareRole, type SharedUser } from '@/shared/types/share.type'
+export type { ActionResponse } from '@/shared/types/action.type'
 
-export interface SharedUser {
-  id: string
-  email: string
-  role: ShareRole
-  addedAt: Date | string
-}
+import { ShareRole, SharedUser } from '@/shared/types/share.type'
 
 export interface MyForm {
   id: number
@@ -61,11 +54,4 @@ export interface PublicFormDetail {
   name: string
   description: string | null
   schemaContent: any
-}
-
-/** Cấu trúc phản hồi chuẩn của Server Action */
-export interface ActionResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
 }
