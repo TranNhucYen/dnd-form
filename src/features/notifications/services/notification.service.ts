@@ -1,42 +1,26 @@
 import { AppNotification, CreateNotificationPayload, NotificationType } from '../types/notification.type'
 import { notificationRepository } from '../repositories'
 import { NOTIFICATION_TEMPLATES } from '../constants/notification.constant'
+import { ValidationError } from '@/shared/errors'
 
 export const notificationService = {
   async getUserNotifications(userId: number): Promise<AppNotification[]> {
-    try {
-      return await notificationRepository.findByUserId(userId)
-    } catch (error) {
-      console.error(`Lỗi khi lấy thông báo cho user ${userId}:`, error)
-      throw new Error('Không thể tải danh sách thông báo.')
-    }
+    return await notificationRepository.findByUserId(userId)
   },
 
   async deleteNotification(id: string, userId: number): Promise<boolean> {
-    try {
-      return await notificationRepository.delete(id, userId)
-    } catch (error) {
-      console.error(`Lỗi khi xóa thông báo ${id}:`, error)
-      throw new Error('Không thể xóa thông báo.')
+    if (!id || !id.trim()) {
+      throw new ValidationError('Mã thông báo không hợp lệ.')
     }
+    return await notificationRepository.delete(id, userId)
   },
 
   async clearAllNotifications(userId: number): Promise<boolean> {
-    try {
-      return await notificationRepository.deleteAllByUserId(userId)
-    } catch (error) {
-      console.error(`Lỗi khi xóa tất cả thông báo cho user ${userId}:`, error)
-      throw new Error('Không thể xóa tất cả thông báo.')
-    }
+    return await notificationRepository.deleteAllByUserId(userId)
   },
 
   async createNotification(payload: CreateNotificationPayload): Promise<AppNotification> {
-    try {
-      return await notificationRepository.create(payload)
-    } catch (error) {
-      console.error('Lỗi khi tạo thông báo mới:', error)
-      throw new Error('Không thể tạo thông báo mới.')
-    }
+    return await notificationRepository.create(payload)
   },
 
   /** Tạo thông báo an toàn, tự bắt lỗi nội bộ không ném ngoại lệ */
