@@ -7,6 +7,7 @@ import {
 import { CONTRIBUTION_STATUS_LABELS } from '../constants/community.constant'
 import { communityRepository } from '../repositories'
 import { sanitizeSignatureFromSchema, filterTemplateMedia } from '@/features/templates/utils/sanitize'
+import { ValidationError, NotFoundError, AccountBlockedError } from '@/shared/errors'
 
 export const communityService = {
   async getCategories(): Promise<CommunityCategory[]> {
@@ -27,30 +28,30 @@ export const communityService = {
 
   async submitContribution(userId: number, input: ContributeFormInput): Promise<ContributionItem> {
     if (!input.title || !input.title.trim()) {
-      throw new Error('Tên biểu mẫu không được để trống.')
+      throw new ValidationError('Tên biểu mẫu không được để trống.')
     }
     if (!input.sourceFormId) {
-      throw new Error('Vui lòng chọn biểu mẫu nguồn cần đóng góp.')
+      throw new ValidationError('Vui lòng chọn biểu mẫu nguồn cần đóng góp.')
     }
     if (!input.categoryId) {
-      throw new Error('Vui lòng chọn danh mục phù hợp cho biểu mẫu.')
+      throw new ValidationError('Vui lòng chọn danh mục phù hợp cho biểu mẫu.')
     }
 
     // Lấy dữ liệu biểu mẫu nguồn từ repository
     const sourceFormData = await communityRepository.getSourceFormData(userId, input.sourceFormId)
     if (!sourceFormData) {
-      throw new Error('Biểu mẫu nguồn không tồn tại hoặc bạn không có quyền sở hữu.')
+      throw new NotFoundError('Biểu mẫu nguồn không tồn tại hoặc bạn không có quyền sở hữu.')
     }
 
     // Kiểm tra trạng thái tài khoản người dùng
     if (sourceFormData.userStatus === 'blocked') {
-      throw new Error('Tài khoản của bạn đã bị khóa, không thể đóng góp biểu mẫu.')
+      throw new AccountBlockedError('Tài khoản của bạn đã bị khóa, không thể đóng góp biểu mẫu.')
     }
 
     // Xóa chữ ký cá nhân khỏi schema và danh sách media
     const sanitizedSchema = sanitizeSignatureFromSchema(sourceFormData.schemaContent)
     if (!sanitizedSchema) {
-      throw new Error('Không tìm thấy dữ liệu cấu trúc của biểu mẫu nguồn.')
+      throw new NotFoundError('Không tìm thấy dữ liệu cấu trúc của biểu mẫu nguồn.')
     }
     const sanitizedMedia = filterTemplateMedia(sourceFormData.mediaList)
 

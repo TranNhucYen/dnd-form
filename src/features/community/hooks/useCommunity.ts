@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   ContributionItem,
   ContributeFormInput,
@@ -15,6 +16,7 @@ import {
 } from '../actions/community.action'
 
 export function useCommunity() {
+  const router = useRouter()
   const [contributions, setContributions] = useState<ContributionItem[]>([])
   const [categories, setCategories] = useState<CommunityCategory[]>([])
   const [userForms, setUserForms] = useState<UserFormOption[]>([])
@@ -34,6 +36,10 @@ export function useCommunity() {
       if (contRes.success) {
         setContributions(contRes.data)
       } else {
+        if (contRes.code === 'ACCOUNT_BLOCKED' || contRes.code === 'UNAUTHORIZED') {
+          router.replace('/login')
+          return
+        }
         setError(contRes.error)
       }
 
@@ -50,7 +56,7 @@ export function useCommunity() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [router])
 
   useEffect(() => {
     fetchData()
@@ -59,6 +65,9 @@ export function useCommunity() {
   const submitContribution = async (input: ContributeFormInput) => {
     const res = await submitContributionAction(input)
     if (!res.success) {
+      if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
+        router.replace('/login')
+      }
       throw new Error(res.error)
     }
     setContributions((prev) => [res.data, ...prev])
