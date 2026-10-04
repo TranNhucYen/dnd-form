@@ -28,6 +28,10 @@ export function useAccount() {
       if (res.success) {
         setProfile(res.data)
       } else {
+        if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
+          router.push('/login')
+          return
+        }
         const errorMsg = res.error
         setError(errorMsg)
         toast.error(errorMsg)
@@ -40,7 +44,7 @@ export function useAccount() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [router])
 
   useEffect(() => {
     fetchProfile()
@@ -49,6 +53,9 @@ export function useAccount() {
   const updateProfile = async (data: UpdateProfileInput): Promise<void> => {
     const res = await updateProfileAction(data)
     if (!res.success) {
+      if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
+        router.push('/login')
+      }
       const errorMsg = res.error
       toast.error(errorMsg)
       throw new Error(errorMsg)
@@ -61,6 +68,9 @@ export function useAccount() {
   const changePassword = async (data: ChangePasswordInput): Promise<void> => {
     const res = await changePasswordAction(data)
     if (!res.success) {
+      if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
+        router.push('/login')
+      }
       const errorMsg = res.error
       throw new Error(errorMsg)
     }
