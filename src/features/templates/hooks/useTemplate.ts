@@ -118,6 +118,9 @@ export function useTemplateDetail(id: number) {
         toast.success('Tạo bản sao biểu mẫu thành công')
         router.push(`/editor?formId=${res.data.formId}`)
       } else {
+        if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
+          router.push('/login')
+        }
         toast.error(res.error)
       }
     } catch (err) {
