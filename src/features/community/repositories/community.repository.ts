@@ -13,13 +13,19 @@ import {
   CommunityCategory,
   UserFormOption,
   ContributionStatus,
+  type SourceFormData,
+  type CreateContributionTemplateParams,
 } from '../types/community.type'
+import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+
+export type { SourceFormData, CreateContributionTemplateParams } from '../types/community.type'
 
 export interface ICommunityRepository {
   getCategories(): Promise<CommunityCategory[]>
   getUserFormsForContribute(userId: number): Promise<UserFormOption[]>
   getMyContributions(userId: number): Promise<ContributionItem[]>
-  submitContribution(userId: number, input: ContributeFormInput): Promise<ContributionItem>
+  getSourceFormData(userId: number, formId: number): Promise<SourceFormData | null>
+  createContributionTemplate(params: CreateContributionTemplateParams): Promise<ContributionItem>
 }
 
 export const drizzleCommunityRepository: ICommunityRepository = {
@@ -98,46 +104,73 @@ export const drizzleCommunityRepository: ICommunityRepository = {
     })
   },
 
-  async submitContribution(userId: number, input: ContributeFormInput): Promise<ContributionItem> {
+  async getSourceFormData(userId: number, formId: number): Promise<SourceFormData | null> {
+    const [sourceForm] = await db
+      .select({ id: form.id, schemaId: form.schemaId })
+      .from(form)
+      .where(and(eq(form.id, formId), eq(form.ownerId, userId)))
+      .limit(1)
+
+    if (!sourceForm) return null
+
+    const [sourceSchema] = await db
+      .select({ content: schemaJson.content })
+      .from(schemaJson)
+      .where(eq(schemaJson.id, sourceForm.schemaId))
+      .limit(1)
+
+    if (!sourceSchema) return null
+
+    const mediaList = await db
+      .select({
+        mediaType: schemaMedia.mediaType,
+        fileKey: schemaMedia.fileKey,
+        fileUrl: schemaMedia.fileUrl,
+        signatureBase64: schemaMedia.signatureBase64,
+        fileName: schemaMedia.fileName,
+        mimeType: schemaMedia.mimeType,
+        fileSize: schemaMedia.fileSize,
+      })
+      .from(schemaMedia)
+      .where(eq(schemaMedia.schemaId, sourceForm.schemaId))
+
+    return {
+      formId: sourceForm.id,
+      schemaId: sourceForm.schemaId,
+      schemaContent: sourceSchema.content as FormSchemaJson,
+      mediaList,
+    }
+  },
+
+  async createContributionTemplate({
+    userId,
+    input,
+    schemaContent,
+    mediaList,
+  }: CreateContributionTemplateParams): Promise<ContributionItem> {
     return await db.transaction(async (tx) => {
-      // Kiểm tra biểu mẫu nguồn và quyền sở hữu (chống IDOR)
-      const [sourceForm] = await tx
+      // Kiểm tra danh mục
+      const [cat] = await tx
         .select()
-        .from(form)
-        .where(and(eq(form.id, input.sourceFormId), eq(form.ownerId, userId)))
+        .from(templateCategory)
+        .where(eq(templateCategory.id, input.categoryId))
         .limit(1)
 
-      if (!sourceForm) {
-        throw new Error('Biểu mẫu nguồn không tồn tại hoặc bạn không có quyền sở hữu.')
+      if (!cat) {
+        throw new Error('Danh mục biểu mẫu không hợp lệ hoặc không tồn tại.')
       }
 
-      // Đọc cấu trúc schema_json của biểu mẫu nguồn
-      const [sourceSchema] = await tx
-        .select()
-        .from(schemaJson)
-        .where(eq(schemaJson.id, sourceForm.schemaId))
-        .limit(1)
-
-      if (!sourceSchema) {
-        throw new Error('Không tìm thấy dữ liệu cấu trúc của biểu mẫu nguồn.')
-      }
-
-      // Nhân bản schema_json độc lập với schemaType: 'template'
+      // Lưu schema cho biểu mẫu mẫu
       const [schemaInsertResult] = await tx.insert(schemaJson).values({
         schemaType: 'template',
-        content: sourceSchema.content,
+        content: schemaContent,
       })
       const newSchemaId = schemaInsertResult.insertId
 
-      // Nhân bản media liên quan nếu có
-      const existingMedia = await tx
-        .select()
-        .from(schemaMedia)
-        .where(eq(schemaMedia.schemaId, sourceForm.schemaId))
-
-      if (existingMedia.length > 0) {
+      // Lưu media đính kèm nếu có
+      if (mediaList.length > 0) {
         await tx.insert(schemaMedia).values(
-          existingMedia.map((m) => ({
+          mediaList.map((m) => ({
             schemaId: newSchemaId,
             mediaType: m.mediaType,
             fileKey: m.fileKey ?? null,
@@ -150,18 +183,7 @@ export const drizzleCommunityRepository: ICommunityRepository = {
         )
       }
 
-      // Kiểm tra danh mục
-      const [cat] = await tx
-        .select()
-        .from(templateCategory)
-        .where(eq(templateCategory.id, input.categoryId))
-        .limit(1)
-
-      if (!cat) {
-        throw new Error('Danh mục biểu mẫu không hợp lệ hoặc không tồn tại.')
-      }
-
-      // Tạo bản ghi template cộng đồng mới
+      // Tạo biểu mẫu mẫu cộng đồng
       const cleanGuidelines = input.guidelines && input.guidelines.length > 0 ? input.guidelines : null
 
       const [templateInsertResult] = await tx.insert(template).values({

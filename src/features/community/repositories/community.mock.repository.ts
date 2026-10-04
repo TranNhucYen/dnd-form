@@ -1,4 +1,9 @@
-import { ICommunityRepository } from './community.repository'
+import {
+  ICommunityRepository,
+  SourceFormData,
+  CreateContributionTemplateParams,
+} from './community.repository'
+import { toInternalUnit } from '@/features/form-builder/domain/units'
 import {
   ContributionItem,
   ContributionStatus,
@@ -76,8 +81,33 @@ export const communityMockRepository: ICommunityRepository = {
     return [...mockMyContributions]
   },
 
-  async submitContribution(_userId: number, input: ContributeFormInput): Promise<ContributionItem> {
+  async getSourceFormData(_userId: number, formId: number): Promise<SourceFormData | null> {
+    const foundForm = mockUserForms.find((f) => f.id === formId)
+    if (!foundForm) return null
+    return {
+      formId: foundForm.id,
+      schemaId: 999,
+      schemaContent: {
+        page: {
+          preset: 'A4',
+          orientation: 'PORTRAIT',
+          dimensions: { width: toInternalUnit(210), height: toInternalUnit(297) },
+          margins: {
+            top: toInternalUnit(20),
+            right: toInternalUnit(20),
+            bottom: toInternalUnit(20),
+            left: toInternalUnit(20),
+          },
+        },
+        fields: [],
+      },
+      mediaList: [],
+    }
+  },
 
+  async createContributionTemplate({
+    input,
+  }: CreateContributionTemplateParams): Promise<ContributionItem> {
     const newId = Math.max(...mockMyContributions.map((c) => c.id), 0) + 1
     const foundCat = mockCategories.find((c) => c.id === input.categoryId)
     const newContribution: ContributionItem = {
