@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { authService } from "../services/auth.service"
 import { ActionResponse, AuthUser, UserLogin, UserRegister } from "../types/auth.type"
 import { signJwtToken } from "@/lib/jwt"
+import { handleActionError } from "@/shared/utils/action.util"
 
 export async function loginAction(user: UserLogin): Promise<ActionResponse<AuthUser>> {
   try {
@@ -25,11 +26,8 @@ export async function loginAction(user: UserLogin): Promise<ActionResponse<AuthU
       success: true,
       data: authUser,
     }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Đăng nhập thất bại",
-    }
+  } catch (error) {
+    return handleActionError(error, 'loginAction')
   }
 }
 
@@ -53,11 +51,8 @@ export async function registerAction(user: UserRegister): Promise<ActionResponse
       success: true,
       data: authUser,
     }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Đăng ký thất bại",
-    }
+  } catch (error) {
+    return handleActionError(error, 'registerAction')
   }
 }
 
