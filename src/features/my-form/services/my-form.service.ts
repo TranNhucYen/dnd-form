@@ -6,6 +6,7 @@ import type {
   ShareTokenResult,
   PublicFormDetail,
 } from '../types/my-form.type'
+import { ValidationError, NotFoundError } from '@/shared/errors'
 
 function formatForm(form: MyForm): MyForm {
   const createdDate = new Date(form.createdAt)
@@ -31,29 +32,17 @@ export const myFormService = {
    * Lấy danh sách biểu mẫu của người dùng
    */
   async getMyForms(userId: number): Promise<MyForm[]> {
-    try {
-      const forms = await myFormRepository.getMyForms(userId)
-      return forms.map(formatForm)
-    } catch (error) {
-      console.error('Lỗi khi lấy danh sách biểu mẫu của tôi:', error)
-      throw new Error('Không thể tải danh sách biểu mẫu của bạn. Vui lòng thử lại sau.')
-    }
+    const forms = await myFormRepository.getMyForms(userId)
+    return forms.map(formatForm)
   },
 
   /**
    * Lấy thông tin chi tiết một biểu mẫu theo ID
    */
   async getMyFormById(userId: number, formId: number): Promise<MyForm> {
-    let form: MyForm | null = null
-    try {
-      form = await myFormRepository.getMyFormById(formId, userId)
-    } catch (error) {
-      console.error(`Lỗi khi lấy biểu mẫu id ${formId}:`, error)
-      throw new Error('Không thể tải thông tin biểu mẫu.')
-    }
-
+    const form = await myFormRepository.getMyFormById(formId, userId)
     if (!form) {
-      throw new Error('Biểu mẫu không tồn tại hoặc bạn không có quyền truy cập.')
+      throw new NotFoundError('Biểu mẫu không tồn tại hoặc bạn không có quyền truy cập.')
     }
     return formatForm(form)
   },
@@ -66,20 +55,15 @@ export const myFormService = {
     input: CreateBlankFormInput
   ): Promise<MyForm> {
     if (!input.name || !input.name.trim()) {
-      throw new Error('Tên biểu mẫu không được để trống.')
+      throw new ValidationError('Tên biểu mẫu không được để trống.')
     }
 
-    try {
-      const created = await myFormRepository.createBlankForm(userId, {
-        name: input.name.trim(),
-        description: input.description?.trim() || undefined,
-        sourceTemplateId: input.sourceTemplateId,
-      })
-      return formatForm(created)
-    } catch (error) {
-      console.error('Lỗi khi tạo biểu mẫu mới:', error)
-      throw new Error('Không thể tạo biểu mẫu mới. Vui lòng thử lại sau.')
-    }
+    const created = await myFormRepository.createBlankForm(userId, {
+      name: input.name.trim(),
+      description: input.description?.trim() || undefined,
+      sourceTemplateId: input.sourceTemplateId,
+    })
+    return formatForm(created)
   },
 
   /**
@@ -90,20 +74,14 @@ export const myFormService = {
     formId: number,
     customName?: string
   ): Promise<MyForm> {
-    let duplicated: MyForm | null = null
-    try {
-      duplicated = await myFormRepository.duplicateForm(
-        formId,
-        userId,
-        customName
-      )
-    } catch (error) {
-      console.error(`Lỗi khi sao chép biểu mẫu id ${formId}:`, error)
-      throw new Error('Không thể sao chép biểu mẫu. Vui lòng thử lại sau.')
-    }
+    const duplicated = await myFormRepository.duplicateForm(
+      formId,
+      userId,
+      customName
+    )
 
     if (!duplicated) {
-      throw new Error('Biểu mẫu không tồn tại hoặc bạn không có quyền sao chép.')
+      throw new NotFoundError('Biểu mẫu không tồn tại hoặc bạn không có quyền sao chép.')
     }
     return formatForm(duplicated)
   },
@@ -112,16 +90,9 @@ export const myFormService = {
    * Xóa một biểu mẫu
    */
   async deleteForm(userId: number, formId: number): Promise<boolean> {
-    let deleted = false
-    try {
-      deleted = await myFormRepository.deleteForm(formId, userId)
-    } catch (error) {
-      console.error(`Lỗi khi xóa biểu mẫu id ${formId}:`, error)
-      throw new Error('Không thể xóa biểu mẫu. Vui lòng thử lại sau.')
-    }
-
+    const deleted = await myFormRepository.deleteForm(formId, userId)
     if (!deleted) {
-      throw new Error('Biểu mẫu không tồn tại hoặc bạn không có quyền xóa.')
+      throw new NotFoundError('Biểu mẫu không tồn tại hoặc bạn không có quyền xóa.')
     }
     return true
   },
@@ -130,12 +101,7 @@ export const myFormService = {
    * Lấy token và trạng thái chia sẻ của biểu mẫu
    */
   async getFormShareToken(userId: number, formId: number): Promise<ShareTokenResult> {
-    try {
-      return await myFormRepository.getFormShareToken(formId, userId)
-    } catch (error) {
-      console.error(`Lỗi khi lấy thông tin chia sẻ formId ${formId}:`, error)
-      throw new Error(error instanceof Error ? error.message : 'Không thể lấy thông tin chia sẻ.')
-    }
+    return await myFormRepository.getFormShareToken(formId, userId)
   },
 
   /**
@@ -146,23 +112,13 @@ export const myFormService = {
     formId: number,
     input: SaveSharingInput
   ): Promise<ShareTokenResult> {
-    try {
-      return await myFormRepository.saveFormSharing(formId, userId, input)
-    } catch (error) {
-      console.error(`Lỗi khi lưu cài đặt chia sẻ formId ${formId}:`, error)
-      throw new Error(error instanceof Error ? error.message : 'Không thể lưu cài đặt chia sẻ.')
-    }
+    return await myFormRepository.saveFormSharing(formId, userId, input)
   },
 
   /**
    * Lấy chi tiết biểu mẫu công khai theo token
    */
   async getPublicFormByToken(token: string): Promise<PublicFormDetail | null> {
-    try {
-      return await myFormRepository.getPublicFormByToken(token)
-    } catch (error) {
-      console.error(`Lỗi khi lấy biểu mẫu công khai token ${token}:`, error)
-      throw new Error('Không thể tải biểu mẫu công khai.')
-    }
+    return await myFormRepository.getPublicFormByToken(token)
   },
 }
