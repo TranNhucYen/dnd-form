@@ -28,7 +28,7 @@ export function useTemplate(initialPageSize = 8) {
     setIsLoading(true)
     setError(null)
     try {
-      const [templatesRes, categoriesData] = await Promise.all([
+      const [templatesRes, categoriesRes] = await Promise.all([
         getTemplatesAction(),
         getCategoriesAction()
       ])
@@ -39,7 +39,9 @@ export function useTemplate(initialPageSize = 8) {
         setError(templatesRes.error)
         toast.error(templatesRes.error)
       }
-      setCategories(categoriesData)
+      if (categoriesRes.success) {
+        setCategories(categoriesRes.data)
+      }
     } catch {
       const errorMsg = 'Không thể tải danh sách biểu mẫu mẫu.'
       setError(errorMsg)

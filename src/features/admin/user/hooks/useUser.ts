@@ -20,8 +20,12 @@ export function useUser(initialPageSize = 8) {
     setIsLoading(true)
     setError(null)
     try {
-      const data = await getUsersAction()
-      setUsers(data)
+      const res = await getUsersAction()
+      if (res.success) {
+        setUsers(res.data)
+      } else {
+        setError(res.error)
+      }
     } catch (err: any) {
       setError(err?.message || 'Không thể tải danh sách người dùng')
     } finally {
@@ -80,7 +84,11 @@ export function useUser(initialPageSize = 8) {
     )
 
     try {
-      await updateUserStatusAction(id, newStatus)
+      const res = await updateUserStatusAction(id, newStatus)
+      if (!res.success) {
+        setError(res.error)
+        fetchUsers()
+      }
     } catch (err: any) {
       setError(err?.message || 'Không thể cập nhật trạng thái')
       fetchUsers()
@@ -89,9 +97,12 @@ export function useUser(initialPageSize = 8) {
 
   const addUser = async (input: CreateUserInput) => {
     try {
-      const created = await createUserAction(input)
-      setUsers((prev) => [created, ...prev])
-      return created
+      const res = await createUserAction(input)
+      if (!res.success) {
+        throw new Error(res.error)
+      }
+      setUsers((prev) => [res.data, ...prev])
+      return res.data
     } catch (err) {
       throw err
     }
@@ -116,5 +127,3 @@ export function useUser(initialPageSize = 8) {
     refetch: fetchUsers,
   }
 }
-
-export const useUserManager = useUser
