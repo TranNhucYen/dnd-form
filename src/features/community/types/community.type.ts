@@ -1,25 +1,16 @@
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+import { TemplateReviewStatus } from '@/shared/types/template.type'
+import type { Category } from '@/shared/types/category.type'
+import type { SchemaMediaItem } from '@/shared/types/media.type'
 
-export enum ContributionStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-}
-
-export interface CommunityCategory {
-  id: number
-  name: string
-  slug: string
-}
+export { TemplateReviewStatus as ContributionStatus } from '@/shared/types/template.type'
+export type { Category as CommunityCategory } from '@/shared/types/category.type'
+export type { ActionResponse } from '@/shared/types/action.type'
 
 export interface UserFormOption {
   id: number
   title: string
 }
-
-export type ActionResponse<T> =
-  | { success: true; data: T }
-  | { success: false; error: string }
 
 export interface ContributionItem {
   id: number
@@ -28,7 +19,7 @@ export interface ContributionItem {
   description: string
   categoryId?: number
   categoryName: string
-  status: ContributionStatus
+  status: TemplateReviewStatus
   statusLabel?: string
   submittedAt: Date | string
   reviewedAt?: Date | string
@@ -51,15 +42,7 @@ export interface SourceFormData {
   schemaId: number
   schemaContent: FormSchemaJson
   userStatus: 'active' | 'blocked'
-  mediaList: Array<{
-    mediaType: 'signature' | 'image' | 'document'
-    fileKey: string | null
-    fileUrl: string | null
-    signatureBase64: string | null
-    fileName: string | null
-    mimeType: string | null
-    fileSize: number | null
-  }>
+  mediaList: SchemaMediaItem[]
 }
 
 export interface CreateContributionTemplateParams {

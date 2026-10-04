@@ -1,4 +1,5 @@
-import { UserRole, UserStatus } from '@/shared/types/user.type'
+export { UserRole, UserStatus, type AuthUser } from '@/shared/types/user.type'
+export type { ActionResponse } from '@/shared/types/action.type'
 
 export interface UserLogin {
   email: string
@@ -8,18 +9,4 @@ export interface UserLogin {
 export interface UserRegister extends UserLogin {
   fullName: string
   confirmPassword?: string
-}
-
-export interface AuthUser {
-  id: number
-  fullName: string
-  email: string
-  role: UserRole
-  status: UserStatus
-}
-
-export interface ActionResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
 }

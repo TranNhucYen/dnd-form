@@ -1,4 +1,10 @@
+export type { ActionResponse } from '@/shared/types/action.type'
+export type { FormAccessPermission } from '@/shared/types/share.type'
+export type { SchemaMediaType } from '@/shared/types/media.type'
+
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
+import type { FormAccessPermission } from '@/shared/types/share.type';
+import type { SchemaMediaType } from '@/shared/types/media.type';
 
 /** Dữ liệu đầu vào khi lưu biểu mẫu */
 export interface SaveFormInput {
@@ -26,18 +32,11 @@ export interface FormDetailResult {
   schemaContent: FormSchemaJson;
   media: Array<{
     id: number;
-    mediaType: "signature" | "image" | "document";
+    mediaType: SchemaMediaType;
     signatureBase64: string | null;
     fileUrl: string | null;
   }>;
   createdAt: string;
   updatedAt: string;
-  currentUserPermission?: 'owner' | 'edit' | 'view';
-}
-
-/** Cấu trúc phản hồi chuẩn của Server Action */
-export interface ActionResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
+  currentUserPermission?: FormAccessPermission;
 }
