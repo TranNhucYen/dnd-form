@@ -13,6 +13,7 @@ import type {
 } from "@/features/form-builder/types/formBuilder.types";
 import { getStorageService, isValidStorageKey } from "@/lib/storage";
 import { hydrateImageUrls } from "../utils/schema-hydrate";
+import { ValidationError, NotFoundError } from "@/shared/errors";
 
 // Re-export hàm hydrate để các module khác vẫn dùng được qua editor.service nếu cần
 export { hydrateImageUrls };
@@ -49,7 +50,7 @@ export const editorService = {
         if (key) {
           // Chỉ chấp nhận key đúng định dạng do hệ thống sinh ra
           if (!isValidStorageKey(key)) {
-            throw new Error("Key ảnh không hợp lệ");
+            throw new ValidationError("Key ảnh không hợp lệ");
           }
 
           mediaList.push({
@@ -68,24 +69,17 @@ export const editorService = {
       }
     }
 
-    // Lưu vào cơ sở dữ liệu qua repository
-    let result: SaveFormResult | null = null;
-    try {
-      result = await editorRepository.saveForm({
-        formId: input.formId,
-        userId,
-        title,
-        description: input.description,
-        schemaContent: clonedSchema,
-        mediaList,
-      });
-    } catch (error) {
-      console.error("Lỗi khi lưu biểu mẫu:", error);
-      throw new Error("Đã xảy ra lỗi khi lưu biểu mẫu");
-    }
+    const result = await editorRepository.saveForm({
+      formId: input.formId,
+      userId,
+      title,
+      description: input.description,
+      schemaContent: clonedSchema,
+      mediaList,
+    });
 
     if (!result) {
-      throw new Error("Không tìm thấy biểu mẫu hoặc bạn không có quyền chỉnh sửa");
+      throw new NotFoundError("Không tìm thấy biểu mẫu hoặc bạn không có quyền chỉnh sửa");
     }
 
     return result;
@@ -93,16 +87,10 @@ export const editorService = {
 
   /** Lấy chi tiết biểu mẫu và schema theo ID */
   async getFormDetail(formId: number, userId: number): Promise<FormDetailResult> {
-    let detail: FormDetailResult | null = null;
-    try {
-      detail = await editorRepository.getFormById(formId, userId);
-    } catch (error) {
-      console.error(`Lỗi khi tải biểu mẫu id ${formId}:`, error);
-      throw new Error("Đã xảy ra lỗi khi lấy thông tin biểu mẫu");
-    }
+    const detail = await editorRepository.getFormById(formId, userId);
 
     if (!detail) {
-      throw new Error("Không tìm thấy biểu mẫu hoặc bạn không có quyền xem");
+      throw new NotFoundError("Không tìm thấy biểu mẫu hoặc bạn không có quyền xem");
     }
 
     if (detail.schemaContent) {
