@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getBaseUrl } from '@/lib/url'
 import { MyForm, ShareRole, SharedUser } from '../types/my-form.type'
 import {
@@ -32,6 +32,10 @@ export function useFormSharing({
   const [copied, setCopied] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
+  const initialIsPublicRef = useRef<boolean>(form.isPublic)
+  const createdLinkInSessionRef = useRef<boolean>(false)
+  const isSavedRef = useRef<boolean>(false)
+
   // Nạp thông tin token và danh sách thành viên chia sẻ từ cơ sở dữ liệu
   useEffect(() => {
     let isMounted = true
@@ -40,6 +44,7 @@ export function useFormSharing({
       if (res.success && res.data) {
         setIsPublic(res.data.isPublic)
         setShareToken(res.data.token)
+        initialIsPublicRef.current = res.data.isPublic
         if (res.data.sharedWith) {
           setSharedUsers(res.data.sharedWith)
         }
@@ -47,6 +52,18 @@ export function useFormSharing({
     })
     return () => {
       isMounted = false
+    }
+  }, [form.id])
+
+  // Tự động xóa link chia sẻ tạm thời nếu thoát modal mà chưa bấm lưu thay đổi
+  useEffect(() => {
+    return () => {
+      if (createdLinkInSessionRef.current && !isSavedRef.current) {
+        createdLinkInSessionRef.current = false
+        saveFormSharingAction(form.id, { isPublic: false }).catch((err) => {
+          console.error('Lỗi khi tự động xóa link chia sẻ tạm thời trên unmount:', err)
+        })
+      }
     }
   }, [form.id])
 
@@ -71,6 +88,9 @@ export function useFormSharing({
         const res = await saveFormSharingAction(form.id, { isPublic: true })
         if (res.success && res.data?.token) {
           setShareToken(res.data.token)
+          if (!initialIsPublicRef.current) {
+            createdLinkInSessionRef.current = true
+          }
         }
       } catch (err) {
         console.error('Lỗi khi sinh link chia sẻ:', err)
@@ -114,16 +134,28 @@ export function useFormSharing({
   const handleSave = async () => {
     setIsSaving(true)
     try {
+      isSavedRef.current = true
       await onUpdateSharing(form.id, {
         isPublic,
         sharedWith: sharedUsers,
       })
       onOpenChange(false)
     } catch (err) {
+      isSavedRef.current = false
       console.error(err)
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleCancel = () => {
+    if (createdLinkInSessionRef.current && !isSavedRef.current) {
+      createdLinkInSessionRef.current = false
+      saveFormSharingAction(form.id, { isPublic: false }).catch((err) => {
+        console.error('Lỗi khi tự động xóa link chia sẻ tạm thời:', err)
+      })
+    }
+    onOpenChange(false)
   }
 
   return {
@@ -143,5 +175,6 @@ export function useFormSharing({
     handleRemoveUser,
     handleRoleChange,
     handleSave,
+    handleCancel,
   }
 }
