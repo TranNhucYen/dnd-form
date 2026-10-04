@@ -22,8 +22,12 @@ export function useCategory(initialPageSize = 5) {
     setIsLoading(true)
     setError(null)
     try {
-      const data = await getCategoriesAction()
-      setCategories(data)
+      const res = await getCategoriesAction()
+      if (res.success) {
+        setCategories(res.data)
+      } else {
+        setError(res.error)
+      }
     } catch (err: any) {
       setError(err?.message || 'Không thể tải danh sách loại biểu mẫu.')
     } finally {
@@ -71,9 +75,13 @@ export function useCategory(initialPageSize = 5) {
   // Thêm mới loại biểu mẫu
   const createCategory = async (name: string) => {
     try {
-      const newCategory = await createCategoryAction({ name })
-      setCategories((prev) => [newCategory, ...prev])
-      return newCategory
+      const res = await createCategoryAction({ name })
+      if (!res.success) {
+        fetchCategories()
+        throw new Error(res.error)
+      }
+      setCategories((prev) => [res.data, ...prev])
+      return res.data
     } catch (err) {
       fetchCategories()
       throw err
@@ -88,13 +96,17 @@ export function useCategory(initialPageSize = 5) {
     )
 
     try {
-      const updated = await updateCategoryAction(id, { name })
-      if (updated) {
+      const res = await updateCategoryAction(id, { name })
+      if (!res.success) {
+        fetchCategories()
+        throw new Error(res.error)
+      }
+      if (res.data) {
         setCategories((prev) =>
-          prev.map((c) => (c.id === id ? updated : c))
+          prev.map((c) => (c.id === id ? res.data! : c))
         )
       }
-      return updated
+      return res.data
     } catch (err) {
       fetchCategories()
       throw err
@@ -105,7 +117,11 @@ export function useCategory(initialPageSize = 5) {
   const deleteCategory = async (id: number) => {
     setCategories((prev) => prev.filter((c) => c.id !== id))
     try {
-      await deleteCategoryAction(id)
+      const res = await deleteCategoryAction(id)
+      if (!res.success) {
+        fetchCategories()
+        throw new Error(res.error)
+      }
     } catch (err) {
       fetchCategories()
       throw err

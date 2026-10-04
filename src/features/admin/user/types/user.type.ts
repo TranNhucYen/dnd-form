@@ -1,5 +1,6 @@
 export { UserRole, UserStatus } from '@/shared/types/user.type'
 import { UserRole, UserStatus } from '@/shared/types/user.type'
+export type { ActionResponse } from '@/shared/types/action.type'
 
 export interface User {
   id: number
