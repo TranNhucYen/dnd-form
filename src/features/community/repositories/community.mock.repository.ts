@@ -87,6 +87,7 @@ export const communityMockRepository: ICommunityRepository = {
     return {
       formId: foundForm.id,
       schemaId: 999,
+      userStatus: 'active',
       schemaContent: {
         page: {
           preset: 'A4',

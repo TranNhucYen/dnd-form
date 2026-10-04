@@ -5,6 +5,7 @@ import {
   form,
   schemaJson,
   schemaMedia,
+  user,
 } from '@/db/schema'
 import { eq, and, desc, asc } from 'drizzle-orm'
 import {
@@ -106,8 +107,13 @@ export const drizzleCommunityRepository: ICommunityRepository = {
 
   async getSourceFormData(userId: number, formId: number): Promise<SourceFormData | null> {
     const [sourceForm] = await db
-      .select({ id: form.id, schemaId: form.schemaId })
+      .select({
+        id: form.id,
+        schemaId: form.schemaId,
+        userStatus: user.status,
+      })
       .from(form)
+      .innerJoin(user, eq(form.ownerId, user.id))
       .where(and(eq(form.id, formId), eq(form.ownerId, userId)))
       .limit(1)
 
@@ -137,6 +143,7 @@ export const drizzleCommunityRepository: ICommunityRepository = {
     return {
       formId: sourceForm.id,
       schemaId: sourceForm.schemaId,
+      userStatus: sourceForm.userStatus,
       schemaContent: sourceSchema.content as FormSchemaJson,
       mediaList,
     }
