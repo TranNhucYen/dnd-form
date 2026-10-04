@@ -26,6 +26,11 @@ async function getAuthenticatedUserId(): Promise<{ userId: number } | { error: s
     }
   }
 
+  if (user.status === 'blocked') {
+    cookieStore.delete('auth_token')
+    return { error: 'Tài khoản của bạn đã bị khóa.' }
+  }
+
   return { userId: user.id }
 }
 
@@ -91,9 +96,14 @@ export async function submitContributionAction(
     return { success: true, data }
   } catch (error) {
     console.error('Lỗi khi gửi đóng góp biểu mẫu:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Không thể gửi biểu mẫu vào cộng đồng.'
+    if (errorMessage.includes('khóa')) {
+      const cookieStore = await cookies()
+      cookieStore.delete('auth_token')
+    }
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Không thể gửi biểu mẫu vào cộng đồng.',
+      error: errorMessage,
     }
   }
 }

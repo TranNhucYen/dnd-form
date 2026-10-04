@@ -50,6 +50,7 @@ export interface SourceFormData {
   formId: number
   schemaId: number
   schemaContent: FormSchemaJson
+  userStatus: 'active' | 'blocked'
   mediaList: Array<{
     mediaType: 'signature' | 'image' | 'document'
     fileKey: string | null

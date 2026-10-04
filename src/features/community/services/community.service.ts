@@ -42,6 +42,11 @@ export const communityService = {
       throw new Error('Biểu mẫu nguồn không tồn tại hoặc bạn không có quyền sở hữu.')
     }
 
+    // Kiểm tra trạng thái tài khoản người dùng
+    if (sourceFormData.userStatus === 'blocked') {
+      throw new Error('Tài khoản của bạn đã bị khóa, không thể đóng góp biểu mẫu.')
+    }
+
     // Xóa chữ ký cá nhân khỏi schema và danh sách media
     const sanitizedSchema = sanitizeSignatureFromSchema(sourceFormData.schemaContent)
     if (!sanitizedSchema) {
