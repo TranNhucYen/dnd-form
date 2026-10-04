@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { verifyJwtToken, signJwtToken } from '@/lib/jwt'
+import { handleActionError } from '@/shared/utils/action.util'
 import { accountService } from '../services/account.service'
 import {
   UserProfile,
@@ -10,19 +11,27 @@ import {
   ActionResponse,
 } from '../types/account.type'
 
-async function getAuthenticatedUser(): Promise<{ userId: number; authUser: any } | { error: string }> {
+async function getAuthenticatedUser(): Promise<
+  { userId: number; authUser: any } | { error: string; code: string }
+> {
   const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) {
-    return { error: 'Bạn cần đăng nhập để thực hiện thao tác này.' }
+    return { error: 'Bạn cần đăng nhập để thực hiện thao tác này.', code: 'UNAUTHORIZED' }
   }
 
   const user = await verifyJwtToken(token)
   if (!user) {
     return {
       error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+      code: 'UNAUTHORIZED',
     }
+  }
+
+  if (user.status === 'blocked') {
+    cookieStore.delete('auth_token')
+    return { error: 'Tài khoản của bạn đã bị khóa.', code: 'ACCOUNT_BLOCKED' }
   }
 
   return { userId: user.id, authUser: user }
@@ -32,16 +41,13 @@ export async function getProfileAction(): Promise<ActionResponse<UserProfile>> {
   try {
     const authResult = await getAuthenticatedUser()
     if ('error' in authResult) {
-      return { success: false, error: authResult.error }
+      return { success: false, error: authResult.error, code: authResult.code }
     }
 
     const data = await accountService.getProfile(authResult.userId)
     return { success: true, data }
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Không thể tải thông tin tài khoản.',
-    }
+    return handleActionError(error, 'getProfileAction')
   }
 }
 
@@ -51,7 +57,7 @@ export async function updateProfileAction(
   try {
     const authResult = await getAuthenticatedUser()
     if ('error' in authResult) {
-      return { success: false, error: authResult.error }
+      return { success: false, error: authResult.error, code: authResult.code }
     }
 
     const updatedProfile = await accountService.updateProfile(authResult.userId, input)
@@ -78,10 +84,7 @@ export async function updateProfileAction(
 
     return { success: true, data: updatedProfile }
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Không thể cập nhật hồ sơ.',
-    }
+    return handleActionError(error, 'updateProfileAction')
   }
 }
 
@@ -89,15 +92,12 @@ export async function changePasswordAction(input: ChangePasswordInput): Promise<
   try {
     const authResult = await getAuthenticatedUser()
     if ('error' in authResult) {
-      return { success: false, error: authResult.error }
+      return { success: false, error: authResult.error, code: authResult.code }
     }
 
     await accountService.changePassword(authResult.userId, input)
     return { success: true, data: true }
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Không thể cập nhật mật khẩu.',
-    }
+    return handleActionError(error, 'changePasswordAction')
   }
 }
