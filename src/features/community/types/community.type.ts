@@ -1,3 +1,5 @@
+import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+
 export enum ContributionStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
@@ -42,4 +44,26 @@ export interface ContributeFormInput {
   categoryId: number
   categoryName?: string
   guidelines?: string[]
+}
+
+export interface SourceFormData {
+  formId: number
+  schemaId: number
+  schemaContent: FormSchemaJson
+  mediaList: Array<{
+    mediaType: 'signature' | 'image' | 'document'
+    fileKey: string | null
+    fileUrl: string | null
+    signatureBase64: string | null
+    fileName: string | null
+    mimeType: string | null
+    fileSize: number | null
+  }>
+}
+
+export interface CreateContributionTemplateParams {
+  userId: number
+  input: ContributeFormInput
+  schemaContent: FormSchemaJson
+  mediaList: SourceFormData['mediaList']
 }

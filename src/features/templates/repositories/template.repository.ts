@@ -10,6 +10,7 @@ import {
 } from '../types/template.type'
 import { hydrateImageUrls } from '@/features/editor/utils/schema-hydrate'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+import { sanitizeSignatureFromSchema, filterTemplateMedia } from '../utils/sanitize'
 
 export interface ITemplateRepository {
   getTemplates(): Promise<Template[]>
@@ -122,10 +123,10 @@ export const drizzleTemplateRepository: ITemplateRepository = {
     }
   },
 
-  // Các bước sử dụng template có sẵn để tạo một form mới (form mới thuộc về user)
+  // Tạo biểu mẫu mới từ biểu mẫu mẫu
   async useTemplate(templateId: number, userId: number): Promise<UseTemplateResult> {
     return await db.transaction(async (tx) => {
-      // 1. Kiểm tra template tồn tại, được duyệt và hoạt động
+      // Kiểm tra biểu mẫu mẫu tồn tại và hợp lệ
       const [tmpl] = await tx
         .select()
         .from(template)
@@ -141,7 +142,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
         throw new Error('Biểu mẫu mẫu không tồn tại hoặc chưa được kích hoạt.')
       }
 
-      // 2. Lấy schema gốc của template
+      // Lấy cấu trúc schema gốc
       const [sourceSchema] = await tx
         .select()
         .from(schemaJson)
@@ -151,26 +152,30 @@ export const drizzleTemplateRepository: ITemplateRepository = {
         throw new Error('Không tìm thấy cấu trúc của biểu mẫu mẫu này.')
       }
 
-      // 3. Nhân bản schema_json với type là 'form'
+      // Nhân bản schema và xóa chữ ký cũ nếu có
+      const sanitizedContent = sanitizeSignatureFromSchema(sourceSchema.content as FormSchemaJson) ?? sourceSchema.content
+
       const [newSchemaRes] = await tx.insert(schemaJson).values({
         schemaType: 'form',
-        content: sourceSchema.content,
+        content: sanitizedContent,
       })
       const newSchemaId = newSchemaRes.insertId
 
-      // 4. Nhân bản schema_media nếu có
+      // Nhân bản media (bỏ qua chữ ký)
       const existingMedia = await tx
         .select()
         .from(schemaMedia)
         .where(eq(schemaMedia.schemaId, tmpl.schemaId))
 
-      if (existingMedia.length > 0) {
+      const mediaToClone = filterTemplateMedia(existingMedia)
+
+      if (mediaToClone.length > 0) {
         await tx.insert(schemaMedia).values(
-          existingMedia.map((m) => ({
+          mediaToClone.map((m) => ({
             schemaId: newSchemaId,
             mediaType: m.mediaType,
             fileKey: m.fileKey ?? null,
-            signatureBase64: m.signatureBase64 ?? null,
+            signatureBase64: null,
             fileUrl: m.fileUrl ?? null,
             fileName: m.fileName ?? null,
             mimeType: m.mimeType ?? null,
@@ -179,7 +184,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
         )
       }
 
-      // 5. Tạo biểu mẫu mới cho user trong bảng form
+      // Tạo biểu mẫu mới cho người dùng
       const [newFormRes] = await tx.insert(form).values({
         name: tmpl.name,
         description: tmpl.description ?? null,
@@ -189,7 +194,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       })
       const newFormId = newFormRes.insertId
 
-      // 6. Tăng số lượt tải của template lên 1 
+      // Tăng lượt tải của biểu mẫu mẫu
       await tx
         .update(template)
         .set({ downloads: sql`${template.downloads} + 1` })

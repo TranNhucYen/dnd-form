@@ -401,7 +401,7 @@ export const drizzleMyFormRepository: IMyFormRepository = {
         throw new Error('Không tìm thấy biểu mẫu hoặc bạn không có quyền chia sẻ')
       }
 
-      // 1. Xử lý chia sẻ qua link (public)
+      // Xử lý chia sẻ qua link (public)
       const [existingLinkShare] = await tx
         .select()
         .from(formShare)
@@ -433,7 +433,7 @@ export const drizzleMyFormRepository: IMyFormRepository = {
         token = null
       }
 
-      // 2. Xử lý danh sách người dùng được chia sẻ
+      // Xử lý danh sách người dùng được chia sẻ
       if (input.sharedUsers !== undefined) {
         const currentShares = await tx
           .select({
