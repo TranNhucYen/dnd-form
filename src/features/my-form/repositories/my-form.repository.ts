@@ -562,12 +562,7 @@ export const drizzleMyFormRepository: IMyFormRepository = {
   },
 
   async getPublicFormByToken(token: string): Promise<PublicFormDetail | null> {
-    const [linkShare] = await db
-      .select()
-      .from(formShare)
-      .where(and(eq(formShare.token, token), eq(formShare.subjectType, 'link')))
-
-    if (!linkShare) {
+    if (!token || !token.trim()) {
       return null
     }
 
@@ -578,9 +573,18 @@ export const drizzleMyFormRepository: IMyFormRepository = {
         description: form.description,
         schemaContent: schemaJson.content,
       })
-      .from(form)
+      .from(formShare)
+      .innerJoin(form, eq(formShare.formId, form.id))
+      .innerJoin(user, eq(form.ownerId, user.id))
       .innerJoin(schemaJson, eq(form.schemaId, schemaJson.id))
-      .where(eq(form.id, linkShare.formId))
+      .where(
+        and(
+          eq(formShare.token, token),
+          eq(formShare.subjectType, 'link'),
+          eq(user.status, 'active')
+        )
+      )
+      .limit(1)
 
     if (!formRecord) {
       return null
