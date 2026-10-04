@@ -44,8 +44,9 @@ interface ShareFormModalProps {
   ) => Promise<unknown>
 }
 
-interface ShareFormContentProps {
+interface ShareFormDialogProps {
   form: MyForm
+  open: boolean
   onOpenChange: (open: boolean) => void
   onUpdateSharing: (
     id: number,
@@ -53,11 +54,12 @@ interface ShareFormContentProps {
   ) => Promise<unknown>
 }
 
-function ShareFormContent({
+function ShareFormDialog({
   form,
+  open,
   onOpenChange,
   onUpdateSharing,
-}: ShareFormContentProps) {
+}: ShareFormDialogProps) {
   const {
     isPublic,
     shareToken,
@@ -75,19 +77,29 @@ function ShareFormContent({
     handleRemoveUser,
     handleRoleChange,
     handleSave,
+    handleCancel,
   } = useFormSharing({ form, onOpenChange, onUpdateSharing })
 
+  const handleDialogOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      handleCancel()
+    } else {
+      onOpenChange(true)
+    }
+  }
+
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle className="text-xl font-bold flex items-center gap-2">
-          <Shield className="size-5 text-foreground" />
-          Chia sẻ biểu mẫu
-        </DialogTitle>
-        <DialogDescription className="truncate" title={form.name}>
-          Biểu mẫu: <span className="font-semibold text-foreground">{form.name}</span>
-        </DialogDescription>
-      </DialogHeader>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+      <DialogContent className="sm:max-w-[560px] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <Shield className="size-5 text-foreground" />
+            Chia sẻ biểu mẫu
+          </DialogTitle>
+          <DialogDescription className="truncate" title={form.name}>
+            Biểu mẫu: <span className="font-semibold text-foreground">{form.name}</span>
+          </DialogDescription>
+        </DialogHeader>
 
       <div className="flex flex-col gap-6 py-2 min-w-0 w-full overflow-hidden">
         {/* Public link section */}
@@ -301,20 +313,21 @@ function ShareFormContent({
         </div>
       </div>
 
-      <DialogFooter>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => onOpenChange(false)}
-          disabled={isSaving}
-        >
-          Hủy
-        </Button>
-        <Button type="button" onClick={handleSave} disabled={isSaving}>
-          {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
-        </Button>
-      </DialogFooter>
-    </>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isSaving}
+          >
+            Hủy
+          </Button>
+          <Button type="button" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -327,15 +340,12 @@ export function ShareFormModal({
   if (!form) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px] overflow-hidden">
-        <ShareFormContent
-          key={form.id}
-          form={form}
-          onOpenChange={onOpenChange}
-          onUpdateSharing={onUpdateSharing}
-        />
-      </DialogContent>
-    </Dialog>
+    <ShareFormDialog
+      key={form.id}
+      form={form}
+      open={open}
+      onOpenChange={onOpenChange}
+      onUpdateSharing={onUpdateSharing}
+    />
   )
 }
