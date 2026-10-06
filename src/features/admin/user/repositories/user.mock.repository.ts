@@ -1,10 +1,10 @@
 import { IUserRepository } from './user.repository'
-import { AdminUser, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
+import { User, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
 
-export let mockAdminUsers: AdminUser[] = [
+export let mockAdminUsers: User[] = [
   {
     id: 1,
-    name: 'Trần Nhực Yên',
+    fullName: 'Trần Nhực Yên',
     email: 'yen.tran@dragform.io',
     role: UserRole.SUPER_ADMIN,
     status: UserStatus.ACTIVE,
@@ -12,7 +12,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 2,
-    name: 'Nguyễn Văn An',
+    fullName: 'Nguyễn Văn An',
     email: 'vanan.nguyen@example.com',
     role: UserRole.ADMIN,
     status: UserStatus.ACTIVE,
@@ -20,7 +20,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 3,
-    name: 'Lê Thị Thu',
+    fullName: 'Lê Thị Thu',
     email: 'thule.design@gmail.com',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -28,7 +28,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 4,
-    name: 'Phạm Minh Tuấn',
+    fullName: 'Phạm Minh Tuấn',
     email: 'tuanpham@techcorp.vn',
     role: UserRole.USER,
     status: UserStatus.BLOCKED,
@@ -36,7 +36,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 5,
-    name: 'Hoàng Quốc Bảo',
+    fullName: 'Hoàng Quốc Bảo',
     email: 'bao.hoang@startup.io',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -44,7 +44,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 6,
-    name: 'Đặng Mai Phương',
+    fullName: 'Đặng Mai Phương',
     email: 'phuong.dang@agency.com',
     role: UserRole.ADMIN,
     status: UserStatus.ACTIVE,
@@ -52,7 +52,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 7,
-    name: 'Vũ Đức Thịnh',
+    fullName: 'Vũ Đức Thịnh',
     email: 'thinh.vu@spam-domain.org',
     role: UserRole.USER,
     status: UserStatus.BLOCKED,
@@ -60,7 +60,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 8,
-    name: 'Đỗ Hoàng Nam',
+    fullName: 'Đỗ Hoàng Nam',
     email: 'nam.do@fintech.vn',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -68,7 +68,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 9,
-    name: 'Bùi Thảo Linh',
+    fullName: 'Bùi Thảo Linh',
     email: 'linh.bui@creative.com',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -76,7 +76,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 10,
-    name: 'Nguyễn Minh Châu',
+    fullName: 'Nguyễn Minh Châu',
     email: 'chau.nguyen@enterprise.io',
     role: UserRole.ADMIN,
     status: UserStatus.ACTIVE,
@@ -84,7 +84,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 11,
-    name: 'Phan Gia Hưng',
+    fullName: 'Phan Gia Hưng',
     email: 'hung.phan@phishing-alert.net',
     role: UserRole.USER,
     status: UserStatus.BLOCKED,
@@ -92,7 +92,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 12,
-    name: 'Trịnh Kim Chi',
+    fullName: 'Trịnh Kim Chi',
     email: 'chi.trinh@edu-survey.org',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -100,7 +100,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 13,
-    name: 'Huỳnh Nhật Quang',
+    fullName: 'Huỳnh Nhật Quang',
     email: 'quang.huynh@logistics.vn',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -108,7 +108,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 14,
-    name: 'Đinh Bích Ngọc',
+    fullName: 'Đinh Bích Ngọc',
     email: 'ngoc.dinh@marketing-pro.com',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -116,7 +116,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 15,
-    name: 'Dương Văn Khoa',
+    fullName: 'Dương Văn Khoa',
     email: 'khoa.duong@violator.co',
     role: UserRole.USER,
     status: UserStatus.BLOCKED,
@@ -124,7 +124,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 16,
-    name: 'Tạ Thu Trang',
+    fullName: 'Tạ Thu Trang',
     email: 'trang.ta@admin-team.io',
     role: UserRole.ADMIN,
     status: UserStatus.ACTIVE,
@@ -132,7 +132,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 17,
-    name: 'Lương Đức Trọng',
+    fullName: 'Lương Đức Trọng',
     email: 'trong.luong@builder.dev',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -140,7 +140,7 @@ export let mockAdminUsers: AdminUser[] = [
   },
   {
     id: 18,
-    name: 'Cao Mỹ Duyên',
+    fullName: 'Cao Mỹ Duyên',
     email: 'duyen.cao@hospital-hr.vn',
     role: UserRole.USER,
     status: UserStatus.ACTIVE,
@@ -149,19 +149,26 @@ export let mockAdminUsers: AdminUser[] = [
 ]
 
 export const userMockRepository: IUserRepository = {
-  async getUsers(): Promise<AdminUser[]> {
+  async getUsers(): Promise<User[]> {
     return [...mockAdminUsers]
   },
 
-  async getUserById(id: number): Promise<AdminUser | null> {
+  async getUserById(id: number): Promise<User | null> {
     const found = mockAdminUsers.find((u) => u.id === id)
+    return found ? { ...found } : null
+  },
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    const found = mockAdminUsers.find(
+      (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+    )
     return found ? { ...found } : null
   },
 
   async updateUserStatus(
     id: number,
     status: UserStatus
-  ): Promise<AdminUser | null> {
+  ): Promise<User | null> {
     const userIndex = mockAdminUsers.findIndex((u) => u.id === id)
     if (userIndex === -1) return null
 
@@ -180,7 +187,7 @@ export const userMockRepository: IUserRepository = {
     return { ...mockAdminUsers[userIndex] }
   },
 
-  async createUser(input: CreateUserInput): Promise<AdminUser> {
+  async createUser(input: CreateUserInput): Promise<User> {
     const nextId =
       mockAdminUsers.length > 0
         ? Math.max(...mockAdminUsers.map((u) => u.id)) + 1
@@ -191,9 +198,9 @@ export const userMockRepository: IUserRepository = {
     const yyyy = today.getFullYear()
     const createdAt = `${dd}/${mm}/${yyyy}`
 
-    const newUser: AdminUser = {
+    const newUser: User = {
       id: nextId,
-      name: input.name.trim(),
+      fullName: input.fullName.trim(),
       email: input.email.trim(),
       role: input.role,
       status: input.status ?? UserStatus.ACTIVE,

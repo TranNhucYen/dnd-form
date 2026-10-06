@@ -8,15 +8,16 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Users, LayoutDashboard, LayoutTemplate, Download, ChartBarStacked } from 'lucide-react'
-import { mockAdminUsers } from '../user'
-import { mockAdminTemplates } from '../template'
-import { mockCategories } from '../category'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useDashboardStats } from '../dashboard/hooks/useDashboardStats'
 
 export function AdminDashboardView() {
-  const totalUsers = mockAdminUsers.length
-  const totalTemplates = mockAdminTemplates.length
-  const totalCategories = mockCategories.length
-  const totalDownloads = '4,508'
+  const { stats, isLoading } = useDashboardStats()
+
+  const totalUsers = stats ? stats.totalUsers.toLocaleString('vi-VN') : '0'
+  const totalTemplates = stats ? stats.totalTemplates.toLocaleString('vi-VN') : '0'
+  const totalCategories = stats ? stats.totalCategories.toLocaleString('vi-VN') : '0'
+  const totalDownloads = stats ? stats.totalDownloads.toLocaleString('vi-VN') : '0'
 
   return (
     <div className="w-full h-full flex flex-col gap-5 overflow-y-auto">
@@ -52,7 +53,7 @@ export function AdminDashboardView() {
           </CardHeader>
           <CardContent className="pt-1">
             <CardTitle className="text-2xl font-bold text-foreground">
-              {totalUsers}
+              {isLoading ? <Skeleton className="h-7 w-14" /> : totalUsers}
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Tài khoản đang được quản lý trong hệ thống
@@ -71,7 +72,7 @@ export function AdminDashboardView() {
           </CardHeader>
           <CardContent className="pt-1">
             <CardTitle className="text-2xl font-bold text-foreground">
-              {totalTemplates}
+              {isLoading ? <Skeleton className="h-7 w-14" /> : totalTemplates}
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Biểu mẫu mẫu trong thư viện hệ thống
@@ -90,7 +91,7 @@ export function AdminDashboardView() {
           </CardHeader>
           <CardContent className="pt-1">
             <CardTitle className="text-2xl font-bold text-foreground">
-              {totalCategories}
+              {isLoading ? <Skeleton className="h-7 w-14" /> : totalCategories}
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Danh mục loại biểu mẫu trong hệ thống
@@ -109,7 +110,7 @@ export function AdminDashboardView() {
           </CardHeader>
           <CardContent className="pt-1">
             <CardTitle className="text-2xl font-bold text-foreground">
-              {totalDownloads}
+              {isLoading ? <Skeleton className="h-7 w-14" /> : totalDownloads}
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Lượt tải các biểu mẫu trong hệ thống

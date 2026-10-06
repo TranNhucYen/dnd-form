@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -14,18 +15,22 @@ import {
   Tag,
   AlertCircle,
   RefreshCw,
-  FileText,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import { useTemplateDetail } from "../hooks/useTemplate"
+import { useExportTemplatePdf } from "../hooks/useExportTemplatePdf"
 import { TemplatePricingType } from "../types/template.type"
+import { TemplateCanvasPreview, TemplateZoomModal } from "./preview"
 
 export interface DetailProps {
   id: string
 }
 
 export function Detail({ id }: DetailProps) {
-  const { template, isLoading, error, refetch } = useTemplateDetail(Number(id))
+  const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id))
+  const { isExporting, downloadPdf } = useExportTemplatePdf()
+  const [isZoomOpen, setIsZoomOpen] = useState(false)
 
   if (isLoading) {
     return <DetailSkeleton />
@@ -123,16 +128,31 @@ export function Detail({ id }: DetailProps) {
 
         {/* Buttons Action */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button variant="outline" className="flex-1 md:flex-none cursor-pointer gap-1.5">
-            <Download className="size-4" />
-            Tải xuống (PDF)
+          <Button
+            variant="outline"
+            onClick={() => template && downloadPdf(template.id, template.name)}
+            disabled={isExporting}
+            className="flex-1 md:flex-none cursor-pointer gap-1.5 text-muted-foreground"
+          >
+            {isExporting ? (
+              <Loader2 className="size-4 animate-spin text-neutral-500" />
+            ) : (
+              <Download className="size-4" />
+            )}
+            <span>{isExporting ? "Đang tạo PDF..." : "Tải xuống (PDF)"}</span>
           </Button>
-          <Link href="/editor" className="flex-1 md:flex-none">
-            <Button className="w-full cursor-pointer gap-1.5">
+          <Button
+            onClick={createFormCopy}
+            disabled={isCopying}
+            className="flex-1 md:flex-none cursor-pointer gap-1.5"
+          >
+            {isCopying ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
               <Copy className="size-4" />
-              Tạo bản sao chỉnh sửa
-            </Button>
-          </Link>
+            )}
+            {isCopying ? "Đang tạo bản sao..." : "Tạo bản sao chỉnh sửa"}
+          </Button>
         </div>
       </div>
 
@@ -144,15 +164,10 @@ export function Detail({ id }: DetailProps) {
             Xem trước biểu mẫu
           </h3>
           <div className="border border-slate-200 rounded-xl bg-slate-50 p-4 shadow-sm overflow-hidden">
-            <AspectRatio
-              ratio={210 / 297}
-              className="border border-slate-200 rounded-lg bg-white shadow-2xs overflow-hidden flex flex-col items-center justify-center text-slate-400 p-6 text-center"
-            >
-              <FileText className="size-16 text-slate-300 mb-3" />
-              <p className="text-xs text-slate-400 font-medium max-w-xs">
-                Xem trước trang mẫu chuẩn khổ giấy A4
-              </p>
-            </AspectRatio>
+            <TemplateCanvasPreview
+              schema={template.schemaContent}
+              onZoomClick={() => setIsZoomOpen(true)}
+            />
           </div>
         </div>
 
@@ -238,6 +253,16 @@ export function Detail({ id }: DetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Modal phóng to xem chi tiết */}
+      <TemplateZoomModal
+        open={isZoomOpen}
+        onOpenChange={setIsZoomOpen}
+        templateName={template.name}
+        schema={template.schemaContent}
+        onUseTemplate={createFormCopy}
+        isCopying={isCopying}
+      />
     </div>
   )
 }

@@ -1,6 +1,5 @@
 export * from './types/category.type'
-export * from './repositories'
-export * from './services/category.service'
-export * from './actions/category.action'
-export * from './hooks/useCategory'
 export * from './components'
+export * from './hooks/useCategory'
+export * from './actions/category.action'
+

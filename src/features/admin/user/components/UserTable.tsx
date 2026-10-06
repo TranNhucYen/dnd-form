@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/pagination'
 import { cn } from '@/lib/utils'
 import { Users, Search, ShieldAlert, Shield, User as UserIcon, UserPlus } from 'lucide-react'
-import { AdminUser, UserRole, UserStatus } from '../types/user.type'
+import { User, UserRole, UserStatus } from '../types/user.type'
 import { useUser } from '../hooks/useUser'
 import { ChangeStatusModal } from './ChangeStatusModal'
 import { AddUserModal } from './AddUserModal'
@@ -40,7 +40,7 @@ import { AddUserModal } from './AddUserModal'
 export function UserTable() {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false)
   const [pendingStatusChange, setPendingStatusChange] = useState<{
-    user: AdminUser
+    user: User
     newStatus: UserStatus
   } | null>(null)
 
@@ -187,11 +187,11 @@ export function UserTable() {
                       <div className="flex items-center gap-2.5">
                         <Avatar className="size-8 border border-primary/20">
                           <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                            {getInitials(item.name)}
+                            {getInitials(item.fullName)}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-semibold text-foreground">
-                          {item.name}
+                          {item.fullName}
                         </span>
                       </div>
                     </TableCell>

@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Sidebar,
   SidebarContent,
@@ -14,10 +15,23 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { ROUTES } from '@/shared/constants/routes'
-import { LayoutDashboard, Users, ArrowLeft, LayoutTemplate, ChartBarStacked } from 'lucide-react'
+import { logoutAction } from '@/features/auth/actions/auth.action'
+import { LayoutDashboard, Users, LayoutTemplate, ChartBarStacked, LogOut, Loader2 } from 'lucide-react'
+import { UserRole } from '@/shared/types/user.type'
+import { AuthUser } from '@/features/auth/types/auth.type'
 
 const adminNavItems = [
   {
@@ -42,8 +56,38 @@ const adminNavItems = [
   },
 ]
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  user: AuthUser
+}
+
+export function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [logoutOpen, setLogoutOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const isSuperAdmin = user.role === UserRole.SUPER_ADMIN
+  const navItems = adminNavItems.filter((item) => item.url !== ROUTES.ADMIN_USERS || isSuperAdmin)
+
+  const initials = user.fullName
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await logoutAction()
+      setLogoutOpen(false)
+      router.push(ROUTES.LOGIN)
+      router.refresh()
+    } catch {
+      setIsLoggingOut(false)
+    }
+  }
 
   return (
     <Sidebar>
@@ -65,7 +109,7 @@ export function AdminSidebar() {
               variant="outline"
               className="text-xs px-1.5 py-0 bg-primary/10 text-primary border-primary/30"
             >
-              Admin
+              {isSuperAdmin ? 'Super Admin' : 'Admin'}
             </Badge>
           </span>
         </Link>
@@ -78,7 +122,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent className="mt-2">
             <SidebarMenu>
-              {adminNavItems.map((item) => {
+              {navItems.map((item) => {
                 const isActive =
                   item.url === ROUTES.ADMIN_DASHBOARD
                     ? pathname === item.url
@@ -101,22 +145,79 @@ export function AdminSidebar() {
                   </SidebarMenuItem>
                 )
               })}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setLogoutOpen(true)}
+                  className="flex items-center gap-3 px-3 py-6 rounded-md transition-colors hover:bg-destructive/10 hover:text-destructive text-muted-foreground cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Đăng xuất</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t">
-        <Link
-          href={ROUTES.HOME}
-          className="
-            flex items-center gap-3 px-3 py-3 rounded-md transition-colors
-            hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Về trang người dùng</span>
-        </Link>
+        <div className="flex items-center gap-3 p-1 -m-1 rounded-md">
+          <div
+            className="
+              h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center 
+              font-bold text-sm shrink-0 border border-primary/20"
+          >
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-sm font-semibold truncate leading-none">{user.fullName}</p>
+            <p className="text-xs text-muted-foreground truncate mt-1">{user.email}</p>
+          </div>
+        </div>
       </SidebarFooter>
+
+      <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  'size-8 rounded-full bg-destructive/10 text-destructive',
+                  'flex items-center justify-center'
+                )}
+              >
+                <LogOut className="size-4" />
+              </div>
+              <AlertDialogTitle className="text-base">
+                Xác nhận đăng xuất
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-xs leading-relaxed text-muted-foreground pt-1">
+              Bạn có chắc chắn muốn đăng xuất khỏi tài khoản quản trị? Bạn sẽ cần đăng nhập lại để tiếp tục quản lý hệ thống.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoggingOut} className="text-xs">
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleConfirmLogout}
+              disabled={isLoggingOut}
+              className="text-xs"
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin mr-1.5" />
+                  Đang đăng xuất...
+                </>
+              ) : (
+                'Đăng xuất'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sidebar>
   )
 }

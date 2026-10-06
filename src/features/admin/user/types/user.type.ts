@@ -1,17 +1,10 @@
-export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
-  ADMIN = 'admin',
-  USER = 'user',
-}
+export { UserRole, UserStatus } from '@/shared/types/user.type'
+import { UserRole, UserStatus } from '@/shared/types/user.type'
+export type { ActionResponse } from '@/shared/types/action.type'
 
-export enum UserStatus {
-  ACTIVE = 'active',
-  BLOCKED = 'blocked',
-}
-
-export interface AdminUser {
+export interface User {
   id: number
-  name: string
+  fullName: string
   email: string
   role: UserRole
   status: UserStatus
@@ -20,8 +13,9 @@ export interface AdminUser {
 }
 
 export interface CreateUserInput {
-  name: string
+  fullName: string
   email: string
   role: UserRole
-  status?: UserStatus
+  status: UserStatus
+  password?: string
 }

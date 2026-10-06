@@ -179,7 +179,7 @@ export function Table() {
                 <TableHead className="h-9 px-2 w-28 font-bold text-foreground">
                   Tạo bởi
                 </TableHead>
-                <TableHead className="h-9 px-2 w-24 font-bold text-foreground">
+                <TableHead className="h-9 px-2 w-28 font-bold text-foreground">
                   Chấp nhận bởi
                 </TableHead>
                 <TableHead className="h-9 px-2 w-24 font-bold text-foreground">
@@ -255,9 +255,14 @@ export function Table() {
                     {/* Cột Chấp nhận bởi */}
                     <TableCell className="px-2 py-2.5">
                       {item.approvedBy ? (
-                        <span className="font-medium text-foreground truncate block">
-                          {item.approvedBy}
-                        </span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-medium text-foreground leading-tight truncate">
+                            {item.approvedBy}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground leading-tight truncate">
+                            {item.approvedByEmail}
+                          </span>
+                        </div>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
@@ -581,6 +586,7 @@ export function Table() {
           updateTemplate(id, {
             review_status: TemplateStatus.APPROVED,
             approvedBy: 'Trần Nhực Yên',
+            approvedByEmail: 'yen.tran@dragform.io',
             rejectReason: undefined,
           })
           setApproveModalTemplate(null)

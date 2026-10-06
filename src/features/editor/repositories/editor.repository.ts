@@ -1,0 +1,216 @@
+import { db } from "@/db";
+import { form, formShare, schemaJson, schemaMedia } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
+import type { FormDetailResult, SaveFormResult } from "../types/editor.type";
+import type { SchemaMediaItem } from "@/shared/types/media.type";
+
+/** Thông tin media cần lưu vào cơ sở dữ liệu */
+export type MediaInsertItem = SchemaMediaItem;
+
+export interface SaveFormRepoParams {
+  formId?: number | null;
+  userId: number;
+  title: string;
+  description?: string;
+  schemaContent: FormSchemaJson;
+  mediaList: MediaInsertItem[];
+}
+
+export interface IEditorRepository {
+  saveForm(params: SaveFormRepoParams): Promise<SaveFormResult | null>;
+  getFormById(formId: number, userId: number): Promise<FormDetailResult | null>;
+}
+
+export const drizzleEditorRepository: IEditorRepository = {
+  async saveForm(params: SaveFormRepoParams): Promise<SaveFormResult | null> {
+    return await db.transaction(async (tx) => {
+      // Tạo mới biểu mẫu nếu chưa có formId
+      if (!params.formId) {
+        // Lưu nội dung schema vào bảng schema_json
+        const [schemaResult] = await tx.insert(schemaJson).values({
+          schemaType: "form",
+          content: params.schemaContent,
+        });
+        const schemaId = schemaResult.insertId;
+
+        // Tạo bản ghi biểu mẫu trong bảng form
+        const [formResult] = await tx.insert(form).values({
+          name: params.title,
+          ownerId: params.userId,
+          schemaId,
+          description: params.description ?? null,
+        });
+        const formId = formResult.insertId;
+
+        // Lưu danh sách media đính kèm nếu có
+        if (params.mediaList.length > 0) {
+          await tx.insert(schemaMedia).values(
+            params.mediaList.map((m) => ({
+              schemaId,
+              mediaType: m.mediaType,
+              signatureBase64: m.signatureBase64 ?? null,
+              fileKey: m.fileKey ?? null,
+              fileUrl: m.fileUrl ?? null,
+              fileName: m.fileName ?? null,
+              mimeType: m.mimeType ?? null,
+              fileSize: m.fileSize ?? null,
+            })),
+          );
+        }
+
+        return {
+          formId,
+          schemaId,
+          title: params.title,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      // Cập nhật biểu mẫu khi đã có formId
+      // 1. Kiểm tra biểu mẫu có tồn tại không
+      const [existingForm] = await tx
+        .select()
+        .from(form)
+        .where(eq(form.id, params.formId));
+
+      if (!existingForm) {
+        return null;
+      }
+
+      // 2. Kiểm tra quyền chỉnh sửa (chủ sở hữu hoặc có quyền 'edit')
+      let canEdit = existingForm.ownerId === params.userId;
+      if (!canEdit) {
+        const [sharePermission] = await tx
+          .select({ permission: formShare.permission })
+          .from(formShare)
+          .where(
+            and(
+              eq(formShare.formId, params.formId),
+              eq(formShare.userId, params.userId),
+              eq(formShare.subjectType, "user"),
+            ),
+          );
+
+        if (sharePermission?.permission === "edit") {
+          canEdit = true;
+        }
+      }
+
+      if (!canEdit) {
+        return null;
+      }
+
+      const schemaId = existingForm.schemaId;
+
+      // Cập nhật nội dung schema
+      await tx
+        .update(schemaJson)
+        .set({
+          content: params.schemaContent,
+          updatedAt: new Date(),
+        })
+        .where(eq(schemaJson.id, schemaId));
+
+      // Cập nhật thông tin biểu mẫu
+      await tx
+        .update(form)
+        .set({
+          name: params.title,
+          description: params.description ?? null,
+          updatedAt: new Date(),
+        })
+        .where(eq(form.id, params.formId));
+
+      // Đồng bộ media: xóa bản ghi cũ và lưu bản ghi mới
+      await tx.delete(schemaMedia).where(eq(schemaMedia.schemaId, schemaId));
+
+      if (params.mediaList.length > 0) {
+        await tx.insert(schemaMedia).values(
+          params.mediaList.map((m) => ({
+            schemaId,
+            mediaType: m.mediaType,
+            signatureBase64: m.signatureBase64 ?? null,
+            fileKey: m.fileKey ?? null,
+            fileUrl: m.fileUrl ?? null,
+            fileName: m.fileName ?? null,
+            mimeType: m.mimeType ?? null,
+            fileSize: m.fileSize ?? null,
+          })),
+        );
+      }
+
+      return {
+        formId: params.formId,
+        schemaId,
+        title: params.title,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  },
+
+  async getFormById(
+    formId: number,
+    userId: number,
+  ): Promise<FormDetailResult | null> {
+    const [existingForm] = await db
+      .select({
+        form: form,
+        schema: schemaJson,
+      })
+      .from(form)
+      .innerJoin(schemaJson, eq(form.schemaId, schemaJson.id))
+      .where(eq(form.id, formId));
+
+    if (!existingForm) {
+      return null;
+    }
+
+    let currentUserPermission: "owner" | "edit" | "view";
+
+    if (existingForm.form.ownerId === userId) {
+      currentUserPermission = "owner";
+    } else {
+      const [sharePermission] = await db
+        .select({ permission: formShare.permission })
+        .from(formShare)
+        .where(
+          and(
+            eq(formShare.formId, formId),
+            eq(formShare.userId, userId),
+            eq(formShare.subjectType, "user"),
+          ),
+        );
+
+      if (!sharePermission) {
+        return null;
+      }
+
+      currentUserPermission =
+        sharePermission.permission === "edit" ? "edit" : "view";
+    }
+
+    const mediaRecords = await db
+      .select()
+      .from(schemaMedia)
+      .where(eq(schemaMedia.schemaId, existingForm.form.schemaId));
+
+    return {
+      id: existingForm.form.id,
+      name: existingForm.form.name,
+      description: existingForm.form.description,
+      ownerId: existingForm.form.ownerId,
+      schemaId: existingForm.form.schemaId,
+      schemaContent: existingForm.schema.content as FormSchemaJson,
+      media: mediaRecords.map((m) => ({
+        id: m.id,
+        mediaType: m.mediaType,
+        signatureBase64: m.signatureBase64,
+        fileUrl: m.fileUrl,
+      })),
+      createdAt: existingForm.form.createdAt.toISOString(),
+      updatedAt: existingForm.form.updatedAt.toISOString(),
+      currentUserPermission,
+    };
+  },
+};

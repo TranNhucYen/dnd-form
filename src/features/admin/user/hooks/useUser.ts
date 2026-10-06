@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { AdminUser, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
+import { User, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
 import {
   getUsersAction,
   updateUserStatusAction,
@@ -9,7 +9,7 @@ import {
 } from '../actions/user.action'
 
 export function useUser(initialPageSize = 8) {
-  const [users, setUsers] = useState<AdminUser[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -20,10 +20,14 @@ export function useUser(initialPageSize = 8) {
     setIsLoading(true)
     setError(null)
     try {
-      const data = await getUsersAction()
-      setUsers(data)
-    } catch {
-      setError('Không thể tải danh sách người dùng.')
+      const res = await getUsersAction()
+      if (res.success) {
+        setUsers(res.data)
+      } else {
+        setError(res.error)
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Không thể tải danh sách người dùng')
     } finally {
       setIsLoading(false)
     }
@@ -39,7 +43,7 @@ export function useUser(initialPageSize = 8) {
 
     return users.filter(
       (u) =>
-        u.name.toLowerCase().includes(q) ||
+        u.fullName.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
         String(u.id).toLowerCase().includes(q) ||
         u.role.toLowerCase().includes(q)
@@ -80,17 +84,25 @@ export function useUser(initialPageSize = 8) {
     )
 
     try {
-      await updateUserStatusAction(id, newStatus)
-    } catch {
+      const res = await updateUserStatusAction(id, newStatus)
+      if (!res.success) {
+        setError(res.error)
+        fetchUsers()
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Không thể cập nhật trạng thái')
       fetchUsers()
     }
   }
 
   const addUser = async (input: CreateUserInput) => {
     try {
-      const created = await createUserAction(input)
-      setUsers((prev) => [created, ...prev])
-      return created
+      const res = await createUserAction(input)
+      if (!res.success) {
+        throw new Error(res.error)
+      }
+      setUsers((prev) => [res.data, ...prev])
+      return res.data
     } catch (err) {
       throw err
     }
@@ -115,5 +127,3 @@ export function useUser(initialPageSize = 8) {
     refetch: fetchUsers,
   }
 }
-
-export const useUserManager = useUser

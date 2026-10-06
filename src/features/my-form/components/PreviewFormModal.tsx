@@ -19,7 +19,7 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import Link from 'next/link'
-import { MyForm, FormStatus } from '../types/my-form.type'
+import type { MyForm } from '../types/my-form.type'
 
 interface PreviewFormModalProps {
   form: MyForm | null
@@ -34,38 +34,6 @@ export function PreviewFormModal({
 }: PreviewFormModalProps) {
   if (!form) return null
 
-  const renderStatusBadge = () => {
-    switch (form.status) {
-      case FormStatus.ACTIVE:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-semibold"
-          >
-            Đang sử dụng
-          </Badge>
-        )
-      case FormStatus.DRAFT:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-amber-50 text-amber-700 border-amber-200 text-xs font-semibold"
-          >
-            Bản nháp
-          </Badge>
-        )
-      case FormStatus.ARCHIVED:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-muted text-muted-foreground border-border text-xs font-semibold"
-          >
-            Đã lưu trữ
-          </Badge>
-        )
-    }
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto">
@@ -73,9 +41,14 @@ export function PreviewFormModal({
           <div className="flex items-center justify-between gap-4 pr-6">
             <div className="flex items-center gap-2.5">
               <DialogTitle className="text-xl font-bold text-foreground truncate max-w-[420px]">
-                {form.title}
+                {form.name}
               </DialogTitle>
-              {renderStatusBadge()}
+              <Badge
+                variant="outline"
+                className="text-xs font-semibold"
+              >
+                {form.isPublic ? 'Công khai' : 'Riêng tư'}
+              </Badge>
             </div>
           </div>
           <DialogDescription className="text-muted-foreground text-xs">
@@ -94,7 +67,7 @@ export function PreviewFormModal({
           >
             {/* Header of the Form */}
             <div className="flex flex-col gap-2">
-              <h2 className="text-xl font-bold text-foreground">{form.title}</h2>
+              <h2 className="text-xl font-bold text-foreground">{form.name}</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {form.description || 'Vui lòng điền đầy đủ các thông tin cần thiết bên dưới.'}
               </p>
@@ -176,7 +149,7 @@ export function PreviewFormModal({
             {/* Form Footer */}
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>Được tạo bằng DragForm Canvas</span>
-              <span>Tổng số trường: {form.fieldsCount || 4}</span>
+              <span>Tổng số trường: {form.fieldsCount || 0}</span>
             </div>
           </Card>
         </div>
@@ -217,4 +190,3 @@ export function PreviewFormModal({
     </Dialog>
   )
 }
-

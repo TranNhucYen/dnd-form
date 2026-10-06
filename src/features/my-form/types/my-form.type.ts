@@ -1,51 +1,57 @@
-export enum FormStatus {
-  DRAFT = 'draft',
-  ACTIVE = 'active',
-  ARCHIVED = 'archived',
-}
+export { ShareRole, type SharedUser } from '@/shared/types/share.type'
+export type { ActionResponse } from '@/shared/types/action.type'
 
-export enum ShareRole {
-  VIEWER = 'viewer',
-  EDITOR = 'editor',
-}
-
-export interface SharedUser {
-  id: string
-  email: string
-  role: ShareRole
-  addedAt: Date | string
-}
+import { ShareRole, SharedUser } from '@/shared/types/share.type'
 
 export interface MyForm {
   id: number
-  title: string
-  description?: string
-  status: FormStatus
+  name: string
+  description?: string | null
   fieldsCount: number
-  responsesCount: number
   isPublic: boolean
-  sharedWith: SharedUser[]
-  sourceTemplateId?: number
-  sourceTemplateName?: string
-  createdAt: Date | string
-  updatedAt: Date | string
+  sharedWith?: SharedUser[]
+  sourceTemplateId?: number | null
+  sourceTemplateName?: string | null
+  createdAt: string
+  updatedAt: string
   formattedCreatedAt?: string
   formattedUpdatedAt?: string
-  statusLabel?: string
   shareSummary?: string
 }
 
-export interface CreateFormInput {
-  title: string
+export interface CreateBlankFormInput {
+  name: string
   description?: string
   sourceTemplateId?: number
-  sourceTemplateName?: string
 }
 
 export interface UpdateFormInput {
-  title?: string
+  name?: string
   description?: string
-  status?: FormStatus
   isPublic?: boolean
   sharedWith?: SharedUser[]
+}
+
+export interface SaveSharingInput {
+  isPublic: boolean
+  sharedUsers?: Array<{
+    email: string
+    role: ShareRole
+  }>
+  email?: string
+  role?: ShareRole
+}
+
+export interface ShareTokenResult {
+  isPublic: boolean
+  token: string | null
+  shareUrl: string | null
+  sharedWith?: SharedUser[]
+}
+
+export interface PublicFormDetail {
+  id: number
+  name: string
+  description: string | null
+  schemaContent: any
 }

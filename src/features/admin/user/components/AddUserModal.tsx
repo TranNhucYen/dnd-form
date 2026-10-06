@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import {
   Dialog,
@@ -20,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
-import { CreateUserInput, UserRole } from '../types/user.type'
+import { CreateUserInput, UserRole, UserStatus } from '../types/user.type'
 
 interface AddUserModalProps {
   open: boolean
@@ -54,14 +53,17 @@ export function AddUserModal({
     setIsSubmitting(true)
     setErrorMessage(null)
     try {
+
+      // thêm thông user mới
       await onAddUser({
-        name: name.trim(),
+        fullName: name.trim(),
         email: email.trim().toLowerCase(),
         role,
+        status: UserStatus.ACTIVE,
       })
       handleClose()
-    } catch {
-      setErrorMessage('Đã có lỗi xảy ra khi thêm người dùng.')
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Đã có lỗi xảy ra khi thêm người dùng')
     } finally {
       setIsSubmitting(false)
     }

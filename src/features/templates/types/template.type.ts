@@ -1,5 +1,19 @@
+import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+
+import {
+  TemplatePricingType,
+  TemplatePublishStatus,
+} from '@/shared/types/template.type'
+
+export {
+  TemplatePricingType,
+  TemplatePublishStatus,
+  TemplatePublishStatus as TemplateStatus,
+} from '@/shared/types/template.type'
+export type { ActionResponse } from '@/shared/types/action.type'
+
 export interface GuidelineItem {
-  id: string
+  id?: string
   content: string
 }
 
@@ -8,16 +22,6 @@ export enum TemplateType {
   DND_TEMPLATE = 'dnd_template',
 }
 
-export enum TemplatePricingType {
-  FREE = 'free',
-  PAID = 'paid',
-}
-
-export enum TemplateStatus {
-  ACTIVE = 'active',
-  ARCHIVED = 'archived',
-  DRAFT = 'draft'
-}
 
 export interface Template {
   id: number
@@ -26,12 +30,18 @@ export interface Template {
   ownerName: string
   categoryId?: number
   categoryName: string
-  type: TemplateType
-  pricingType: TemplatePricingType
-  status: TemplateStatus
-  description?: string
-  guideline?: GuidelineItem[]
+  type?: TemplateType
+  pricingType: TemplatePricingType | 'free' | 'paid'
+  status?: TemplatePublishStatus | string
+  description?: string | null
+  guideline?: (GuidelineItem | string)[] | null
   downloads: number
+  schemaId?: number
+  schemaContent?: FormSchemaJson
   createdAt?: Date | string
   updatedAt: Date | string
+}
+
+export interface UseTemplateResult {
+  formId: number
 }

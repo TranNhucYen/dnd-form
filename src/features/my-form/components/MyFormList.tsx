@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import {
@@ -15,9 +14,11 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { Plus, Search, RefreshCw, AlertCircle, FolderOpen } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useMyFormList } from '../hooks/useMyForm'
-import { FormStatus, MyForm } from '../types/my-form.type'
+import type { MyForm } from '../types/my-form.type'
+import { saveFormSharingAction } from '../actions/my-form.action'
 import { MyFormTable } from './MyFormTable'
 import { CreateFormModal } from './CreateFormModal'
 import { DuplicateFormModal } from './DuplicateFormModal'
@@ -28,23 +29,18 @@ import { DeleteFormModal } from './DeleteFormModal'
 export default function MyFormList() {
   const {
     forms,
-    counts,
     isLoading,
     error,
     searchTerm,
     setSearchTerm,
-    selectedStatus,
-    setSelectedStatus,
     currentPage,
     setCurrentPage,
     pageSize,
     totalPages,
     totalItems,
-    createForm,
-    updateStatus,
+    createBlankForm,
     duplicateForm,
     deleteForm,
-    updateSharing,
     refetch,
   } = useMyFormList()
 
@@ -56,15 +52,15 @@ export default function MyFormList() {
   const [deleteModalForm, setDeleteModalForm] = useState<MyForm | null>(null)
 
   return (
-    <div className="w-full mx-auto flex flex-col gap-6">
+    <div className="w-full mx-auto flex flex-col gap-4 sm:gap-5 h-[calc(100svh-5rem)]">
       {/* Header section */}
       <div
-        className="flex flex-col sm:flex-row justify-between items-start
-        sm:items-center w-full border-b border-border pb-4 gap-4"
+        className="shrink-0 flex flex-col sm:flex-row justify-between items-start
+        sm:items-center w-full border-b border-border pb-3.5 gap-4"
       >
         <div>
           <h1 className="text-2xl font-bold text-foreground">Biểu mẫu của tôi</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-0.5">
             Quản lý, chỉnh sửa, phân quyền chia sẻ và theo dõi các biểu mẫu của bạn.
           </p>
         </div>
@@ -78,35 +74,9 @@ export default function MyFormList() {
         </Button>
       </div>
 
-      {/* Filter Tabs & Search section */}
-      <div
-        className="flex flex-col md:flex-row gap-4 justify-between
-        items-stretch md:items-center"
-      >
-        {/* Status Tabs */}
-        <Tabs
-          value={selectedStatus}
-          onValueChange={setSelectedStatus}
-          className="w-full md:w-auto"
-        >
-          <TabsList className="grid grid-cols-4 md:flex h-9 bg-muted p-1">
-            <TabsTrigger value="all" className="text-xs">
-              Tất cả ({counts.all})
-            </TabsTrigger>
-            <TabsTrigger value={FormStatus.ACTIVE} className="text-xs">
-              Đang sử dụng ({counts.active})
-            </TabsTrigger>
-            <TabsTrigger value={FormStatus.DRAFT} className="text-xs">
-              Bản nháp ({counts.draft})
-            </TabsTrigger>
-            <TabsTrigger value={FormStatus.ARCHIVED} className="text-xs">
-              Đã lưu trữ ({counts.archived})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {/* Search input */}
-        <div className="relative w-full md:w-80">
+      {/* Search section */}
+      <div className="shrink-0 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+        <div className="relative w-full sm:w-96">
           <Search
             className="absolute left-2.5 top-1/2 -translate-y-1/2
             size-4 text-muted-foreground"
@@ -118,11 +88,15 @@ export default function MyFormList() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
+        <span className="text-xs text-muted-foreground self-end sm:self-center">
+          Tổng số: <strong className="font-semibold text-foreground">{totalItems}</strong> biểu mẫu
+        </span>
       </div>
 
       {/* Error state */}
       {error && (
-        <Alert variant="destructive" className="flex items-center justify-between">
+        <Alert variant="destructive" className="shrink-0 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertCircle />
             <div>
@@ -144,8 +118,8 @@ export default function MyFormList() {
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
-          {Array.from({ length: 6 }).map((_, index) => (
+        <div className="flex-1 min-h-[260px] rounded-xl border border-border bg-card p-4 flex flex-col gap-3 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, index) => (
             <div
               key={index}
               className="flex items-center justify-between py-2
@@ -158,7 +132,7 @@ export default function MyFormList() {
                   <Skeleton className="h-3 w-64 rounded" />
                 </div>
               </div>
-              <Skeleton className="h-6 w-20 rounded-md" />
+              <Skeleton className="h-5 w-16 rounded-md" />
               <Skeleton className="h-5 w-20 rounded-md" />
               <Skeleton className="h-4 w-24 rounded" />
               <Skeleton className="size-8 rounded-md" />
@@ -170,8 +144,8 @@ export default function MyFormList() {
       {/* Empty State */}
       {!isLoading && !error && forms.length === 0 && (
         <div
-          className="
-          flex flex-col items-center justify-center py-16 px-4
+          className="flex-1 min-h-[260px]
+          flex flex-col items-center justify-center py-12 px-4
           border border-dashed border-border rounded-xl bg-muted/20 text-center"
         >
           <FolderOpen className="size-12 text-muted-foreground/60 mb-3" />
@@ -181,7 +155,7 @@ export default function MyFormList() {
           <p className="text-sm text-muted-foreground mt-1 max-w-sm">
             {searchTerm
               ? `Không tìm thấy kết quả khớp với "${searchTerm}". Hãy thử kiểm tra lại từ khóa.`
-              : 'Bạn chưa có biểu mẫu nào trong danh mục này. Hãy bắt đầu tạo biểu mẫu đầu tiên của bạn!'}
+              : 'Bạn chưa tạo biểu mẫu nào. Hãy bắt đầu tạo biểu mẫu đầu tiên của bạn!'}
           </p>
 
           {!searchTerm && (
@@ -199,21 +173,20 @@ export default function MyFormList() {
 
       {/* Forms Table & Pagination */}
       {!isLoading && !error && forms.length > 0 && (
-        <div className="flex flex-col gap-4">
+        <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">
           <MyFormTable
             forms={forms}
             onOpenPreview={(form) => setPreviewModalForm(form)}
             onOpenShare={(form) => setShareModalForm(form)}
             onOpenDelete={(form) => setDeleteModalForm(form)}
             onOpenDuplicate={(form) => setDuplicateModalForm(form)}
-            onUpdateStatus={updateStatus}
           />
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div
-              className="flex flex-col sm:flex-row items-center
-              justify-between gap-3 pt-2 text-xs text-muted-foreground"
+              className="shrink-0 flex flex-col sm:flex-row items-center
+              justify-between gap-3 pt-1 text-xs text-muted-foreground"
             >
               <span>
                 Hiển thị{' '}
@@ -281,7 +254,7 @@ export default function MyFormList() {
       <CreateFormModal
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}
-        onCreateBlank={createForm}
+        onCreateBlank={createBlankForm}
       />
 
       <DuplicateFormModal
@@ -295,7 +268,21 @@ export default function MyFormList() {
         form={shareModalForm}
         open={!!shareModalForm}
         onOpenChange={(open) => !open && setShareModalForm(null)}
-        onUpdateSharing={updateSharing}
+        onUpdateSharing={async (id, sharing) => {
+          const res = await saveFormSharingAction(id, {
+            isPublic: sharing.isPublic,
+            sharedUsers: sharing.sharedWith.map((u) => ({
+              email: u.email,
+              role: u.role,
+            })),
+          })
+          if (!res.success) {
+            toast.error(res.error || 'Lưu cài đặt chia sẻ thất bại')
+            throw new Error(res.error)
+          }
+          toast.success('Đã cập nhật cài đặt chia sẻ thành công')
+          refetch()
+        }}
       />
 
       <PreviewFormModal
@@ -313,4 +300,3 @@ export default function MyFormList() {
     </div>
   )
 }
-

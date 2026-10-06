@@ -118,11 +118,17 @@ const mockData: Template[] = [
 ];
 
 export const templateMockRepository: ITemplateRepository = {
-  async findById(id: number): Promise<Template | null> {
-    const template = mockData.find(item => item.id === id);
+  async getTemplateById(id: number): Promise<Template | null> {
+    const template = mockData.find((item) => item.id === id);
     return template || null;
   },
-  async findAll(): Promise<Template[]> {
+  async getTemplates(): Promise<Template[]> {
     return mockData;
-  }
-};
+  },
+  async useTemplate(templateId: number): Promise<{ formId: number }> {
+    const template = mockData.find((item) => item.id === templateId);
+    if (!template) throw new Error('Biểu mẫu mẫu không tồn tại');
+    template.downloads += 1;
+    return { formId: 999 };
+  },
+};
