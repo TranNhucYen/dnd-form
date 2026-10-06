@@ -20,7 +20,7 @@ export function AdminDashboardView() {
   const totalDownloads = stats ? stats.totalDownloads.toLocaleString('vi-VN') : '0'
 
   return (
-    <div className="w-full h-full flex flex-col gap-5 overflow-y-auto">
+    <div className="w-full h-full flex flex-col gap-5 overflow-y-auto p-1 sm:p-1.5">
       {/* Header */}
       <div
         className="
@@ -41,7 +41,7 @@ export function AdminDashboardView() {
       </div>
 
       {/* Danh sách các chỉ số thống kê (Metrics) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-0.5">
         <Card className="border-border/80 shadow-xs bg-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardDescription className="text-xs font-medium">
