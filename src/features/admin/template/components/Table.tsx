@@ -5,8 +5,6 @@ import {
   Table as UITable,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
@@ -22,14 +20,6 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
 import { cn } from '@/lib/utils'
 import {
   LayoutTemplate,
@@ -48,6 +38,7 @@ import { DescriptionModal } from './DescriptionModal'
 import { GuidelineModal } from './GuidelineModal'
 import { RejectModal, RejectDetailModal } from './RejectModal'
 import { ApproveModal } from './ApproveModal'
+import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
 
 export function Table() {
   const {
@@ -62,6 +53,7 @@ export function Table() {
     currentPage,
     setCurrentPage,
     pageSize,
+    setPageSize,
     totalPages,
     totalItems,
     updateTemplate,
@@ -85,7 +77,7 @@ export function Table() {
       setApproveModalTemplate(template)
       return
     } else {
-      // Trường hợp chuyển về Chờ duyệt (PENDING)
+      // Chuyển về Chờ duyệt (PENDING)
       updateTemplate(template.id, {
         review_status: newStatus,
         approvedBy: undefined,
@@ -96,27 +88,12 @@ export function Table() {
 
   return (
     <div className="w-full h-full flex-1 min-h-0 flex flex-col gap-3">
-      {/* Tiêu đề trang */}
-      <div
-        className="
-          shrink-0 flex flex-col sm:flex-row items-start sm:items-center
-          justify-between gap-3 border-b pb-3"
+      {/* Tiêu đề trang dùng chung */}
+      <AdminPageHeader
+        title="Quản lý form mẫu"
+        description="Danh sách biểu mẫu mẫu, phân loại, trạng thái duyệt và cấu hình trả phí"
+        icon={<LayoutTemplate className="size-4" />}
       >
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <LayoutTemplate className="size-4" />
-            </div>
-            <h1 className="text-xl font-bold text-foreground">
-              Quản lý form mẫu
-            </h1>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Danh sách biểu mẫu mẫu, phân loại, trạng thái duyệt và cấu hình trả phí
-          </p>
-        </div>
-
-        {/* Thanh tìm kiếm biểu mẫu */}
         <div className="relative w-full sm:w-72">
           <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -126,10 +103,10 @@ export function Table() {
             className="pl-8 text-xs h-9"
           />
         </div>
-      </div>
+      </AdminPageHeader>
 
-      {/* Bộ lọc biểu mẫu theo trạng thái duyệt */}
-      <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      {/* Bộ lọc biểu mẫu theo trạng thái duyệt (Viết trực tiếp tại module Template) */}
+      <div className="shrink-0 flex items-center justify-between gap-3">
         <Tabs
           value={statusFilter}
           onValueChange={(val) => setStatusFilter(val as 'all' | TemplateStatus)}
@@ -164,47 +141,25 @@ export function Table() {
         </Tabs>
       </div>
 
-      {/* Bảng danh sách biểu mẫu (Tự động chiếm trọn phần chiều cao còn lại) */}
+      {/* Bảng danh sách biểu mẫu */}
       <Card className="flex-1 min-h-0 flex flex-col border-border/80 shadow-xs overflow-hidden">
         <CardContent className="flex-1 min-h-0 p-0 overflow-auto">
           <UITable>
-            <TableHeader className="sticky top-0 z-10 bg-muted/30 backdrop-blur-md">
-              <TableRow className="text-xs hover:bg-transparent">
-                <TableHead className="h-9 px-2 w-10 font-bold text-foreground text-center">
-                  ID
-                </TableHead>
-                <TableHead className="h-9 px-2 min-w-32 font-bold text-foreground">
-                  Tên biểu mẫu
-                </TableHead>
-                <TableHead className="h-9 px-2 w-28 font-bold text-foreground">
-                  Tạo bởi
-                </TableHead>
-                <TableHead className="h-9 px-2 w-28 font-bold text-foreground">
-                  Chấp nhận bởi
-                </TableHead>
-                <TableHead className="h-9 px-2 w-24 font-bold text-foreground">
-                  Loại form
-                </TableHead>
-                <TableHead className="h-9 px-2 w-24 font-bold text-foreground">
-                  Trả phí
-                </TableHead>
-                <TableHead className="h-9 px-2 w-18 font-bold text-foreground text-center">
-                  Mô tả
-                </TableHead>
-                <TableHead className="h-9 px-2 w-20 font-bold text-foreground text-center">
-                  Hướng dẫn điền
-                </TableHead>
-                <TableHead className="h-9 px-2 w-36 font-bold text-foreground">
-                  Trạng thái duyệt
-                </TableHead>
-                <TableHead className="h-9 px-2 w-26 font-bold text-foreground text-center">
-                  Trạng thái
-                </TableHead>
-                <TableHead className="h-9 px-2 w-16 font-bold text-foreground text-right">
-                  Lượt tải
-                </TableHead>
-              </TableRow>
-            </TableHeader>
+            <AdminTableHeader
+              columns={[
+                { title: 'ID', width: 'w-10', align: 'center', className: 'px-2' },
+                { title: 'Tên biểu mẫu', width: 'min-w-32', className: 'px-2' },
+                { title: 'Tạo bởi', width: 'w-28', className: 'px-2' },
+                { title: 'Chấp nhận bởi', width: 'w-28', className: 'px-2' },
+                { title: 'Loại form', width: 'w-24', className: 'px-2' },
+                { title: 'Trả phí', width: 'w-24', className: 'px-2' },
+                { title: 'Mô tả', width: 'w-18', align: 'center', className: 'px-2' },
+                { title: 'Hướng dẫn điền', width: 'w-20', align: 'center', className: 'px-2' },
+                { title: 'Trạng thái duyệt', width: 'w-36', className: 'px-2' },
+                { title: 'Trạng thái', width: 'w-26', align: 'center', className: 'px-2' },
+                { title: 'Lượt tải', width: 'w-16', align: 'right', className: 'px-2' },
+              ]}
+            />
             <TableBody>
               {paginatedTemplates.length === 0 ? (
                 <TableRow>
@@ -228,7 +183,7 @@ export function Table() {
                       #{item.id}
                     </TableCell>
 
-                    {/* Cột Tên */}
+                    {/* Cột Tên biểu mẫu */}
                     <TableCell className="px-2 py-2.5">
                       <div className="flex flex-col gap-0.5">
                         <span className="font-semibold text-foreground line-clamp-2 leading-snug">
@@ -298,7 +253,7 @@ export function Table() {
                       </Select>
                     </TableCell>
 
-                    {/* Cột Trả phí (Switch + Text) */}
+                    {/* Cột Trả phí (Switch + Badge) */}
                     <TableCell className="px-2 py-2.5">
                       <div className="flex items-center gap-1.5">
                         <Switch
@@ -323,7 +278,7 @@ export function Table() {
                       </div>
                     </TableCell>
 
-                    {/* Cột Mô tả (Modal trigger) */}
+                    {/* Cột Mô tả */}
                     <TableCell className="px-2 py-2.5 text-center">
                       <Button
                         variant="outline"
@@ -336,7 +291,7 @@ export function Table() {
                       </Button>
                     </TableCell>
 
-                    {/* Cột Hướng dẫn điền (Modal trigger) */}
+                    {/* Cột Hướng dẫn điền */}
                     <TableCell className="px-2 py-2.5 text-center">
                       <Button
                         variant="outline"
@@ -458,76 +413,21 @@ export function Table() {
             </TableBody>
           </UITable>
         </CardContent>
+
+        {/* Phân trang dùng chung */}
+        <AdminPagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[5, 8, 16, 32]}
+          itemName="biểu mẫu"
+        />
       </Card>
 
-      {/* Thanh chuyển trang */}
-      {totalItems > 0 && (
-        <div
-          className="
-            shrink-0 flex flex-col sm:flex-row items-center
-            justify-between gap-3 pt-1 text-xs text-muted-foreground"
-        >
-          <span>
-            Hiển thị{' '}
-            <strong className="font-semibold text-foreground">
-              {totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1}
-            </strong>
-            -
-            <strong className="font-semibold text-foreground">
-              {Math.min(currentPage * pageSize, totalItems)}
-            </strong>{' '}
-            trên tổng số{' '}
-            <strong className="font-semibold text-foreground">
-              {totalItems}
-            </strong>{' '}
-            biểu mẫu
-          </span>
-
-          <Pagination className="mx-0 w-auto">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  className={cn(
-                    'cursor-pointer text-xs h-8',
-                    currentPage === 1 && 'pointer-events-none opacity-50'
-                  )}
-                  text="Trước"
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      onClick={() => setCurrentPage(pageNum)}
-                      isActive={currentPage === pageNum}
-                      className="cursor-pointer text-xs h-8 w-8"
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(p + 1, totalPages))
-                  }
-                  className={cn(
-                    'cursor-pointer text-xs h-8',
-                    currentPage === totalPages && 'pointer-events-none opacity-50'
-                  )}
-                  text="Sau"
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
-
-      {/* Các hộp thoại thao tác (Mô tả, Hướng dẫn điền, Từ chối, Phê duyệt) */}
+      {/* Các hộp thoại thao tác */}
       <DescriptionModal
         open={Boolean(descModalTemplate)}
         onOpenChange={(open) => {

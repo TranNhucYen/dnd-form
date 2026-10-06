@@ -1,12 +1,12 @@
 import { DragDropProvider } from "@dnd-kit/react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { CanvasViewPort } from "./canvas/CanvasViewPort";
 import { DragPreviewOverlay } from "./dnd/DragPreviewOverlay";
 import { Palette } from "./left-sidebar/Palette";
 import { EditorToolbar } from "./toolbar";
 import { useFormBuilderStore } from "./store/useFormBuilderStore";
 
-export function FormBuilderWorkspace() {
+export const FormBuilderWorkspace = memo(function FormBuilderWorkspace() {
   const [isDraggingOverField, setIsDraggingOverField] = useState(false);
   const isReadOnly = useFormBuilderStore((state) => state.isReadOnly);
 
@@ -33,4 +33,4 @@ export function FormBuilderWorkspace() {
       </div>
     </DragDropProvider>
   );
-}
+});
