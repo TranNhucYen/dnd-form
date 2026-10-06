@@ -32,10 +32,12 @@ import {
   Users,
   Sparkles,
   Calendar,
+  Download,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { MyForm } from '../types/my-form.type'
+import { useExportFormPdf } from '../hooks/useExportFormPdf'
 
 interface MyFormTableProps {
   forms: MyForm[]
@@ -53,6 +55,7 @@ export function MyFormTable({
   onOpenDuplicate,
 }: MyFormTableProps) {
   const router = useRouter()
+  const { isExporting, downloadPdf } = useExportFormPdf()
 
   const renderAccessBadge = (form: MyForm) => {
     if (form.isPublic && form.sharedWith && form.sharedWith.length > 0) {
@@ -285,6 +288,16 @@ export function MyFormTable({
                         >
                           <Copy />
                           <span>Nhân bản biểu mẫu</span>
+                        </DropdownMenuItem>
+
+                        {/* Tải xuống PDF */}
+                        <DropdownMenuItem
+                          onClick={() => downloadPdf(form.id, form.name)}
+                          disabled={isExporting}
+                          className="cursor-pointer"
+                        >
+                          <Download />
+                          <span>Tải xuống (PDF)</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
 

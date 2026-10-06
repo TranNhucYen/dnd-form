@@ -17,9 +17,12 @@ import {
   Calendar,
   Layers,
   ChevronDown,
+  Download,
+  Loader2,
 } from 'lucide-react'
 import Link from 'next/link'
 import type { MyForm } from '../types/my-form.type'
+import { useExportFormPdf } from '../hooks/useExportFormPdf'
 
 interface PreviewFormModalProps {
   form: MyForm | null
@@ -32,6 +35,7 @@ export function PreviewFormModal({
   open,
   onOpenChange,
 }: PreviewFormModalProps) {
+  const { isExporting, downloadPdf } = useExportFormPdf()
   if (!form) return null
 
   return (
@@ -177,6 +181,21 @@ export function PreviewFormModal({
               className="flex-1 sm:flex-none cursor-pointer text-xs"
             >
               Đóng
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => downloadPdf(form.id, form.name)}
+              disabled={isExporting}
+              className="flex-1 sm:flex-none cursor-pointer text-xs gap-1.5"
+            >
+              {isExporting ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Download className="size-3.5 text-muted-foreground" />
+              )}
+              <span>Tải xuống (PDF)</span>
             </Button>
             <Link href={`/editor?formId=${form.id}`} className="flex-1 sm:flex-none">
               <Button size="sm" className="w-full cursor-pointer text-xs">
