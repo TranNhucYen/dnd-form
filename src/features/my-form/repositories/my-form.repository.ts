@@ -28,21 +28,28 @@ export interface IMyFormRepository {
 
 /** Cấu hình schema rỗng mặc định khổ A4 - portrait */
 const DEFAULT_BLANK_SCHEMA: FormSchemaJson = {
-  page: {
-    preset: 'A4',
-    orientation: 'PORTRAIT',
-    dimensions: {
-      width: toInternalUnit(210),
-      height: toInternalUnit(297),
+  pages: [
+    {
+      id: 'page_1',
+      pageNumber: 1,
+      name: 'Trang 1',
+      page: {
+        preset: 'A4',
+        orientation: 'PORTRAIT',
+        dimensions: {
+          width: toInternalUnit(210),
+          height: toInternalUnit(297),
+        },
+        margins: {
+          top: toInternalUnit(20),
+          right: toInternalUnit(20),
+          bottom: toInternalUnit(20),
+          left: toInternalUnit(20),
+        },
+      },
+      fields: [],
     },
-    margins: {
-      top: toInternalUnit(20),
-      right: toInternalUnit(20),
-      bottom: toInternalUnit(20),
-      left: toInternalUnit(20),
-    },
-  },
-  fields: [],
+  ],
 }
 
 export const drizzleMyFormRepository: IMyFormRepository = {
@@ -302,7 +309,9 @@ export const drizzleMyFormRepository: IMyFormRepository = {
       const newFormId = newFormResult.insertId
 
       const schemaContent = existingSchema.content as FormSchemaJson
-      const fieldsCount = Array.isArray(schemaContent?.fields) ? schemaContent.fields.length : 0
+      const fieldsCount = Array.isArray(schemaContent?.pages)
+        ? schemaContent.pages.reduce((acc, p) => acc + (p.fields?.length || 0), 0)
+        : 0
 
       const now = new Date().toISOString()
       return {

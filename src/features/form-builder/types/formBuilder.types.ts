@@ -139,8 +139,19 @@ export interface PageMargins {
   right: string;
 }
 
-export interface FormBuilderSnapshot {
+export interface CanvasPage {
+  id: string;
+  pageNumber: number;
+  name?: string;
+  pageSizePreset: PagePresetKey;
+  orientation: Orientation;
+  margins: PageMargins;
   fields: CanvasField[];
+}
+
+export interface FormBuilderSnapshot {
+  pages: CanvasPage[];
+  activePageId: string;
   selectedFieldId: string | null;
 }
 // ==========================================================================================
@@ -173,14 +184,23 @@ export interface SchemaPageDimensions {
   height: InternalUnit;
 }
 
-// Cấu trúc JSON lưu ở DB (toàn bộ x, y, w, h, margins và dimensions đều là InternalUnit)
-export interface FormSchemaJson {
-  page: {
-    preset: PagePresetKey;
-    orientation: Orientation;
-    margins: SchemaPageMargins;
-    dimensions: SchemaPageDimensions;
-  };
+export interface SchemaPageSettings {
+  preset: PagePresetKey;
+  orientation: Orientation;
+  margins: SchemaPageMargins;
+  dimensions: SchemaPageDimensions;
+}
+
+export interface FormPageSchema {
+  id: string;
+  pageNumber: number;
+  name?: string;
+  page: SchemaPageSettings;
   fields: SchemaField[];
+}
+
+// Cấu trúc JSON lưu ở DB (danh sách các trang in)
+export interface FormSchemaJson {
+  pages: FormPageSchema[];
 }
 

@@ -31,40 +31,42 @@ export const editorService = {
     const storage = getStorageService();
 
     // Bóc tách media và dọn dẹp URL tạm thời khỏi schema
-    for (const field of clonedSchema.fields) {
-      if (field.type === "signature") {
-        const signatureData = field.data as { value?: string } | undefined;
-        if (signatureData?.value) {
-          mediaList.push({
-            mediaType: "signature",
-            signatureBase64: signatureData.value,
-            fileKey: null,
-            fileUrl: null,
-          });
-        }
-      } 
-      else if (field.type === "image") {
-        const imageData = field.data as ImageFieldData | undefined;
-        const key = imageData?.key;
-
-        if (key) {
-          // Chỉ chấp nhận key đúng định dạng do hệ thống sinh ra
-          if (!isValidStorageKey(key)) {
-            throw new ValidationError("Key ảnh không hợp lệ");
+    for (const page of clonedSchema.pages ?? []) {
+      for (const field of page.fields ?? []) {
+        if (field.type === "signature") {
+          const signatureData = field.data as { value?: string } | undefined;
+          if (signatureData?.value) {
+            mediaList.push({
+              mediaType: "signature",
+              signatureBase64: signatureData.value,
+              fileKey: null,
+              fileUrl: null,
+            });
           }
+        } 
+        else if (field.type === "image") {
+          const imageData = field.data as ImageFieldData | undefined;
+          const key = imageData?.key;
 
-          mediaList.push({
-            mediaType: "image",
-            signatureBase64: null,
-            fileKey: key,
-            fileUrl: storage.getUrl(key),
-          });
+          if (key) {
+            // Chỉ chấp nhận key đúng định dạng do hệ thống sinh ra
+            if (!isValidStorageKey(key)) {
+              throw new ValidationError("Key ảnh không hợp lệ");
+            }
 
-          // Canvas-DB chỉ giữ fileKey (tên file)
-          imageData.value = "";
-        } else if (imageData?.value && imageData.value.startsWith("blob:")) {
-          // Xóa blob URL tạm thời để không lưu URL rác vào cơ sở dữ liệu
-          imageData.value = "";
+            mediaList.push({
+              mediaType: "image",
+              signatureBase64: null,
+              fileKey: key,
+              fileUrl: storage.getUrl(key),
+            });
+
+            // Canvas-DB chỉ giữ fileKey (tên file)
+            imageData.value = "";
+          } else if (imageData?.value && imageData.value.startsWith("blob:")) {
+            // Xóa blob URL tạm thời để không lưu URL rác vào cơ sở dữ liệu
+            imageData.value = "";
+          }
         }
       }
     }

@@ -1,6 +1,9 @@
-import { pxToInternalUnit, toInternalUnit, toScreenPx } from "./units";
+import { pxToInternalUnit, toInternalUnit, toMm, toScreenPx } from "./units";
+import { PAGE_PRESETS } from "../constants/form.constants";
 import type {
   CanvasField,
+  CanvasPage,
+  FormPageSchema,
   FormSchemaJson,
   Orientation,
   PageMargins,
@@ -15,6 +18,26 @@ import type {
 export function parseMarginMm(value: string | undefined): number {
   const parsed = Number.parseFloat(value ?? "");
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
+/**
+ * Tính toán kích thước page dựa trên preset và hướng xoay (PORTRAIT / LANDSCAPE)
+ */
+export function getEffectivePageDimensions(
+  pageSizePreset: PagePresetKey,
+  orientation: Orientation,
+): PageSize {
+  const baseSize = PAGE_PRESETS[pageSizePreset] ?? PAGE_PRESETS.A4;
+  if (orientation === "LANDSCAPE") {
+    return {
+      width: baseSize.height,
+      height: baseSize.width,
+    };
+  }
+  return {
+    width: baseSize.width,
+    height: baseSize.height,
+  };
 }
 
 /**
@@ -54,36 +77,57 @@ export function importSchemaFieldToCanvasField(field: SchemaField): CanvasField 
 }
 
 /**
- * Xuất FormSchemaJson với kích thước và tọa độ chuyển về InternalUnit
+ * Chuyển đổi 1 CanvasPage sang FormPageSchema
  */
-export function exportFormSchema({
-  pageSizePreset,
-  orientation,
-  margins,
-  dimensions,
-  fields,
-}: {
-  pageSizePreset: PagePresetKey;
-  orientation: Orientation;
-  margins: PageMargins;
-  dimensions: PageSize;
-  fields: CanvasField[];
-}): FormSchemaJson {
+export function exportCanvasPageToSchemaPage(page: CanvasPage): FormPageSchema {
+  const dimensions = getEffectivePageDimensions(page.pageSizePreset, page.orientation);
   return {
+    id: page.id,
+    pageNumber: page.pageNumber,
+    ...(page.name ? { name: page.name } : {}),
     page: {
-      preset: pageSizePreset,
-      orientation,
+      preset: page.pageSizePreset,
+      orientation: page.orientation,
       margins: {
-        top: toInternalUnit(parseMarginMm(margins.top)),
-        bottom: toInternalUnit(parseMarginMm(margins.bottom)),
-        left: toInternalUnit(parseMarginMm(margins.left)),
-        right: toInternalUnit(parseMarginMm(margins.right)),
+        top: toInternalUnit(parseMarginMm(page.margins.top)),
+        bottom: toInternalUnit(parseMarginMm(page.margins.bottom)),
+        left: toInternalUnit(parseMarginMm(page.margins.left)),
+        right: toInternalUnit(parseMarginMm(page.margins.right)),
       },
       dimensions: {
         width: toInternalUnit(dimensions.width),
         height: toInternalUnit(dimensions.height),
       },
     },
-    fields: fields.map(exportCanvasFieldToSchemaField),
+    fields: page.fields.map(exportCanvasFieldToSchemaField),
+  };
+}
+
+/**
+ * Chuyển đổi 1 FormPageSchema sang CanvasPage
+ */
+export function importSchemaPageToCanvasPage(schemaPage: FormPageSchema): CanvasPage {
+  return {
+    id: schemaPage.id,
+    pageNumber: schemaPage.pageNumber,
+    name: schemaPage.name,
+    pageSizePreset: schemaPage.page?.preset ?? "A4",
+    orientation: schemaPage.page?.orientation ?? "PORTRAIT",
+    margins: {
+      top: toMm(schemaPage.page?.margins?.top ?? toInternalUnit(20)).toString(),
+      bottom: toMm(schemaPage.page?.margins?.bottom ?? toInternalUnit(20)).toString(),
+      left: toMm(schemaPage.page?.margins?.left ?? toInternalUnit(20)).toString(),
+      right: toMm(schemaPage.page?.margins?.right ?? toInternalUnit(20)).toString(),
+    },
+    fields: (schemaPage.fields ?? []).map(importSchemaFieldToCanvasField),
+  };
+}
+
+/**
+ * Xuất FormSchemaJson từ danh sách CanvasPage[]
+ */
+export function exportFormSchema(pages: CanvasPage[]): FormSchemaJson {
+  return {
+    pages: pages.map(exportCanvasPageToSchemaPage),
   };
 }
