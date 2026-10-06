@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import {
   Table as UITable,
   TableBody,
@@ -183,12 +184,17 @@ export function Table() {
                       #{item.id}
                     </TableCell>
 
-                    {/* Cột Tên biểu mẫu */}
+                    {/* Cột Tên biểu mẫu (Bấm vào để xem trước biểu mẫu) */}
                     <TableCell className="px-2 py-2.5">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-semibold text-foreground line-clamp-2 leading-snug">
+                        <Link
+                          href={`/admin/templates/${item.id}/preview`}
+                          target="_blank"
+                          className="font-semibold text-foreground hover:text-primary hover:underline line-clamp-2 leading-snug transition-colors cursor-pointer"
+                          title="Bấm để xem trước biểu mẫu"
+                        >
                           {item.title}
-                        </span>
+                        </Link>
                         <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                           Tạo ngày: {item.createdAt}
                         </span>
@@ -495,3 +501,4 @@ export function Table() {
     </div>
   )
 }
+
