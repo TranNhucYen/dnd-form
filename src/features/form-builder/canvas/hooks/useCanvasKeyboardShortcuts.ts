@@ -9,20 +9,43 @@ export function useCanvasKeyboardShortcuts() {
   const cutField = useFormBuilderStore((state) => state.cutField);
   const pasteField = useFormBuilderStore((state) => state.pasteField);
   const removeField = useFormBuilderStore((state) => state.removeField);
+  const undo = useFormBuilderStore((state) => state.undo);
+  const redo = useFormBuilderStore((state) => state.redo);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (
+      const isInputOrEditing =
         target &&
         (target.tagName === "INPUT" ||
           target.tagName === "TEXTAREA" ||
-          target.isContentEditable)
-      ) {
+          target.isContentEditable ||
+          Boolean(target.closest('[contenteditable="true"]')) ||
+          Boolean(target.closest('[role="dialog"]')));
+
+      if (isInputOrEditing) {
         return;
       }
 
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+
+      // Undo: Ctrl+Z (Windows) hoặc Cmd+Z (Mac)
+      if (isCtrlOrCmd && !event.shiftKey && key === "z") {
+        event.preventDefault();
+        undo();
+        return;
+      }
+
+      // Redo: Ctrl+Shift+Z, Cmd+Shift+Z, hoặc Ctrl+Y
+      if (
+        (isCtrlOrCmd && event.shiftKey && key === "z") ||
+        (isCtrlOrCmd && !event.shiftKey && key === "y")
+      ) {
+        event.preventDefault();
+        redo();
+        return;
+      }
 
       if (
         (event.key === "Delete" || event.key === "Backspace") &&
@@ -78,5 +101,7 @@ export function useCanvasKeyboardShortcuts() {
     cutField,
     pasteField,
     removeField,
+    undo,
+    redo,
   ]);
 }

@@ -1,9 +1,34 @@
-export type FieldProps = {
+import type { FieldData } from "../../types/formBuilder.types";
+
+export type {
+  TextFieldData,
+  NumberFieldData,
+  SelectFieldData,
+  DateFieldData,
+  LabelFieldData,
+  CheckboxFieldData,
+  LineFieldData,
+  QrCodeFieldData,
+  TextareaFieldData,
+  SignatureFieldData,
+  ImageFieldData,
+  DatatableFieldData,
+  FieldDataMap,
+  FieldData,
+} from "../../types/formBuilder.types";
+
+export type FieldProps<T = FieldData> = {
   id?: string;
-  label?: string;
-  value?: string;
+  data?: T;
   width?: number;
   height?: number;
+  onDataChange?: (
+    patch: Partial<T>,
+    options?: { skipHistory?: boolean },
+  ) => void;
 };
 
-export type FieldComponent = (props: FieldProps) => React.ReactNode;
+export type FieldComponent<T = FieldData> = (props: FieldProps<T>) => React.ReactNode;
+
+
+

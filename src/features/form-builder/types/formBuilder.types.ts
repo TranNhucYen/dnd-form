@@ -1,3 +1,9 @@
+import type { JSONContent } from "@tiptap/react";
+import type { PagePresetKey } from "../constants/form.constants";
+import type { InternalUnit } from "../domain/units";
+
+export type { PagePresetKey };
+
 export type FieldType =
   | "label"
   | "text"
@@ -23,15 +29,100 @@ export interface FieldStyle {
   backgroundColor?: string;
 }
 
-export type CanvasField = {
+export type TextFieldData = {
+  label: string;
+  value?: string;
+  placeholder?: string;
+};
+
+export type NumberFieldData = {
+  label: string;
+  value?: number;
+  placeholder?: string;
+  min?: number;
+  max?: number;
+};
+
+export type SelectFieldData = {
+  label: string;
+  options: string[];
+  value?: string;
+};
+
+export type DateFieldData = {
+  label: string; // Địa danh
+  value?: string; // Chuỗi định dạng ngày dd/mm/yyyy hoặc yyyy-mm-dd
+};
+
+export type LabelFieldData = {
+  value: string;
+};
+
+export type CheckboxFieldData = {
+  label: string;
+  checked: boolean;
+};
+
+export type LineFieldData = Record<string, never>;
+
+export type QrCodeFieldData = {
+  value: string;
+};
+
+export type TextareaFieldData = {
+  content?: JSONContent;
+  html?: string;
+};
+
+export type SignatureFieldData = {
+  label: string;
+  subTitle?: string;
+  signerName?: string;
+  value?: string;
+};
+
+export type ImageFieldData = {
+  value?: string;
+};
+
+export type DatatableFieldData = {
+  content?: JSONContent;
+  html?: string;
+};
+
+export type FieldDataMap = {
+  text: TextFieldData;
+  number: NumberFieldData;
+  select: SelectFieldData;
+  date: DateFieldData;
+  label: LabelFieldData;
+  checkbox: CheckboxFieldData;
+  line: LineFieldData;
+  qrcode: QrCodeFieldData;
+  textarea: TextareaFieldData;
+  signature: SignatureFieldData;
+  image: ImageFieldData;
+  datatable: DatatableFieldData;
+};
+
+export type FieldData = FieldDataMap[FieldType];
+
+export type BaseCanvasField<T extends FieldType = FieldType> = {
   id: string;
-  type: FieldType;
+  type: T;
   x: number;
   y: number;
   width?: number;
   height?: number;
   style?: FieldStyle;
+  data?: FieldDataMap[T];
 };
+
+export type CanvasField = {
+  [K in FieldType]: BaseCanvasField<K>;
+}[FieldType];
+
+
 
 export type PageSize = {
   width: number; // mm
@@ -46,3 +137,49 @@ export interface PageMargins {
   left: string;
   right: string;
 }
+
+export interface FormBuilderSnapshot {
+  fields: CanvasField[];
+  selectedFieldId: string | null;
+}
+// ==========================================================================================
+// Type của schema lưu ở DB (toàn bộ field, margins và page dimensions đều dùng InternalUnit số nguyên)
+// ==========================================================================================
+export type BaseSchemaField<T extends FieldType = FieldType> = {
+  id: string;
+  type: T;
+  x: InternalUnit;
+  y: InternalUnit;
+  width?: InternalUnit;
+  height?: InternalUnit;
+  style?: FieldStyle;
+  data?: FieldDataMap[T];
+};
+
+export type SchemaField = {
+  [K in FieldType]: BaseSchemaField<K>;
+}[FieldType];
+
+export interface SchemaPageMargins {
+  top: InternalUnit;
+  bottom: InternalUnit;
+  left: InternalUnit;
+  right: InternalUnit;
+}
+
+export interface SchemaPageDimensions {
+  width: InternalUnit;
+  height: InternalUnit;
+}
+
+// Cấu trúc JSON lưu ở DB (toàn bộ x, y, w, h, margins và dimensions đều là InternalUnit)
+export interface FormSchemaJson {
+  page: {
+    preset: PagePresetKey;
+    orientation: Orientation;
+    margins: SchemaPageMargins;
+    dimensions: SchemaPageDimensions;
+  };
+  fields: SchemaField[];
+}
+
