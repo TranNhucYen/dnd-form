@@ -5,8 +5,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
@@ -22,20 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
-import { cn } from '@/lib/utils'
 import { Users, Search, ShieldAlert, Shield, User as UserIcon, UserPlus } from 'lucide-react'
 import { User, UserRole, UserStatus } from '../types/user.type'
 import { useUser } from '../hooks/useUser'
 import { ChangeStatusModal } from './ChangeStatusModal'
 import { AddUserModal } from './AddUserModal'
+import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
 
 export function UserTable() {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false)
@@ -51,10 +41,10 @@ export function UserTable() {
     setSearchQuery,
     handleStatusChange,
     addUser,
-    refetch,
     currentPage,
     setCurrentPage,
     pageSize,
+    setPageSize,
     totalPages,
     totalItems,
   } = useUser()
@@ -111,59 +101,44 @@ export function UserTable() {
 
   return (
     <div className="w-full h-full flex-1 min-h-0 flex flex-col gap-3">
-      {/* Header */}
-      <div
-        className="
-          shrink-0 flex flex-col sm:flex-row items-start sm:items-center
-          justify-between gap-3 border-b pb-3"
+      {/* Header trang dùng chung */}
+      <AdminPageHeader
+        title="Quản lý người dùng"
+        description="Danh sách tài khoản, phân quyền và trạng thái hoạt động trong hệ thống"
+        icon={<Users className="size-4" />}
       >
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <Users className="size-4" />
-            </div>
-            <h1 className="text-xl font-bold text-foreground">Quản lý người dùng</h1>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Danh sách tài khoản, phân quyền và trạng thái hoạt động trong hệ thống
-          </p>
+        <div className="relative flex-1 sm:w-64">
+          <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm theo tên, email, ID..."
+            className="text-xs h-9 pl-8"
+          />
         </div>
+        <Button
+          size="sm"
+          onClick={() => setIsAddUserOpen(true)}
+          className="text-xs h-9 gap-1.5 cursor-pointer shrink-0"
+        >
+          <UserPlus className="size-3.5" />
+          Thêm người dùng
+        </Button>
+      </AdminPageHeader>
 
-        {/* Search bar & Refresh */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm theo tên, email, ID..."
-              className="text-xs h-8 pl-8"
-            />
-          </div>
-          <Button
-            size="sm"
-            onClick={() => setIsAddUserOpen(true)}
-            className="text-xs h-8 gap-1.5 cursor-pointer"
-          >
-            <UserPlus className="size-3.5" />
-            Thêm người dùng
-          </Button>
-        </div>
-      </div>
-
-      {/* Users Table Card (Tự động chiếm trọn chiều cao còn lại) */}
+      {/* Bảng danh sách người dùng */}
       <Card className="flex-1 min-h-0 flex flex-col border-border/80 shadow-xs overflow-hidden">
         <CardContent className="flex-1 min-h-0 p-0 overflow-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-card">
-              <TableRow className="text-xs hover:bg-transparent">
-                <TableHead className="h-11 px-4 w-28 font-bold text-foreground">ID</TableHead>
-                <TableHead className="h-11 px-4 font-bold text-foreground">Họ và tên</TableHead>
-                <TableHead className="h-11 px-4 font-bold text-foreground">Email</TableHead>
-                <TableHead className="h-11 px-4 w-36 font-bold text-foreground">Vai trò</TableHead>
-                <TableHead className="h-11 px-4 w-40 font-bold text-foreground">Trạng thái</TableHead>
-              </TableRow>
-            </TableHeader>
+            <AdminTableHeader
+              columns={[
+                { title: 'ID', width: 'w-28' },
+                'Họ và tên',
+                'Email',
+                { title: 'Vai trò', width: 'w-36' },
+                { title: 'Trạng thái', width: 'w-40' },
+              ]}
+            />
             <TableBody>
               {paginatedUsers.length === 0 ? (
                 <TableRow>
@@ -179,11 +154,13 @@ export function UserTable() {
               ) : (
                 paginatedUsers.map((item) => (
                   <TableRow key={item.id} className="text-xs hover:bg-muted/40 transition-colors">
-                    <TableCell className="px-4 py-3.5 font-mono text-muted-foreground">
-                      {item.id}
+                    {/* Cột ID */}
+                    <TableCell className="px-4 py-3 font-mono text-muted-foreground">
+                      #{item.id}
                     </TableCell>
 
-                    <TableCell className="px-4 py-3.5">
+                    {/* Cột Họ và tên */}
+                    <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
                         <Avatar className="size-8 border border-primary/20">
                           <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
@@ -196,13 +173,16 @@ export function UserTable() {
                       </div>
                     </TableCell>
 
-                    <TableCell className="px-4 py-3.5 text-muted-foreground">
+                    {/* Cột Email */}
+                    <TableCell className="px-4 py-3 text-muted-foreground">
                       {item.email}
                     </TableCell>
 
-                    <TableCell className="px-4 py-3.5">{renderRoleBadge(item.role)}</TableCell>
+                    {/* Cột Vai trò */}
+                    <TableCell className="px-4 py-3">{renderRoleBadge(item.role)}</TableCell>
 
-                    <TableCell className="px-4 py-3.5">
+                    {/* Cột Trạng thái */}
+                    <TableCell className="px-4 py-3">
                       <Select
                         value={item.status}
                         onValueChange={(val: UserStatus) => {
@@ -242,74 +222,19 @@ export function UserTable() {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Phân trang dùng chung */}
+        <AdminPagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[5, 8, 16, 32]}
+          itemName="người dùng"
+        />
       </Card>
-
-      {/* Pagination Controls */}
-      {totalItems > 0 && (
-        <div
-          className="
-            shrink-0 flex flex-col sm:flex-row items-center
-            justify-between gap-3 pt-1 text-xs text-muted-foreground"
-        >
-          <span>
-            Hiển thị{' '}
-            <strong className="font-semibold text-foreground">
-              {(currentPage - 1) * pageSize + 1}
-            </strong>
-            -
-            <strong className="font-semibold text-foreground">
-              {Math.min(currentPage * pageSize, totalItems)}
-            </strong>{' '}
-            trên tổng số{' '}
-            <strong className="font-semibold text-foreground">
-              {totalItems}
-            </strong>{' '}
-            người dùng
-          </span>
-
-          <Pagination className="mx-0 w-auto">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  className={cn(
-                    'cursor-pointer text-xs h-8',
-                    currentPage === 1 && 'pointer-events-none opacity-50'
-                  )}
-                  text="Trước"
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      onClick={() => setCurrentPage(pageNum)}
-                      isActive={currentPage === pageNum}
-                      className="cursor-pointer text-xs size-8"
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(p + 1, totalPages))
-                  }
-                  className={cn(
-                    'cursor-pointer text-xs h-8',
-                    currentPage === totalPages && 'pointer-events-none opacity-50'
-                  )}
-                  text="Sau"
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
 
       {/* Thay đổi trạng thái tài khoản */}
       <ChangeStatusModal
@@ -336,4 +261,3 @@ export function UserTable() {
     </div>
   )
 }
-
