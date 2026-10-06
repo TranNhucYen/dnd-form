@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,24 @@ import { FormTitleInput } from "./FormTitleInput";
 /** Workspace nạp form cũ hoặc tạo mới */
 export function EditorWorkspace() {
   const router = useRouter();
-  const { isLoading, accessError, isReadOnly, titleInputRef } = useEditorWorkspace();
+  const {
+    isLoading,
+    accessError,
+    isReadOnly,
+    title,
+    setTitle,
+    titleInputRef,
+    formId,
+  } = useEditorWorkspace();
+
+  // Đồng bộ tiêu đề tab trình duyệt theo tên biểu mẫu đang mở
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = `${title} | DragForm`;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [title]);
 
   if (isLoading) {
     return (
@@ -56,7 +74,13 @@ export function EditorWorkspace() {
       )}
 
       <div className="flex items-center">
-        <FormTitleInput inputRef={titleInputRef} disabled={isReadOnly} />
+        <FormTitleInput
+          key={formId ?? "new"}
+          inputRef={titleInputRef}
+          defaultValue={title}
+          disabled={isReadOnly}
+          onTitleChange={setTitle}
+        />
       </div>
 
       <FormBuilderWorkspace />

@@ -14,16 +14,48 @@ export function useEditorWorkspace() {
   const searchParams = useSearchParams();
   const formIdParam = searchParams.get("formId");
 
+  const parsedInitialId = formIdParam ? Number.parseInt(formIdParam, 10) : null;
+  const isInitialInvalid = Boolean(formIdParam && !Number.isFinite(parsedInitialId));
+
   const [permission, setPermission] = useState<"owner" | "edit" | "view">("owner");
-  const [accessError, setAccessError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(() => Boolean(formIdParam));
+  const [accessError, setAccessError] = useState<string | null>(() =>
+    isInitialInvalid ? "Mã biểu mẫu trên đường dẫn không hợp lệ." : null
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(() =>
+    Boolean(formIdParam && Number.isFinite(parsedInitialId))
+  );
+  const [prevFormIdParam, setPrevFormIdParam] = useState(formIdParam);
+
   const isReadOnly = permission === "view";
 
   const loadFormSchema = useFormBuilderStore((state) => state.loadFormSchema);
   const resetForm = useFormBuilderStore((state) => state.resetForm);
   const setIsReadOnly = useFormBuilderStore((state) => state.setIsReadOnly);
 
-  const { formId, setFormId, titleInputRef } = useEditorSave(null, isReadOnly);
+  const { formId, setFormId, title, setTitle, titleInputRef } = useEditorSave(null, isReadOnly);
+
+  // Điều chỉnh state khi formIdParam trên URL thay đổi 
+  if (formIdParam !== prevFormIdParam) {
+    setPrevFormIdParam(formIdParam);
+    if (!formIdParam) {
+      setPermission("owner");
+      setAccessError(null);
+      setIsLoading(false);
+      setFormId(null);
+      setTitle("Biểu mẫu chưa có tên");
+    } else {
+      const parsed = Number.parseInt(formIdParam, 10);
+      if (!Number.isFinite(parsed)) {
+        setIsLoading(false);
+        setAccessError("Mã biểu mẫu trên đường dẫn không hợp lệ.");
+      } else if (parsed === formId) {
+        setIsLoading(false);
+      } else {
+        setAccessError(null);
+        setIsLoading(true);
+      }
+    }
+  }
 
   useEffect(() => {
     setIsReadOnly(isReadOnly);
@@ -33,28 +65,17 @@ export function useEditorWorkspace() {
   }, [isReadOnly, setIsReadOnly]);
 
   useEffect(() => {
-    // Tạo form mới: làm sạch canvas và đặt tiêu đề mặc định
     if (!formIdParam) {
-      setPermission("owner");
-      setAccessError(null);
-      setIsLoading(false);
-      setFormId(null);
-      if (titleInputRef.current) {
-        titleInputRef.current.value = "Biểu mẫu chưa đặt tên";
-      }
       resetForm();
       return;
     }
 
     const parsedId = Number.parseInt(formIdParam, 10);
     if (!Number.isFinite(parsedId) || parsedId === formId) {
-      setIsLoading(false);
       return;
     }
 
-    // Tải dữ liệu biểu mẫu cũ nếu có formId trên URL
     let isMounted = true;
-    setIsLoading(true);
     getFormDetailAction(parsedId)
       .then((res) => {
         if (!isMounted) return;
@@ -62,6 +83,7 @@ export function useEditorWorkspace() {
           setAccessError(null);
           setPermission(res.data.currentUserPermission ?? "owner");
           setFormId(res.data.id);
+          setTitle(res.data.name);
           if (titleInputRef.current) {
             titleInputRef.current.value = res.data.name;
           }
@@ -82,10 +104,12 @@ export function useEditorWorkspace() {
     return () => {
       isMounted = false;
     };
-  }, [formIdParam, formId, loadFormSchema, resetForm, setFormId, titleInputRef]);
+  }, [formIdParam, formId, loadFormSchema, resetForm, setFormId, setTitle, titleInputRef]);
 
   return {
     formId,
+    title,
+    setTitle,
     permission,
     isReadOnly,
     isLoading,
