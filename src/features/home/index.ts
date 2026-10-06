@@ -1,3 +1,7 @@
 export * from './types/home.type'
 export * from './services/home.service'
 export * from './actions/home.action'
+export * from './hooks/useHomeData'
+export * from './components/HomeView'
+export * from './components/RecentFormCard'
+export * from './components/QuickActionCard'
