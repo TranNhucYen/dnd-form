@@ -57,7 +57,7 @@ export function FieldValue({ value }: { value?: string }) {
     );
   }
   return (
-    <span className="relative z-10 bg-white pr-1 leading-[1.25]">
+    <span className="relative z-10 pr-1 leading-[1.25]">
       {value}
     </span>
   );

@@ -39,11 +39,9 @@ export function DatatableField({
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
 
   // Khi click ra ngoài canvas hoặc unselect field này thì tự động tắt editing
-  useEffect(() => {
-    if (!isFieldSelected && isEditing) {
-      setIsEditing(false);
-    }
-  }, [isFieldSelected, isEditing]);
+  if (!isFieldSelected && isEditing) {
+    setIsEditing(false);
+  }
 
   useEffect(() => {
     if (isEditing) {
@@ -143,15 +141,17 @@ export function DatatableField({
   useEffect(() => {
     if (!editor) return;
     editor.setEditable(isEditing);
-    if (isEditing) {
+    if (isFieldSelected) {
       setEditor(editor);
-      editor.commands.focus();
+      if (isEditing) {
+        editor.commands.focus();
+      }
     } else {
       if (useEditorStore.getState().editor === editor) {
         setEditor(null);
       }
     }
-  }, [isEditing, editor, setEditor]);
+  }, [isFieldSelected, isEditing, editor, setEditor]);
 
   // Đồng bộ ngược khi dữ liệu từ store thay đổi (ví dụ khi Undo / Redo)
   useEffect(() => {

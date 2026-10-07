@@ -20,13 +20,15 @@ export function TextareaField({
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
+  const [prevSelectedFieldId, setPrevSelectedFieldId] = useState(selectedFieldId);
 
   // Khi click ra ngoài canvas hoặc unselect field này thì tự động tắt editing
-  useEffect(() => {
+  if (prevSelectedFieldId !== selectedFieldId) {
+    setPrevSelectedFieldId(selectedFieldId);
     if (!isFieldSelected && isEditing) {
       setIsEditing(false);
     }
-  }, [isFieldSelected, isEditing]);
+  }
 
   useEffect(() => {
     if (isEditing) {
@@ -153,6 +155,8 @@ export function TextareaField({
     return null;
   }
 
+  const showBorder = data?.showBorder ?? true;
+
   return (
     <div
       onDoubleClick={handleDoubleClick}
@@ -162,7 +166,8 @@ export function TextareaField({
         }
       }}
       className={`
-        h-full w-full overflow-hidden border border-gray-400 bg-white p-1 cursor-text 
+        h-full w-full overflow-hidden bg-white p-1 cursor-text 
+        ${showBorder ? "border border-gray-400" : "border border-transparent"}
         ${!isEditing ? "select-none" : ""}`
       }
     >
