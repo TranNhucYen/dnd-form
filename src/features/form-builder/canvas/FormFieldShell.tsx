@@ -7,8 +7,13 @@ import type {
   MarginBounds,
 } from "./types/canvas.types";
 import { useFieldResize } from "./hooks";
-import { FieldContextMenu, ResizeHandles } from "./components";
+import {
+  FieldContextMenu,
+  FieldFloatingToolbar,
+  ResizeHandles,
+} from "./components";
 import type { AlignmentGuide } from "./utils";
+import { useFormBuilderStore } from "../store/useFormBuilderStore";
 
 type FormFieldShellProps = {
   children: React.ReactNode;
@@ -55,6 +60,10 @@ export function FormFieldShell({
   onCollidingFieldsChange,
 }: FormFieldShellProps) {
   const shellRef = useRef<HTMLDivElement | null>(null);
+  const updateFieldData = useFormBuilderStore((state) => state.updateFieldData);
+  const currentField = useFormBuilderStore((state) =>
+    state.fields.find((f) => f.id === id),
+  );
 
   // Bỏ qua drag khi bấm vào resize handle hoặc khi đang ở chế độ gõ / bôi đen text
   const sensors = useMemo(
@@ -154,6 +163,18 @@ export function FormFieldShell({
 
         {allowResize && isSelected && !isDragging && (
           <ResizeHandles type={type} onResizeStart={startResize} />
+        )}
+
+        {isSelected && !isDragging && (
+          <FieldFloatingToolbar
+            fieldId={id}
+            type={type}
+            position={position}
+            data={currentField?.data}
+            onDataChange={(patch, options) =>
+              updateFieldData(id, patch, options)
+            }
+          />
         )}
       </div>
     </FieldContextMenu>

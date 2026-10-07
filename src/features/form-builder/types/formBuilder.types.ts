@@ -72,6 +72,7 @@ export type QrCodeFieldData = {
 export type TextareaFieldData = {
   content?: JSONContent;
   html?: string;
+  showBorder?: boolean;
 };
 
 export type SignatureFieldData = {

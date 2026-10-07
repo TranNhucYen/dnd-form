@@ -30,5 +30,18 @@ export type FieldProps<T = FieldData> = {
 
 export type FieldComponent<T = FieldData> = (props: FieldProps<T>) => React.ReactNode;
 
+export type FieldToolbarProps<T = FieldData> = {
+  id: string;
+  data?: T;
+  onDataChange: (
+    patch: Partial<T>,
+    options?: { skipHistory?: boolean },
+  ) => void;
+};
+
+export type FieldToolbarComponent<T = FieldData> = (
+  props: FieldToolbarProps<T>,
+) => React.ReactNode;
+
 
 
