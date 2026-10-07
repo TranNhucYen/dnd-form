@@ -1,37 +1,72 @@
-﻿import {
-  CommunityTemplate,
+import {
   ContributionItem,
   ContributeFormInput,
+  CommunityCategory,
+  UserFormOption,
 } from '../types/community.type'
 import { CONTRIBUTION_STATUS_LABELS } from '../constants/community.constant'
 import { communityRepository } from '../repositories'
+import { sanitizeSignatureFromSchema, filterTemplateMedia } from '@/features/templates/utils/sanitize'
+import { ValidationError, NotFoundError, AccountBlockedError } from '@/shared/errors'
 
 export const communityService = {
-  async getCommunityTemplates(): Promise<CommunityTemplate[]> {
-    return await communityRepository.getCommunityTemplates()
+  async getCategories(): Promise<CommunityCategory[]> {
+    return await communityRepository.getCategories()
   },
 
-  async getTemplateById(id: number): Promise<CommunityTemplate | null> {
-    return await communityRepository.getTemplateById(id)
+  async getUserFormsForContribute(userId: number): Promise<UserFormOption[]> {
+    return await communityRepository.getUserFormsForContribute(userId)
   },
 
-  async getMyContributions(): Promise<ContributionItem[]> {
-    const items = await communityRepository.getMyContributions()
+  async getMyContributions(userId: number): Promise<ContributionItem[]> {
+    const items = await communityRepository.getMyContributions(userId)
     return items.map((item) => ({
       ...item,
       statusLabel: CONTRIBUTION_STATUS_LABELS[item.status] || item.status,
     }))
   },
 
-  async submitContribution(input: ContributeFormInput): Promise<ContributionItem> {
-    const created = await communityRepository.submitContribution(input)
+  async submitContribution(userId: number, input: ContributeFormInput): Promise<ContributionItem> {
+    if (!input.title || !input.title.trim()) {
+      throw new ValidationError('Tên biểu mẫu không được để trống.')
+    }
+    if (!input.sourceFormId) {
+      throw new ValidationError('Vui lòng chọn biểu mẫu nguồn cần đóng góp.')
+    }
+    if (!input.categoryId) {
+      throw new ValidationError('Vui lòng chọn danh mục phù hợp cho biểu mẫu.')
+    }
+
+    // Lấy dữ liệu biểu mẫu nguồn từ repository
+    const sourceFormData = await communityRepository.getSourceFormData(userId, input.sourceFormId)
+    if (!sourceFormData) {
+      throw new NotFoundError('Biểu mẫu nguồn không tồn tại hoặc bạn không có quyền sở hữu.')
+    }
+
+    // Kiểm tra trạng thái tài khoản người dùng
+    if (sourceFormData.userStatus === 'blocked') {
+      throw new AccountBlockedError('Tài khoản của bạn đã bị khóa, không thể đóng góp biểu mẫu.')
+    }
+
+    // Xóa chữ ký cá nhân khỏi schema và danh sách media
+    const sanitizedSchema = sanitizeSignatureFromSchema(sourceFormData.schemaContent)
+    if (!sanitizedSchema) {
+      throw new NotFoundError('Không tìm thấy dữ liệu cấu trúc của biểu mẫu nguồn.')
+    }
+    const sanitizedMedia = filterTemplateMedia(sourceFormData.mediaList)
+
+    // Lưu biểu mẫu mẫu vào cơ sở dữ liệu
+    const created = await communityRepository.createContributionTemplate({
+      userId,
+      input,
+      schemaContent: sanitizedSchema,
+      mediaList: sanitizedMedia,
+    })
+
     return {
       ...created,
       statusLabel: CONTRIBUTION_STATUS_LABELS[created.status] || created.status,
     }
   },
-
-  async useCommunityTemplate(id: number): Promise<{ newFormId: number; title: string }> {
-    return await communityRepository.useCommunityTemplate(id)
-  },
 }
+

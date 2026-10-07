@@ -1,25 +1,44 @@
 import { useEffect, useState } from "react";
-import type { FieldProps } from "../types/field.types";
+import type { FieldProps, SignatureFieldData } from "../types/field.types";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
 import { SignatureModal } from "./SignatureModal";
 import { PenLine, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function SignatureField({ value }: FieldProps = {}) {
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(value || null);
+import { DEFAULT_FIELD_DATA } from "../../constants";
+
+export function SignatureField({
+  data,
+  onDataChange,
+}: FieldProps<SignatureFieldData> = {}) {
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(
+    data?.value ?? null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const titleEdit = useInlineEdit("Người làm đơn");
-  const noteEdit = useInlineEdit("(Ký, ghi rõ họ tên)");
+  const defaultSig = DEFAULT_FIELD_DATA.signature;
 
-  const nameEdit = useInlineEdit("Trần Văn A");
+  const titleEdit = useInlineEdit(data?.label ?? defaultSig.label, (newTitle) => {
+    onDataChange?.({ label: newTitle });
+  });
+  const noteEdit = useInlineEdit(
+    data?.subTitle ?? defaultSig.subTitle ?? "",
+    (newNote) => {
+      onDataChange?.({ subTitle: newNote });
+    },
+  );
+
+  const nameEdit = useInlineEdit(
+    data?.signerName ?? defaultSig.signerName ?? "",
+    (newName) => {
+      onDataChange?.({ signerName: newName });
+    },
+  );
 
   useEffect(() => {
-    if (value !== undefined) {
-      setSignatureUrl(value || null);
-    }
-  }, [value]);
+    setSignatureUrl(data?.value ?? null);
+  }, [data?.value]);
 
   return (
     <div className="flex h-full w-full flex-col justify-between p-2 bg-background select-none overflow-hidden">
@@ -39,7 +58,10 @@ export function SignatureField({ value }: FieldProps = {}) {
       <SignaturePreview
         src={signatureUrl}
         onOpen={() => setIsModalOpen(true)}
-        onClear={() => setSignatureUrl(null)}
+        onClear={() => {
+          setSignatureUrl(null);
+          onDataChange?.({ value: undefined });
+        }}
       />
 
       {/* Phần dưới: Tên người ký */}
@@ -54,7 +76,10 @@ export function SignatureField({ value }: FieldProps = {}) {
       <SignatureModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        onSave={(dataUrl) => setSignatureUrl(dataUrl)}
+        onSave={(dataUrl) => {
+          setSignatureUrl(dataUrl);
+          onDataChange?.({ value: dataUrl ?? undefined });
+        }}
       />
     </div>
   );

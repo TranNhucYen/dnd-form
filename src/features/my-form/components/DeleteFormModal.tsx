@@ -13,7 +13,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog'
 import { AlertTriangle, Loader2 } from 'lucide-react'
-import { MyForm } from '../types/my-form.type'
+import type { MyForm } from '../types/my-form.type'
 
 interface DeleteFormModalProps {
   form: MyForm | null
@@ -57,8 +57,8 @@ export function DeleteFormModal({
           </AlertDialogTitle>
           <AlertDialogDescription>
             Bạn có chắc chắn muốn xóa biểu mẫu{' '}
-            <strong className="text-foreground font-semibold">"{form.title}"</strong>? Mọi dữ liệu cấu
-            trúc trường và phản hồi liên quan sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            <strong className="text-foreground font-semibold">&ldquo;{form.name}&rdquo;</strong>? Mọi dữ liệu cấu
+            trúc trường liên quan sẽ bị xóa vĩnh viễn và không thể khôi phục.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -86,5 +86,3 @@ export function DeleteFormModal({
     </AlertDialog>
   )
 }
-
-

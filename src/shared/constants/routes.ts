@@ -12,10 +12,17 @@ export const ROUTES = {
   NOTIFICATIONS: "/notifications",
   SETTINGS: "/settings",
   ACCOUNT: "/account",
+
+  // Admin Routes
+  ADMIN_DASHBOARD: "/admin",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_TEMPLATES: "/admin/templates",
+  ADMIN_CATEGORIES: "/admin/categories",
+  ADMIN_SETTINGS: "/admin/settings",
 } as const
 
 export const DYNAMIC_ROUTES = {
-  FORM_EDIT: (id: string | number) => `/editor/${id}`,
+  FORM_EDIT: (id: string | number) => `/editor?formId=${id}`,
   FORM_DETAIL: (id: string | number) => `/my-form/${id}`,
   TEMPLATE_DETAIL: (id: string | number) => `/templates/${id}`,
 } as const

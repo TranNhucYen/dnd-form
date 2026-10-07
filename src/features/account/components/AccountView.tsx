@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import {
   LogOut,
@@ -22,43 +23,52 @@ import {
   FileSpreadsheet,
   Globe,
 } from 'lucide-react'
-import {
-  UserProfile,
-  UpdateProfileInput,
-  ChangePasswordInput,
-} from '../types/account.type'
+import { useAccount } from '../hooks/useAccount'
 import { ProfileForm } from './ProfileForm'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { LogoutModal } from './LogoutModal'
 
-const INITIAL_USER_PROFILE: UserProfile = {
-  id: 'usr-101',
-  name: 'Trần Nhực Yên',
-  email: 'yen.tran@dragform.io',
-  role: 'Quản trị viên (Admin)',
-  joinedAt: '15/07/2026',
-}
-
 export function AccountView() {
-  const [profile, setProfile] = useState<UserProfile>(INITIAL_USER_PROFILE)
+  const { profile, isLoading, updateProfile, changePassword } = useAccount()
   const [logoutModalOpen, setLogoutModalOpen] = useState(false)
 
-  const handleUpdateProfile = async (data: UpdateProfileInput) => {
-    // Simulate save
-    await new Promise((r) => setTimeout(r, 600))
-    setProfile((prev) => ({ ...prev, ...data }))
+  if (isLoading || !profile) {
+    return (
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
+        {/* Profile Header Skeleton */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-5">
+          <div className="flex items-center gap-4">
+            <Skeleton className="size-16 sm:size-18 rounded-full" />
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-6 w-44" />
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <Skeleton className="h-10 w-16" />
+            <Skeleton className="h-10 w-16" />
+          </div>
+        </div>
+
+        {/* 2 Columns Form Skeletons */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <Skeleton className="h-72 w-full rounded-xl" />
+          <Skeleton className="h-72 w-full rounded-xl" />
+        </div>
+
+        {/* Status Skeleton */}
+        <Skeleton className="h-36 w-full rounded-xl" />
+      </div>
+    )
   }
 
-  const handleChangePassword = async (data: ChangePasswordInput) => {
-    // Simulate password change
-    await new Promise((r) => setTimeout(r, 800))
-    if (data.currentPassword !== '123456') {
-      throw new Error('Mật khẩu hiện tại không chính xác (mật khẩu mẫu: 123456).')
-    }
-  }
-
+  // Hiện avatar dưới dạng 2 chữ cái đầu của tên
   const initials = profile.name
     .split(' ')
+    .filter(Boolean)
     .map((w) => w[0])
     .join('')
     .slice(0, 2)
@@ -74,7 +84,7 @@ export function AccountView() {
             <Avatar className="size-16 sm:size-18 border-2 border-primary/20 shadow-xs">
               <AvatarImage src={profile.avatarUrl} alt={profile.name} />
               <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
-                {initials}
+                {initials || 'U'}
               </AvatarFallback>
             </Avatar>
             <button
@@ -96,12 +106,6 @@ export function AccountView() {
               <h1 className="text-xl font-bold tracking-tight text-foreground">
                 {profile.name}
               </h1>
-              <Badge
-                variant="secondary"
-                className="text-xs font-semibold bg-primary/10 text-primary border-primary/20"
-              >
-                {profile.role}
-              </Badge>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -122,14 +126,14 @@ export function AccountView() {
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground flex items-center gap-1">
               <FileSpreadsheet className="size-3.5 text-primary" />
-              12
+              {profile.formsCount.toLocaleString('vi-VN')}
             </span>
             <span className="text-xs text-muted-foreground">Biểu mẫu</span>
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground flex items-center gap-1">
               <Globe className="size-3.5 text-primary" />
-              3
+              {profile.contributionsCount.toLocaleString('vi-VN')}
             </span>
             <span className="text-xs text-muted-foreground">Đóng góp</span>
           </div>
@@ -143,8 +147,8 @@ export function AccountView() {
           'items-stretch'
         )}
       >
-        <ProfileForm initialProfile={profile} onSave={handleUpdateProfile} />
-        <ChangePasswordForm onChangePassword={handleChangePassword} />
+        <ProfileForm initialProfile={profile} onSave={updateProfile} />
+        <ChangePasswordForm onChangePassword={changePassword} />
       </div>
 
       {/* Block 2: Account Status */}
@@ -157,14 +161,14 @@ export function AccountView() {
             <div>
               <CardTitle className="text-sm font-bold">Trạng thái tài khoản</CardTitle>
               <CardDescription className="text-xs mt-0.5">
-                Thông tin phân quyền và trạng thái hoạt động tài khoản
+                Thông tin và trạng thái hoạt động tài khoản
               </CardDescription>
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="pt-1">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 rounded-lg border bg-muted/20 flex flex-col gap-1.5">
               <span className="text-muted-foreground text-xs">Trạng thái hoạt động</span>
               <div className="flex items-center">
@@ -189,13 +193,6 @@ export function AccountView() {
                   Chính chủ
                 </Badge>
               </div>
-            </div>
-
-            <div className="p-3 rounded-lg border bg-muted/20 flex flex-col gap-1.5">
-              <span className="text-muted-foreground text-xs">Phân quyền</span>
-              <span className="font-semibold text-foreground">
-                {profile.role}
-              </span>
             </div>
           </div>
         </CardContent>

@@ -9,20 +9,61 @@ export function useCanvasKeyboardShortcuts() {
   const cutField = useFormBuilderStore((state) => state.cutField);
   const pasteField = useFormBuilderStore((state) => state.pasteField);
   const removeField = useFormBuilderStore((state) => state.removeField);
+  const undo = useFormBuilderStore((state) => state.undo);
+  const redo = useFormBuilderStore((state) => state.redo);
+  const triggerSave = useFormBuilderStore((state) => state.triggerSave);
+  const isReadOnly = useFormBuilderStore((state) => state.isReadOnly);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable)
-      ) {
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+
+      // Nếu ở chế độ chỉ xem, chặn phím tắt 
+      if (isReadOnly) {
+        if (isCtrlOrCmd && key === "s") {
+          event.preventDefault();
+        }
         return;
       }
 
-      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      // Lưu biểu mẫu (Ctrl+S / Cmd+S): Ưu tiên xử lý trước để chặn trình duyệt mở hộp thoại lưu trang 
+      // và cho phép lưu ngay cả khi đang nhập liệu
+      if (isCtrlOrCmd && key === "s") {
+        event.preventDefault();
+        triggerSave();
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      const isInputOrEditing =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable ||
+          Boolean(target.closest('[contenteditable="true"]')) ||
+          Boolean(target.closest('[role="dialog"]')));
+
+      if (isInputOrEditing) {
+        return;
+      }
+
+      // Undo: Ctrl+Z (Windows) hoặc Cmd+Z (Mac)
+      if (isCtrlOrCmd && !event.shiftKey && key === "z") {
+        event.preventDefault();
+        undo();
+        return;
+      }
+
+      // Redo: Ctrl+Shift+Z, Cmd+Shift+Z, hoặc Ctrl+Y
+      if (
+        (isCtrlOrCmd && event.shiftKey && key === "z") ||
+        (isCtrlOrCmd && !event.shiftKey && key === "y")
+      ) {
+        event.preventDefault();
+        redo();
+        return;
+      }
 
       if (
         (event.key === "Delete" || event.key === "Backspace") &&
@@ -78,5 +119,9 @@ export function useCanvasKeyboardShortcuts() {
     cutField,
     pasteField,
     removeField,
+    undo,
+    redo,
+    triggerSave,
+    isReadOnly,
   ]);
 }

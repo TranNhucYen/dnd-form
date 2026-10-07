@@ -1,89 +1,124 @@
-import {
-  MyForm,
-  FormStatus,
-  SharedUser,
-  CreateFormInput,
-  UpdateFormInput,
-} from '../types/my-form.type'
-import { FORM_STATUS_LABELS } from '../constants/my-form.constant'
 import { myFormRepository } from '../repositories'
+import type {
+  MyForm,
+  CreateBlankFormInput,
+  SaveSharingInput,
+  ShareTokenResult,
+  PublicFormDetail,
+} from '../types/my-form.type'
+import { ValidationError, NotFoundError } from '@/shared/errors'
 
-function mapToForm(form: any): MyForm {
+function formatForm(form: MyForm): MyForm {
   const createdDate = new Date(form.createdAt)
   const updatedDate = new Date(form.updatedAt)
 
   let shareSummary = 'Riêng tư'
   if (form.isPublic) {
-    shareSummary = 'Công khai (có link)'
+    shareSummary = 'Công khai (có liên kết)'
   } else if (form.sharedWith && form.sharedWith.length > 0) {
-    shareSummary = `Chia sẻ (${form.sharedWith.length} người)`
+    shareSummary = `Chia sẻ với ${form.sharedWith.length} người`
   }
 
   return {
     ...form,
-    createdAt: createdDate.toISOString(),
-    updatedAt: updatedDate.toISOString(),
     formattedCreatedAt: createdDate.toLocaleDateString('vi-VN'),
     formattedUpdatedAt: updatedDate.toLocaleDateString('vi-VN'),
-    statusLabel: FORM_STATUS_LABELS[form.status as FormStatus] || form.status,
     shareSummary,
   }
 }
 
 export const myFormService = {
-  async getMyForms(): Promise<MyForm[]> {
-    const forms = await myFormRepository.findAll()
-    return forms.map(mapToForm)
+  /**
+   * Lấy danh sách biểu mẫu của người dùng
+   */
+  async getMyForms(userId: number): Promise<MyForm[]> {
+    const forms = await myFormRepository.getMyForms(userId)
+    return forms.map(formatForm)
   },
 
-  async getMyFormById(id: number): Promise<MyForm | null> {
-    const form = await myFormRepository.findById(id)
-    if (!form) return null
-    return mapToForm(form)
+  /**
+   * Lấy thông tin chi tiết một biểu mẫu theo ID
+   */
+  async getMyFormById(userId: number, formId: number): Promise<MyForm> {
+    const form = await myFormRepository.getMyFormById(formId, userId)
+    if (!form) {
+      throw new NotFoundError('Biểu mẫu không tồn tại hoặc bạn không có quyền truy cập.')
+    }
+    return formatForm(form)
   },
 
-  async createForm(input: CreateFormInput): Promise<MyForm> {
-    const created = await myFormRepository.create({
-      title: input.title,
-      description: input.description,
-      status: FormStatus.DRAFT,
+  /**
+   * Tạo biểu mẫu trắng mới
+   */
+  async createBlankForm(
+    userId: number,
+    input: CreateBlankFormInput
+  ): Promise<MyForm> {
+    if (!input.name || !input.name.trim()) {
+      throw new ValidationError('Tên biểu mẫu không được để trống.')
+    }
+
+    const created = await myFormRepository.createBlankForm(userId, {
+      name: input.name.trim(),
+      description: input.description?.trim() || undefined,
       sourceTemplateId: input.sourceTemplateId,
-      sourceTemplateName: input.sourceTemplateName,
     })
-    return mapToForm(created)
+    return formatForm(created)
   },
 
-  async updateForm(id: number, input: UpdateFormInput): Promise<MyForm | null> {
-    const updated = await myFormRepository.update(id, input)
-    if (!updated) return null
-    return mapToForm(updated)
-  },
-
-  async deleteForm(id: number): Promise<boolean> {
-    return await myFormRepository.delete(id)
-  },
-
+  /**
+   * Nhân bản một biểu mẫu
+   */
   async duplicateForm(
-    id: number,
-    customData?: { title?: string; description?: string }
-  ): Promise<MyForm | null> {
-    const duplicated = await myFormRepository.duplicate(id, customData)
-    if (!duplicated) return null
-    return mapToForm(duplicated)
+    userId: number,
+    formId: number,
+    customName?: string
+  ): Promise<MyForm> {
+    const duplicated = await myFormRepository.duplicateForm(
+      formId,
+      userId,
+      customName
+    )
+
+    if (!duplicated) {
+      throw new NotFoundError('Biểu mẫu không tồn tại hoặc bạn không có quyền sao chép.')
+    }
+    return formatForm(duplicated)
   },
 
-  async updateFormStatus(id: number, status: FormStatus): Promise<MyForm | null> {
-    const updated = await myFormRepository.updateStatus(id, status)
-    if (!updated) return null
-    return mapToForm(updated)
+  /**
+   * Xóa một biểu mẫu
+   */
+  async deleteForm(userId: number, formId: number): Promise<boolean> {
+    const deleted = await myFormRepository.deleteForm(formId, userId)
+    if (!deleted) {
+      throw new NotFoundError('Biểu mẫu không tồn tại hoặc bạn không có quyền xóa.')
+    }
+    return true
   },
 
-  async updateFormSharing(
-    id: number,
-    sharing: { isPublic: boolean; sharedWith: SharedUser[] }
-  ): Promise<MyForm | null> {
-    const updated = await myFormRepository.updateSharing(id, sharing)
-    if (!updated) return null
-    return mapToForm(updated)
+  /**
+   * Lấy token và trạng thái chia sẻ của biểu mẫu
+   */
+  async getFormShareToken(userId: number, formId: number): Promise<ShareTokenResult> {
+    return await myFormRepository.getFormShareToken(formId, userId)
+  },
+
+  /**
+   * Lưu cài đặt chia sẻ biểu mẫu (công khai link & mời người dùng)
+   */
+  async saveFormSharing(
+    userId: number,
+    formId: number,
+    input: SaveSharingInput
+  ): Promise<ShareTokenResult> {
+    return await myFormRepository.saveFormSharing(formId, userId, input)
+  },
+
+  /**
+   * Lấy chi tiết biểu mẫu công khai theo token
+   */
+  async getPublicFormByToken(token: string): Promise<PublicFormDetail | null> {
+    return await myFormRepository.getPublicFormByToken(token)
   },
 }

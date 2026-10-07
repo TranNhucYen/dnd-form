@@ -1,94 +1,156 @@
 'use server'
 
-import {
-  MyForm,
-  CreateFormInput,
-  UpdateFormInput,
-  FormStatus,
-  SharedUser,
-} from '../types/my-form.type'
+import { cookies } from 'next/headers'
+import { verifyJwtToken } from '@/lib/jwt'
+import { handleActionError } from '@/shared/utils/action.util'
 import { myFormService } from '../services/my-form.service'
+import type {
+  MyForm,
+  CreateBlankFormInput,
+  ActionResponse,
+  SaveSharingInput,
+  ShareTokenResult,
+} from '../types/my-form.type'
 
-export async function getMyFormsAction(): Promise<MyForm[]> {
+async function getAuthenticatedUserId(): Promise<
+  { userId: number } | { error: string; code: string }
+> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+
+  if (!token) {
+    return { error: 'Bạn cần đăng nhập để thực hiện thao tác này.', code: 'UNAUTHORIZED' }
+  }
+
+  const user = await verifyJwtToken(token)
+  if (!user) {
+    return {
+      error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+      code: 'UNAUTHORIZED',
+    }
+  }
+
+  if (user.status === 'blocked') {
+    cookieStore.delete('auth_token')
+    return { error: 'Tài khoản của bạn đã bị khóa.', code: 'ACCOUNT_BLOCKED' }
+  }
+
+  return { userId: user.id }
+}
+
+export async function getMyFormsAction(): Promise<ActionResponse<MyForm[]>> {
   try {
-    return await myFormService.getMyForms()
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const data = await myFormService.getMyForms(authResult.userId)
+    return { success: true, data }
   } catch (error) {
-    console.error('Lỗi khi tải danh sách biểu mẫu:', error)
-    throw new Error('Không thể tải danh sách biểu mẫu của bạn')
+    return handleActionError(error, 'getMyFormsAction')
   }
 }
 
-export async function getMyFormByIdAction(id: number): Promise<MyForm | null> {
+export async function getMyFormByIdAction(
+  id: number
+): Promise<ActionResponse<MyForm>> {
   try {
-    return await myFormService.getMyFormById(id)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const data = await myFormService.getMyFormById(authResult.userId, id)
+    return { success: true, data }
   } catch (error) {
-    console.error(`Lỗi khi tải biểu mẫu id ${id}:`, error)
-    throw new Error('Không thể tải thông tin biểu mẫu')
+    return handleActionError(error, 'getMyFormByIdAction')
   }
 }
 
-export async function createFormAction(input: CreateFormInput): Promise<MyForm> {
+export async function createBlankFormAction(
+  input: CreateBlankFormInput
+): Promise<ActionResponse<MyForm>> {
   try {
-    return await myFormService.createForm(input)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const data = await myFormService.createBlankForm(authResult.userId, input)
+    return { success: true, data }
   } catch (error) {
-    console.error('Lỗi khi tạo biểu mẫu mới:', error)
-    throw new Error('Không thể tạo biểu mẫu mới')
+    return handleActionError(error, 'createBlankFormAction')
   }
 }
 
-export async function updateFormAction(
-  id: number,
-  input: UpdateFormInput
-): Promise<MyForm | null> {
-  try {
-    return await myFormService.updateForm(id, input)
-  } catch (error) {
-    console.error(`Lỗi khi cập nhật biểu mẫu ${id}:`, error)
-    throw new Error('Không thể cập nhật biểu mẫu')
-  }
-}
-
-export async function deleteFormAction(id: number): Promise<boolean> {
-  try {
-    return await myFormService.deleteForm(id)
-  } catch (error) {
-    console.error(`Lỗi khi xóa biểu mẫu ${id}:`, error)
-    throw new Error('Không thể xóa biểu mẫu')
-  }
-}
-
+/**
+ * Nhân bản biểu mẫu
+ */
 export async function duplicateFormAction(
   id: number,
-  customData?: { title?: string; description?: string }
-): Promise<MyForm | null> {
+  customName?: string
+): Promise<ActionResponse<MyForm>> {
   try {
-    return await myFormService.duplicateForm(id, customData)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const data = await myFormService.duplicateForm(
+      authResult.userId,
+      id,
+      customName
+    )
+    return { success: true, data }
   } catch (error) {
-    console.error(`Lỗi khi sao chép biểu mẫu ${id}:`, error)
-    throw new Error('Không thể sao chép biểu mẫu')
+    return handleActionError(error, 'duplicateFormAction')
   }
 }
 
-export async function updateFormStatusAction(
-  id: number,
-  status: FormStatus
-): Promise<MyForm | null> {
+export async function deleteFormAction(id: number): Promise<ActionResponse<boolean>> {
   try {
-    return await myFormService.updateFormStatus(id, status)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const success = await myFormService.deleteForm(authResult.userId, id)
+    return { success: true, data: success }
   } catch (error) {
-    console.error(`Lỗi khi cập nhật trạng thái biểu mẫu ${id}:`, error)
-    throw new Error('Không thể cập nhật trạng thái biểu mẫu')
+    return handleActionError(error, 'deleteFormAction')
   }
 }
 
-export async function updateFormSharingAction(
-  id: number,
-  sharing: { isPublic: boolean; sharedWith: SharedUser[] }
-): Promise<MyForm | null> {
+export async function getFormShareTokenAction(
+  formId: number
+): Promise<ActionResponse<ShareTokenResult>> {
   try {
-    return await myFormService.updateFormSharing(id, sharing)
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const data = await myFormService.getFormShareToken(authResult.userId, formId)
+    return { success: true, data }
   } catch (error) {
-    console.error(`Lỗi khi cập nhật chia sẻ biểu mẫu ${id}:`, error)
-    throw new Error('Không thể cập nhật cài đặt chia sẻ')
+    return handleActionError(error, 'getFormShareTokenAction')
+  }
+}
+
+export async function saveFormSharingAction(
+  formId: number,
+  input: SaveSharingInput
+): Promise<ActionResponse<ShareTokenResult>> {
+  try {
+    const authResult = await getAuthenticatedUserId()
+    if ('error' in authResult) {
+      return { success: false, error: authResult.error, code: authResult.code }
+    }
+
+    const data = await myFormService.saveFormSharing(authResult.userId, formId, input)
+    return { success: true, data }
+  } catch (error) {
+    return handleActionError(error, 'saveFormSharingAction')
   }
 }

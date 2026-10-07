@@ -4,48 +4,15 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Download, Pencil, FileText } from "lucide-react"
 import Link from "next/link"
-import { Template, TemplatePricingType, TemplateStatus } from "../types/template.type"
+import { toast } from "sonner"
+import { Template, TemplatePricingType } from "../types/template.type"
 
-interface TemplateCardProps {
+export interface CardProps {
   template: Template
 }
 
-export function TemplateCard({ template }: TemplateCardProps) {
+export function Card({ template }: CardProps) {
   const isPaid = template.pricingType === TemplatePricingType.PAID
-
-  const renderStatusBadge = () => {
-    switch (template.status) {
-      case TemplateStatus.ACTIVE:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-1.5 py-0 font-medium"
-          >
-            Đang hoạt động
-          </Badge>
-        )
-      case TemplateStatus.DRAFT:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] px-1.5 py-0 font-medium"
-          >
-            Bản nháp
-          </Badge>
-        )
-      case TemplateStatus.ARCHIVED:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-slate-100 text-slate-600 border-slate-200 text-[10px] px-1.5 py-0 font-medium"
-          >
-            Đã lưu trữ
-          </Badge>
-        )
-      default:
-        return null
-    }
-  }
 
   return (
     <div
@@ -74,10 +41,6 @@ export function TemplateCard({ template }: TemplateCardProps) {
         {/* Right: Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {renderStatusBadge()}
-            </div>
-
             <h2
               className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 group-hover/link:text-emerald-700 transition-colors"
               title={template.name}
@@ -114,7 +77,11 @@ export function TemplateCard({ template }: TemplateCardProps) {
       </Link>
 
       <div className="flex gap-2 pt-2 border-t border-slate-100">
-        <Button variant="outline" size="sm" className="flex-1 text-xs gap-1.5 cursor-pointer">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 text-xs gap-1.5 cursor-pointer text-muted-foreground"
+        >
           <Download className="size-3.5" />
           Tải xuống
         </Button>
@@ -129,7 +96,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   )
 }
 
-export function TemplateCardSkeleton() {
+export function CardSkeleton() {
   return (
     <div
       className="
@@ -176,3 +143,5 @@ export function TemplateCardSkeleton() {
   )
 }
 
+export const TemplateCard = Card
+export const TemplateCardSkeleton = CardSkeleton

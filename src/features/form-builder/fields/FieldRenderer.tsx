@@ -15,7 +15,7 @@ import { DatatableField } from "./datatable/DatatableField";
 
 export type { FieldProps };
 
-const fieldRegistry: Record<FieldType, FieldComponent> = {
+const fieldRegistry: Record<FieldType, FieldComponent<any>> = {
   label: LabelField,
   text: TextField,
   textarea: TextareaField,
@@ -37,12 +37,20 @@ const fieldRegistry: Record<FieldType, FieldComponent> = {
 export function FieldRenderer({
   type,
   id,
+  data,
   width,
   height,
-  label,
-  value,
+  onDataChange,
 }: { type: FieldType } & FieldProps) {
   const Field = fieldRegistry[type];
 
-  return <Field id={id} width={width} height={height} label={label} value={value} />;
+  return (
+    <Field
+      id={id}
+      data={data}
+      width={width}
+      height={height}
+      onDataChange={onDataChange}
+    />
+  );
 }

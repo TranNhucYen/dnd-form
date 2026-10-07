@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useState } from 'react'
 import {
   UploadCloud,
   CheckCircle2,
@@ -25,9 +26,11 @@ import {
   AlertTriangle,
   FolderPlus,
   ArrowUpRight,
+  MessageSquare,
 } from 'lucide-react'
 import { ContributionItem, ContributionStatus } from '../types/community.type'
 import { CONTRIBUTION_STATUS_LABELS } from '../constants/community.constant'
+import { ContributionFeedbackModal } from './ContributionFeedbackModal'
 
 interface CommunityContributionsProps {
   contributions: ContributionItem[]
@@ -38,15 +41,10 @@ export function CommunityContributions({
   contributions,
   onOpenContributeModal,
 }: CommunityContributionsProps) {
-  const approvedCount = contributions.filter(
-    (c) => c.status === ContributionStatus.APPROVED
-  ).length
-  const pendingCount = contributions.filter(
-    (c) => c.status === ContributionStatus.PENDING
-  ).length
-  const rejectedCount = contributions.filter(
-    (c) => c.status === ContributionStatus.REJECTED
-  ).length
+  const [selectedFeedbackItem, setSelectedFeedbackItem] = useState<ContributionItem | null>(null)
+
+  const approvedCount = contributions.filter((c) => c.status === ContributionStatus.APPROVED).length
+  const pendingCount = contributions.filter((c) => c.status === ContributionStatus.PENDING).length
 
   const renderStatusBadge = (status: ContributionStatus) => {
     switch (status) {
@@ -165,20 +163,22 @@ export function CommunityContributions({
               <TableHeader>
                 <TableRow className="text-xs">
                   <TableHead className="w-72">Tên biểu mẫu</TableHead>
-                  <TableHead>Danh mục</TableHead>
-                  <TableHead>Ngày gửi</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Phản hồi / Ghi chú</TableHead>
+                  <TableHead className="w-32">Danh mục</TableHead>
+                  <TableHead className="w-28">Ngày gửi</TableHead>
+                  <TableHead className="w-36">Trạng thái</TableHead>
+                  <TableHead className="w-44">Phản hồi / Ghi chú</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {contributions.map((item) => (
-                  <TableRow key={item.id} className="text-xs">
-                    <TableCell className="font-medium">
+                  <TableRow key={item.id} className="text-xs hover:bg-muted/40 transition-colors">
+                    <TableCell className="font-medium max-w-72">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-foreground">{item.title}</span>
+                        <span className="font-semibold text-foreground truncate block" title={item.title}>
+                          {item.title}
+                        </span>
                         {item.description && (
-                          <span className="text-xs text-muted-foreground line-clamp-1">
+                          <span className="text-xs text-muted-foreground line-clamp-1 mt-0.5" title={item.description}>
                             {item.description}
                           </span>
                         )}
@@ -189,24 +189,45 @@ export function CommunityContributions({
                         {item.categoryName}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
                       {new Date(item.submittedAt).toLocaleDateString('vi-VN')}
                     </TableCell>
-                    <TableCell>{renderStatusBadge(item.status)}</TableCell>
-                    <TableCell className="max-w-xs">
+                    <TableCell className="whitespace-nowrap">{renderStatusBadge(item.status)}</TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {item.status === ContributionStatus.REJECTED && item.feedback ? (
-                        <div className="p-2 rounded bg-rose-50 text-rose-800 text-xs border border-rose-200/80 leading-relaxed">
-                          <span className="font-semibold block mb-0.5">Lý do từ chối:</span>
-                          {item.feedback}
-                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedFeedbackItem(item)}
+                          title="Nhấp để xem chi tiết lý do từ chối"
+                          className="
+                            h-7 px-2.5 text-xs text-rose-700 bg-rose-50/70 border-rose-200 
+                            hover:bg-rose-100 hover:text-rose-800 gap-1.5 cursor-pointer font-medium"
+                        >
+                          <MessageSquare className="size-3 text-rose-600 shrink-0" />
+                          <span>Xem lý do từ chối</span>
+                        </Button>
                       ) : item.status === ContributionStatus.APPROVED ? (
                         <span className="text-xs text-emerald-700 flex items-center gap-1 font-medium">
-                          <CheckCircle2 className="size-3.5" />
+                          <CheckCircle2 className="size-3.5 shrink-0" />
                           Đã phát hành ({item.clonesCount || 0} lượt dùng)
                         </span>
+                      ) : item.feedback ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedFeedbackItem(item)}
+                          className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1.5 cursor-pointer"
+                        >
+                          <MessageSquare className="size-3 shrink-0" />
+                          <span>Xem ghi chú</span>
+                        </Button>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">
-                          Đang trong hàng đợi kiểm duyệt...
+                        <span className="text-xs text-muted-foreground italic flex items-center gap-1">
+                          <Clock className="size-3 text-muted-foreground/70 shrink-0" />
+                          Đang chờ kiểm duyệt...
                         </span>
                       )}
                     </TableCell>
@@ -217,6 +238,13 @@ export function CommunityContributions({
           </CardContent>
         </Card>
       )}
+
+      {/* Contribution Feedback Detail Modal */}
+      <ContributionFeedbackModal
+        item={selectedFeedbackItem}
+        open={!!selectedFeedbackItem}
+        onOpenChange={(open) => !open && setSelectedFeedbackItem(null)}
+      />
     </div>
   )
 }

@@ -4,6 +4,8 @@ export interface PaletteDragData {
   type: FieldType;
   label: string;
   icon: React.ReactNode;
+  width?: number;
+  height?: number;
 }
 
 export interface CanvasDragData {

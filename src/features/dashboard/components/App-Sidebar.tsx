@@ -16,9 +16,26 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { mainNavItems, personalNavItems } from "@/shared/config/nav"
+import { ROUTES } from "@/shared/constants/routes"
+import { AuthUser } from "@/features/auth/types/auth.type"
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  user?: Partial<AuthUser> | null
+}
+
+export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
+
+  const displayName = user?.fullName?.trim() || "Người dùng"
+  const displayEmail = user?.email?.trim() || ""
+
+  const initials = (user?.fullName || "")
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "U"
 
   return (
     <Sidebar>
@@ -86,13 +103,24 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center font-bold text-sm text-slate-700">U</div>
-          <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-semibold truncate leading-none">User1</p>
-            <p className="text-xs text-muted-foreground truncate mt-1">user1@example.com</p>
+        <Link
+          href={ROUTES.ACCOUNT}
+          className="flex items-center gap-3 p-1 -m-1 rounded-md transition-colors hover:bg-accent group"
+        >
+          <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20">
+            {initials}
           </div>
-        </div>
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <p className="text-sm font-semibold truncate leading-none group-hover:text-primary transition-colors">
+              {displayName}
+            </p>
+            {displayEmail && (
+              <p className="text-xs text-muted-foreground truncate mt-1">
+                {displayEmail}
+              </p>
+            )}
+          </div>
+        </Link>
       </SidebarFooter>
     </Sidebar>
   )

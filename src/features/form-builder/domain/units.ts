@@ -17,5 +17,5 @@ export const toMm = (unit: InternalUnit): number =>
 export const toScreenPx = (unit: InternalUnit): Px =>
     (toMm(unit) * CSS_PX_PER_MM) as Px;
 
-export const pxToInternalUnit = (px: Px): InternalUnit =>
+export const pxToInternalUnit = (px: number): InternalUnit =>
     Math.round((px / CSS_PX_PER_MM) * INTERNAL_UNITS_PER_MM) as InternalUnit;
