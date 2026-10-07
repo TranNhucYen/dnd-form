@@ -7,6 +7,7 @@ export const DEFAULT_FIELD_DATA: Readonly<FieldDataMap> = {
   },
   textarea: {
     html: "<p>Đoạn văn</p>",
+    showBorder: true,
   },
   number: {
     label: "Số lượng",
@@ -14,7 +15,7 @@ export const DEFAULT_FIELD_DATA: Readonly<FieldDataMap> = {
   },
   date: {
     label: "",
-    value: "24/08/2026",
+    value: undefined,
   },
   select: {
     label: "Danh sách",

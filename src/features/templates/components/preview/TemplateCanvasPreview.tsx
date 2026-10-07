@@ -26,18 +26,20 @@ export function TemplateCanvasPreview({
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState<number>(0)
 
+  const firstPage = schema?.pages?.[0]
+
   // Tính toán kích thước canvas gốc theo chuẩn InternalUnit
   const { canvasWidth, canvasHeight } = useMemo(() => {
     const defaultWidthUnit = toInternalUnit(210) // A4: 210mm
     const defaultHeightUnit = toInternalUnit(297) // A4: 297mm
 
     const widthUnit =
-      schema?.page?.dimensions?.width && schema.page.dimensions.width > 0
-        ? schema.page.dimensions.width
+      firstPage?.page?.dimensions?.width && firstPage.page.dimensions.width > 0
+        ? firstPage.page.dimensions.width
         : defaultWidthUnit
     const heightUnit =
-      schema?.page?.dimensions?.height && schema.page.dimensions.height > 0
-        ? schema.page.dimensions.height
+      firstPage?.page?.dimensions?.height && firstPage.page.dimensions.height > 0
+        ? firstPage.page.dimensions.height
         : defaultHeightUnit
 
     const widthPx = toScreenPx(widthUnit)
@@ -47,13 +49,13 @@ export function TemplateCanvasPreview({
       canvasWidth: widthPx,
       canvasHeight: heightPx,
     }
-  }, [schema?.page?.dimensions])
+  }, [firstPage?.page?.dimensions])
 
   // Chuyển đổi các trường Schema sang CanvasField tọa độ pixel
   const canvasFields = useMemo<CanvasField[]>(() => {
-    if (!schema?.fields || !Array.isArray(schema.fields)) return []
-    return schema.fields.map(importSchemaFieldToCanvasField)
-  }, [schema?.fields])
+    if (!firstPage?.fields || !Array.isArray(firstPage.fields)) return []
+    return firstPage.fields.map(importSchemaFieldToCanvasField)
+  }, [firstPage?.fields])
 
   const hasFields = canvasFields.length > 0
 
