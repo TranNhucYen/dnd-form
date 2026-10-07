@@ -1,5 +1,5 @@
 import { PointerSensor, useDraggable } from "@dnd-kit/react";
-import { useEffectEvent, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import type { FieldStyle, FieldType } from "../types/formBuilder.types";
 import type {
   CanvasField,
@@ -93,10 +93,10 @@ export function FormFieldShell({
     ref(element);
   };
 
-  const handleClick = useEffectEvent((event: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     onSelect?.();
-  });
+  };
 
   const { startResize } = useFieldResize({
     elementRef: shellRef,
