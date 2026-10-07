@@ -44,15 +44,17 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     const schema = formRecord.schemaContent as FormSchemaJson
 
+    const firstPage = schema?.pages?.[0]
+
     // Kích thước khổ giấy (mm)
     const widthMm =
-      schema?.page?.dimensions?.width && schema.page.dimensions.width > 0
-        ? toMm(schema.page.dimensions.width)
+      firstPage?.page?.dimensions?.width && firstPage.page.dimensions.width > 0
+        ? toMm(firstPage.page.dimensions.width)
         : 210
 
     const heightMm =
-      schema?.page?.dimensions?.height && schema.page.dimensions.height > 0
-        ? toMm(schema.page.dimensions.height)
+      firstPage?.page?.dimensions?.height && firstPage.page.dimensions.height > 0
+        ? toMm(firstPage.page.dimensions.height)
         : 297
 
     // URL trang in nội bộ

@@ -18,6 +18,7 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   ADMIN_TEMPLATES: "/admin/templates",
   ADMIN_CATEGORIES: "/admin/categories",
+  ADMIN_SETTINGS: "/admin/settings",
 } as const
 
 export const DYNAMIC_ROUTES = {
