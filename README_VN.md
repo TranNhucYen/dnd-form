@@ -1,11 +1,11 @@
-# DragForm - Ứng dụng Thiết kế & Xuất bản Biểu mẫu
+# Dnd-form - Ứng dụng Thiết kế & Xuất bản Biểu mẫu
 
 ---
 
 # PHẦN 1: GIỚI THIỆU VÀ CÁC CHỨC NĂNG CHÍNH
 
 ## 1. Giới thiệu chung
-- DragForm là ứng dụng hỗ trợ tạo, quản lý và in ấn các loại biểu mẫu, đơn từ hoặc phiếu khảo sát trên trình duyệt web. 
+- Dnd-form là ứng dụng hỗ trợ tạo, quản lý và in ấn các loại biểu mẫu, đơn từ hoặc phiếu khảo sát trên trình duyệt web. 
 
 - Người dùng thao tác trực tiếp trên giao diện trang giấy: chọn các thành phần cần thiết và đặt vào vị trí tương ứng thay vì phải tự căn chỉnh bố cục thủ công.
 
