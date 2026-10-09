@@ -5,6 +5,7 @@ import { alias } from 'drizzle-orm/mysql-core'
 import { AdminTemplate, TemplateStatus, UpdateTemplateInput } from '../types/template.type'
 import { Category } from '../../category/types/category.type'
 import { formatAdminTemplate } from '../utils/template.util'
+import { formatDate } from '@/shared/utils'
 
 export interface ITemplateRepository {
   getTemplates(): Promise<AdminTemplate[]>
@@ -145,9 +146,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       id: r.id,
       name: r.name,
       slug: r.slug,
-      createdAt: r.createdAt
-        ? new Date(r.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
-        : undefined,
+      createdAt: formatDate(r.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' }) || undefined,
     }))
   },
 }

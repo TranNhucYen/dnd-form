@@ -7,11 +7,9 @@ import type {
   PublicFormDetail,
 } from '../types/my-form.type'
 import { ValidationError, NotFoundError } from '@/shared/errors'
+import { formatDate } from '@/shared/utils'
 
 function formatForm(form: MyForm): MyForm {
-  const createdDate = new Date(form.createdAt)
-  const updatedDate = new Date(form.updatedAt)
-
   let shareSummary = 'Riêng tư'
   if (form.isPublic) {
     shareSummary = 'Công khai (có liên kết)'
@@ -21,8 +19,8 @@ function formatForm(form: MyForm): MyForm {
 
   return {
     ...form,
-    formattedCreatedAt: createdDate.toLocaleDateString('vi-VN'),
-    formattedUpdatedAt: updatedDate.toLocaleDateString('vi-VN'),
+    formattedCreatedAt: formatDate(form.createdAt),
+    formattedUpdatedAt: formatDate(form.updatedAt),
     shareSummary,
   }
 }

@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Download, Pencil, FileText } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { formatNumber } from "@/shared/utils"
 import { Template, TemplatePricingType } from "../types/template.type"
 
 export interface CardProps {
@@ -69,7 +70,7 @@ export function Card({ template }: CardProps) {
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Download className="size-3.5" />
               <span className="text-xs font-medium">
-                {template.downloads.toLocaleString("vi-VN")} lượt tải
+                {formatNumber(template.downloads)} lượt tải
               </span>
             </div>
           </div>

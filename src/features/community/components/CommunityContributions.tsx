@@ -31,6 +31,7 @@ import {
 import { ContributionItem, ContributionStatus } from '../types/community.type'
 import { CONTRIBUTION_STATUS_LABELS } from '../constants/community.constant'
 import { EmptyState } from '@/shared/components'
+import { formatDate } from '@/shared/utils'
 import { ContributionFeedbackModal } from './ContributionFeedbackModal'
 
 interface CommunityContributionsProps {
@@ -189,7 +190,7 @@ export function CommunityContributions({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground whitespace-nowrap">
-                      {new Date(item.submittedAt).toLocaleDateString('vi-VN')}
+                      {formatDate(item.submittedAt)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">{renderStatusBadge(item.status)}</TableCell>
                     <TableCell className="whitespace-nowrap">

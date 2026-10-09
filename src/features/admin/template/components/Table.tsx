@@ -29,6 +29,7 @@ import {
   MoreHorizontal,
 } from 'lucide-react'
 import { SearchInput } from '@/shared/components'
+import { formatNumber } from '@/shared/utils'
 import {
   AdminTemplate,
   TemplateStatus,
@@ -402,7 +403,7 @@ export function Table() {
 
                     {/* Cột Lượt tải */}
                     <TableCell className="px-2 py-2.5 text-right font-medium text-foreground">
-                      {item.downloads.toLocaleString('vi-VN')}
+                      {formatNumber(item.downloads)}
                     </TableCell>
                   </TableRow>
                 ))
