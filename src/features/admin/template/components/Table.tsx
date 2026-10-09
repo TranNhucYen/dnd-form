@@ -24,11 +24,11 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import {
   LayoutTemplate,
-  Search,
   FileText,
   ListOrdered,
   MoreHorizontal,
 } from 'lucide-react'
+import { SearchInput } from '@/shared/components'
 import {
   AdminTemplate,
   TemplateStatus,
@@ -95,15 +95,12 @@ export function Table() {
         description="Danh sách biểu mẫu mẫu, phân loại, trạng thái duyệt và cấu hình trả phí"
         icon={<LayoutTemplate className="size-4" />}
       >
-        <div className="relative w-full sm:w-72">
-          <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên hoặc người tạo..."
-            className="pl-8 text-xs h-9"
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="w-full sm:w-72"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Tìm theo tên hoặc người tạo..."
+        />
       </AdminPageHeader>
 
       {/* Bộ lọc biểu mẫu theo trạng thái duyệt (Viết trực tiếp tại module Template) */}
