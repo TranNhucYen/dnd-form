@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { db } from '@/db'
 import { form, schemaJson } from '@/db/schema'
@@ -5,6 +6,10 @@ import { eq } from 'drizzle-orm'
 import { PrintCanvas } from '@/features/form-builder/print/PrintCanvas'
 import { hydrateImageUrls } from '@/features/editor/utils/schema-hydrate'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+
+export const metadata: Metadata = {
+  title: 'In biểu mẫu',
+}
 
 interface PrintFormPageProps {
   params: Promise<{ id: string }>

@@ -4,7 +4,7 @@ import { AdminPageHeader } from '@/features/admin/shared/components/table/AdminP
 import { AppearanceSettings } from '@/features/settings/components/AppearanceSettings'
 
 export const metadata: Metadata = {
-  title: 'Cài đặt hệ thống - Quản trị',
+  title: 'Cài đặt hệ thống',
   description: 'Tùy chỉnh giao diện hiển thị cho trang quản trị',
 }
 

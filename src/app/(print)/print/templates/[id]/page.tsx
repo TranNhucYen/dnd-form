@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { templateRepository } from '@/features/templates/repositories';
 import { PrintCanvas } from '@/features/form-builder/print/PrintCanvas';
+
+export const metadata: Metadata = {
+  title: 'In form mẫu',
+};
 
 interface PrintTemplatePageProps {
   params: Promise<{ id: string }>;
