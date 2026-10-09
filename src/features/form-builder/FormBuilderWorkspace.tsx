@@ -21,13 +21,15 @@ export const FormBuilderWorkspace = memo(function FormBuilderWorkspace() {
           {!isReadOnly && <Palette />}
 
           {/* Khung nhìn vùng làm việc chứa trang Canvas */}
-          <main className="min-w-0 flex-1">
+          <main className="light min-w-0 flex-1">
             <CanvasViewPort onCollisionChange={setIsDraggingOverField} />
           </main>
 
           {/* Lớp overlay khi kéo thả field */}
           {!isReadOnly && (
-            <DragPreviewOverlay isDraggingOverField={isDraggingOverField} />
+            <div className="light">
+              <DragPreviewOverlay isDraggingOverField={isDraggingOverField} />
+            </div>
           )}
         </div>
       </div>
