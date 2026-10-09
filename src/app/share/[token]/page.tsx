@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PublicSharePageProps): Promis
       return { title: 'Biểu mẫu không tìm thấy' }
     }
     return {
-      title: `${formDetail.name} | DragForm`,
+      title: formDetail.name,
       description: formDetail.description || 'Xem biểu mẫu chia sẻ',
     }
   } catch {

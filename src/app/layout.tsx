@@ -1,9 +1,18 @@
+import type { Metadata } from "next"
 import { Geist, Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
+
+export const metadata: Metadata = {
+  title: {
+    template: "Dnd Form | %s",
+    default: "Dnd Form",
+  },
+  description: "Trình tạo và quản lý biểu mẫu kéo thả trực quan",
+}
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
