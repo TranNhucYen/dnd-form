@@ -1,10 +1,14 @@
-import { Template, UseTemplateResult } from "../types/template.type"
+import { Template, UseTemplateResult, GetTemplatesParams, PaginatedTemplates } from "../types/template.type"
 import { templateRepository } from "../repositories"
 import { ValidationError, NotFoundError, UnauthorizedError } from "@/shared/errors"
 
 export const templateService = {
-  async getTemplates(): Promise<Template[]> {
-    return await templateRepository.getTemplates()
+  async getTemplates(params?: GetTemplatesParams): Promise<PaginatedTemplates> {
+    return await templateRepository.getTemplates(params)
+  },
+
+  async getCategories(): Promise<string[]> {
+    return await templateRepository.getCategories()
   },
 
   async getTemplateById(id: number): Promise<Template> {

@@ -1,25 +1,72 @@
 import { db } from '@/db'
 import { template, templateCategory, user, form, schemaJson, schemaMedia } from '@/db/schema'
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { eq, and, or, like, desc, sql, count } from 'drizzle-orm'
 import {
   Template,
   TemplatePricingType,
   TemplateStatus,
   GuidelineItem,
   UseTemplateResult,
+  GetTemplatesParams,
+  PaginatedTemplates,
 } from '../types/template.type'
 import { hydrateImageUrls } from '@/features/editor/utils/schema-hydrate'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
 import { sanitizeSignatureFromSchema, filterTemplateMedia } from '../utils/sanitize'
 
 export interface ITemplateRepository {
-  getTemplates(): Promise<Template[]>
+  getTemplates(params?: GetTemplatesParams): Promise<PaginatedTemplates>
+  getCategories(): Promise<string[]>
   getTemplateById(id: number): Promise<Template | null>
   useTemplate(templateId: number, userId: number): Promise<UseTemplateResult>
 }
 
 export const drizzleTemplateRepository: ITemplateRepository = {
-  async getTemplates(): Promise<Template[]> {
+  async getCategories(): Promise<string[]> {
+    const rows = await db
+      .select({ name: templateCategory.name })
+      .from(templateCategory)
+      .orderBy(templateCategory.name)
+
+    return rows.map((r) => r.name)
+  },
+
+  async getTemplates(params?: GetTemplatesParams): Promise<PaginatedTemplates> {
+    const page = Math.max(1, params?.page ?? 1)
+    const pageSize = Math.max(1, params?.pageSize ?? 25)
+    const search = params?.search?.trim()
+    const categoryName = params?.categoryName
+
+    const conditions = [
+      eq(template.reviewStatus, 'approved'),
+      eq(template.status, 'active'),
+    ]
+
+    if (categoryName && categoryName !== 'all') {
+      conditions.push(eq(templateCategory.name, categoryName))
+    }
+
+    if (search) {
+      conditions.push(
+        or(
+          like(template.name, `%${search}%`),
+          like(template.description, `%${search}%`)
+        )!
+      )
+    }
+
+    const whereClause = and(...conditions)
+
+    const [countRes] = await db
+      .select({ count: count() })
+      .from(template)
+      .leftJoin(user, eq(template.createdById, user.id))
+      .leftJoin(templateCategory, eq(template.categoryId, templateCategory.id))
+      .where(whereClause)
+
+    const total = countRes?.count ?? 0
+    const offset = (page - 1) * pageSize
+
     const rows = await db
       .select({
         id: template.id,
@@ -40,15 +87,12 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       .from(template)
       .leftJoin(user, eq(template.createdById, user.id))
       .leftJoin(templateCategory, eq(template.categoryId, templateCategory.id))
-      .where(
-        and(
-          eq(template.reviewStatus, 'approved'),
-          eq(template.status, 'active')
-        )
-      )
-      .orderBy(desc(template.createdAt))
+      .where(whereClause)
+      .orderBy(desc(template.createdAt), desc(template.id))
+      .limit(pageSize)
+      .offset(offset)
 
-    return rows.map((r) => ({
+    const items = rows.map((r) => ({
       id: r.id,
       name: r.name,
       ownerId: r.createdById,
@@ -64,6 +108,14 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       createdAt: r.createdAt?.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
     }))
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+      hasMore: offset + items.length < total,
+    }
   },
 
   async getTemplateById(id: number): Promise<Template | null> {
