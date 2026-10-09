@@ -87,7 +87,6 @@ export function Table() {
           <UITable>
             <AdminTableHeader
               columns={[
-                { title: 'ID', width: 'w-20', align: 'center' },
                 { title: 'Tên loại biểu mẫu', width: 'min-w-56' },
                 { title: 'Đường dẫn', width: 'w-48' },
                 { title: 'Tạo ngày', width: 'w-36', align: 'center' },
@@ -97,7 +96,7 @@ export function Table() {
               {paginatedCategories.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={3}
                     className="text-center py-16 text-xs text-muted-foreground"
                   >
                     {isLoading
@@ -111,11 +110,6 @@ export function Table() {
                     key={item.id}
                     className="text-xs hover:bg-muted/40 transition-colors"
                   >
-                    {/* Cột ID */}
-                    <TableCell className="px-3 py-2.5 font-mono text-muted-foreground text-center">
-                      #{item.id}
-                    </TableCell>
-
                     {/* Cột Tên loại biểu mẫu (kèm nút sửa) */}
                     <TableCell className="px-3 py-2.5">
                       <div className="flex items-center gap-1.5">
