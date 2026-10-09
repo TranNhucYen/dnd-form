@@ -104,7 +104,7 @@ export function UserTable() {
           wrapperClassName="flex-1 sm:w-64"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Tìm theo tên, email, ID..."
+          placeholder="Tìm theo tên hoặc email..."
         />
         <Button
           size="sm"

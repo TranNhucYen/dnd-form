@@ -4,7 +4,8 @@ import { cookies } from 'next/headers'
 import { verifyJwtToken } from '@/lib/jwt'
 import { handleActionError } from '@/shared/utils/action.util'
 import { UnauthorizedError, ForbiddenError } from '@/shared/errors'
-import { User, CreateUserInput, UserStatus, UserRole, ActionResponse } from '../types/user.type'
+import { User, CreateUserInput, UserStatus, UserRole, ActionResponse, UserPaginationParams } from '../types/user.type'
+import { PaginatedResult } from '@/shared/types/pagination.type'
 import { userService } from '../services/user.service'
 
 /** Xác thực và đảm bảo chỉ super admin mới có quyền thực thi */
@@ -24,10 +25,10 @@ async function assertSuperAdmin(): Promise<void> {
   }
 }
 
-export async function getUsersAction(): Promise<ActionResponse<User[]>> {
+export async function getUsersAction(params?: UserPaginationParams): Promise<ActionResponse<PaginatedResult<User>>> {
   try {
     await assertSuperAdmin()
-    const data = await userService.getUsers()
+    const data = await userService.getUsers(params)
     return { success: true, data }
   } catch (error) {
     return handleActionError(error, 'admin:getUsersAction')
