@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus } from "lucide-react"
@@ -13,13 +14,41 @@ export default function List() {
     templates,
     categories,
     isLoading,
+    isFetchingMore,
+    hasMore,
     error,
     searchTerm,
     setSearchTerm,
     selectedCategory,
     setSelectedCategory,
+    loadMore,
     refetch,
   } = useTemplateList()
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasMore) return
+
+    // observer chạy ngầm để theo dõi khi người dùng cuộn đến cuối danh sách rồi tự động tải thêm dữ liệu templates nếu còn
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore()
+        }
+      },
+      {
+        root: null,
+        rootMargin: '200px',
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(sentinel)
+    // giải phóng observer khi component re-render hoặc unmount
+    return () => observer.disconnect()
+  }, [hasMore, loadMore])
 
   return (
     <div className="w-full mx-auto flex flex-col gap-6">
@@ -106,11 +135,28 @@ export default function List() {
 
       {/* Templates grid */}
       {!isLoading && !error && templates.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {templates.map((template) => (
-            <Card key={template.id} template={template} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {templates.map((template) => (
+              <Card key={template.id} template={template} />
+            ))}
+            {/* Loading skeletons for infinite scroll */}
+            {isFetchingMore &&
+              Array.from({ length: 4 }).map((_, index) => (
+                <CardSkeleton key={`fetching-more-${index}`} />
+              ))}
+          </div>
+
+          {/* Sentinel element for infinite scroll */}
+          {hasMore && <div ref={sentinelRef} className="h-4 w-full" aria-hidden="true" />}
+
+          {/* End of list message */}
+          {!hasMore && (
+            <p className="text-center text-sm text-muted-foreground py-4">
+              Đã hiển thị tất cả biểu mẫu.
+            </p>
+          )}
+        </>
       )}
     </div>
   )

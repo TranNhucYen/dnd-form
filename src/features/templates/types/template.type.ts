@@ -45,3 +45,18 @@ export interface Template {
 export interface UseTemplateResult {
   formId: number
 }
+
+export interface GetTemplatesParams {
+  page?: number
+  pageSize?: number
+  search?: string
+  categoryName?: string
+}
+
+export interface PaginatedTemplates {
+  items: Template[]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+}

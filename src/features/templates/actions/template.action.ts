@@ -3,7 +3,13 @@
 import { cookies } from 'next/headers'
 import { verifyJwtToken } from '@/lib/jwt'
 import { handleActionError } from '@/shared/utils/action.util'
-import { Template, ActionResponse, UseTemplateResult } from '../types/template.type'
+import {
+  Template,
+  ActionResponse,
+  UseTemplateResult,
+  GetTemplatesParams,
+  PaginatedTemplates,
+} from '../types/template.type'
 import { templateService } from '../services/template.service'
 
 async function getAuthenticatedUserId(): Promise<
@@ -32,12 +38,23 @@ async function getAuthenticatedUserId(): Promise<
   return { userId: user.id }
 }
 
-export async function getTemplatesAction(): Promise<ActionResponse<Template[]>> {
+export async function getTemplatesAction(
+  params?: GetTemplatesParams
+): Promise<ActionResponse<PaginatedTemplates>> {
   try {
-    const templates = await templateService.getTemplates()
+    const templates = await templateService.getTemplates(params)
     return { success: true, data: templates }
   } catch (error) {
     return handleActionError(error, 'getTemplatesAction')
+  }
+}
+
+export async function getTemplateCategoriesAction(): Promise<ActionResponse<string[]>> {
+  try {
+    const categories = await templateService.getCategories()
+    return { success: true, data: categories }
+  } catch (error) {
+    return handleActionError(error, 'getTemplateCategoriesAction')
   }
 }
 
