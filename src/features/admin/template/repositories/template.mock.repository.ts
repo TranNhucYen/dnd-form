@@ -3,6 +3,8 @@ import {
   AdminTemplate,
   TemplateStatus,
   UpdateTemplateInput,
+  TemplatePaginationParams,
+  TemplatePaginatedResult,
 } from '../types/template.type'
 import { Category } from '../../category/types/category.type'
 import { mockCategories } from '../../category/repositories/category.mock.repository'
@@ -240,8 +242,46 @@ export let mockAdminTemplates: AdminTemplate[] = [
 ]
 
 export const templateMockRepository: ITemplateRepository = {
-  async getTemplates(): Promise<AdminTemplate[]> {
-    return [...mockAdminTemplates]
+  async getTemplates(params?: TemplatePaginationParams): Promise<TemplatePaginatedResult> {
+    const page = Math.max(1, Number(params?.page) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(params?.pageSize) || 8))
+    const search = params?.search?.toLowerCase().trim() || ''
+    const status = params?.status
+
+    const counts = {
+      all: mockAdminTemplates.length,
+      pending: mockAdminTemplates.filter((t) => t.review_status === TemplateStatus.PENDING).length,
+      approved: mockAdminTemplates.filter((t) => t.review_status === TemplateStatus.APPROVED).length,
+      rejected: mockAdminTemplates.filter((t) => t.review_status === TemplateStatus.REJECTED).length,
+    }
+
+    let filtered = [...mockAdminTemplates]
+    if (status && status !== 'all') {
+      filtered = filtered.filter((t) => t.review_status === status)
+    }
+
+    if (search) {
+      filtered = filtered.filter(
+        (t) =>
+          t.title.toLowerCase().includes(search) ||
+          t.creatorName.toLowerCase().includes(search) ||
+          (t.category?.name ? t.category.name.toLowerCase().includes(search) : false)
+      )
+    }
+
+    const totalItems = filtered.length
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+    const offset = (page - 1) * pageSize
+    const items = filtered.slice(offset, offset + pageSize)
+
+    return {
+      items,
+      totalItems,
+      totalPages,
+      currentPage: page,
+      pageSize,
+      counts,
+    }
   },
 
   async getTemplateById(id: number): Promise<AdminTemplate | null> {

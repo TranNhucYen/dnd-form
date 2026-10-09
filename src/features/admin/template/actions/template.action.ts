@@ -3,7 +3,13 @@
 import { cookies } from 'next/headers'
 import { verifyJwtToken } from '@/lib/jwt'
 import { handleActionError } from '@/shared/utils/action.util'
-import { AdminTemplate, UpdateTemplateInput, ActionResponse } from '../types/template.type'
+import {
+  AdminTemplate,
+  UpdateTemplateInput,
+  ActionResponse,
+  TemplatePaginationParams,
+  TemplatePaginatedResult,
+} from '../types/template.type'
 import { templateService } from '../services/template.service'
 
 async function getAuthenticatedAdmin(): Promise<
@@ -29,14 +35,16 @@ async function getAuthenticatedAdmin(): Promise<
   return { userId: user.id, fullName: user.fullName }
 }
 
-export async function getTemplatesAction(): Promise<ActionResponse<AdminTemplate[]>> {
+export async function getTemplatesAction(
+  params?: TemplatePaginationParams
+): Promise<ActionResponse<TemplatePaginatedResult>> {
   try {
     const authResult = await getAuthenticatedAdmin()
     if ('error' in authResult) {
       return { success: false, error: authResult.error, code: authResult.code }
     }
 
-    const data = await templateService.getTemplates()
+    const data = await templateService.getTemplates(params)
     return { success: true, data }
   } catch (error) {
     return handleActionError(error, 'admin:getTemplatesAction')

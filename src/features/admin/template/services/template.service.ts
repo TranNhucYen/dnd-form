@@ -1,12 +1,18 @@
-import { AdminTemplate, TemplateStatus, UpdateTemplateInput } from '../types/template.type'
+import {
+  AdminTemplate,
+  TemplateStatus,
+  UpdateTemplateInput,
+  TemplatePaginationParams,
+  TemplatePaginatedResult,
+} from '../types/template.type'
 import { Category } from '../../category/types/category.type'
 import { templateRepository } from '../repositories'
 import { notificationService } from '@/features/notifications/services/notification.service'
 import { ValidationError, NotFoundError, InternalError } from '@/shared/errors'
 
 export const templateService = {
-  async getTemplates(): Promise<AdminTemplate[]> {
-    return await templateRepository.getTemplates()
+  async getTemplates(params?: TemplatePaginationParams): Promise<TemplatePaginatedResult> {
+    return await templateRepository.getTemplates(params)
   },
 
   async getTemplateById(id: number): Promise<AdminTemplate> {

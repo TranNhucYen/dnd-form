@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { User, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
 import {
   getUsersAction,
   updateUserStatusAction,
   createUserAction,
 } from '../actions/user.action'
+import { useDebounce } from '@/features/admin/shared'
 
 export function useUser(initialPageSize = 8) {
   const [users, setUsers] = useState<User[]>([])
@@ -15,14 +16,29 @@ export function useUser(initialPageSize = 8) {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
+  const [totalItems, setTotalItems] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+
+  const debouncedSearch = useDebounce(searchQuery, 400)
+
+  // Reset về trang 1 khi từ khóa tìm kiếm thay đổi
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch])
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
-      const res = await getUsersAction()
-      if (res.success) {
-        setUsers(res.data)
+      const res = await getUsersAction({
+        page: currentPage,
+        pageSize,
+        search: debouncedSearch,
+      })
+      if (res.success && res.data) {
+        setUsers(res.data.items)
+        setTotalItems(res.data.totalItems)
+        setTotalPages(res.data.totalPages)
       } else {
         setError(res.error)
       }
@@ -31,42 +47,11 @@ export function useUser(initialPageSize = 8) {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [currentPage, pageSize, debouncedSearch])
 
   useEffect(() => {
     fetchUsers()
   }, [fetchUsers])
-
-  const filteredUsers = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    if (!q) return users
-
-    return users.filter(
-      (u) =>
-        u.fullName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        String(u.id).toLowerCase().includes(q) ||
-        u.role.toLowerCase().includes(q)
-    )
-  }, [users, searchQuery])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
-
-  const totalItems = filteredUsers.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
-    }
-  }, [currentPage, totalPages])
-
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * pageSize
-    return filteredUsers.slice(start, start + pageSize)
-  }, [filteredUsers, currentPage, pageSize])
 
   const handleStatusChange = async (id: number, newStatus: UserStatus) => {
     // Optimistic update
@@ -101,7 +86,7 @@ export function useUser(initialPageSize = 8) {
       if (!res.success) {
         throw new Error(res.error)
       }
-      setUsers((prev) => [res.data, ...prev])
+      await fetchUsers()
       return res.data
     } catch (err) {
       throw err
@@ -110,8 +95,8 @@ export function useUser(initialPageSize = 8) {
 
   return {
     users,
-    filteredUsers,
-    paginatedUsers,
+    filteredUsers: users,
+    paginatedUsers: users,
     isLoading,
     error,
     searchQuery,
