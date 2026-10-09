@@ -132,7 +132,6 @@ export function UserTable() {
           <Table>
             <AdminTableHeader
               columns={[
-                { title: 'ID', width: 'w-28' },
                 'Họ và tên',
                 'Email',
                 { title: 'Vai trò', width: 'w-36' },
@@ -143,7 +142,7 @@ export function UserTable() {
               {paginatedUsers.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={4}
                     className="text-center py-16 text-xs text-muted-foreground"
                   >
                     {isLoading
@@ -154,11 +153,6 @@ export function UserTable() {
               ) : (
                 paginatedUsers.map((item) => (
                   <TableRow key={item.id} className="text-xs hover:bg-muted/40 transition-colors">
-                    {/* Cột ID */}
-                    <TableCell className="px-4 py-3 font-mono text-muted-foreground">
-                      #{item.id}
-                    </TableCell>
-
                     {/* Cột Họ và tên */}
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
