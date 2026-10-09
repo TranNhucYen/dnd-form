@@ -42,7 +42,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarHeader className="h-16 flex items-center px-4 justify-start border-b">
         <Link href="/home" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
           <span className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-sm">D</span>
-          DragForm
+          Dnd Form
         </Link>
       </SidebarHeader>
 

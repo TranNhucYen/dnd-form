@@ -109,7 +109,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
             D
           </span>
           <span className="flex items-center gap-1.5">
-            DragForm
+            Dnd Form
             <Badge
               variant="outline"
               className="text-xs px-1.5 py-0 bg-primary/10 text-primary border-primary/30"
