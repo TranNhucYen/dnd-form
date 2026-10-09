@@ -32,6 +32,7 @@ import { logoutAction } from '@/features/auth/actions/auth.action'
 import { LayoutDashboard, Users, LayoutTemplate, ChartBarStacked, Settings, LogOut, Loader2 } from 'lucide-react'
 import { UserRole } from '@/shared/types/user.type'
 import { AuthUser } from '@/features/auth/types/auth.type'
+import { getInitials } from '@/shared/utils'
 
 const adminNavItems = [
   {
@@ -74,13 +75,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
   const isSuperAdmin = user.role === UserRole.SUPER_ADMIN
   const navItems = adminNavItems.filter((item) => item.url !== ROUTES.ADMIN_USERS || isSuperAdmin)
 
-  const initials = user.fullName
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
+  const initials = getInitials(user.fullName)
 
   const handleConfirmLogout = async () => {
     setIsLoggingOut(true)

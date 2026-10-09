@@ -9,12 +9,12 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ChartBarStacked, Search, Plus, Pencil } from 'lucide-react'
+import { ChartBarStacked, Plus, Pencil } from 'lucide-react'
 import { Category } from '../types/category.type'
 import { useCategory } from '../hooks/useCategory'
 import { Modal } from './Modal'
 import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
+import { SearchInput } from '@/shared/components'
 
 export function Table() {
   const {
@@ -61,15 +61,12 @@ export function Table() {
         description="Danh sách loại biểu mẫu, đường dẫn và cấu hình phân loại trong hệ thống"
         icon={<ChartBarStacked className="size-4" />}
       >
-        <div className="relative w-full sm:w-64">
-          <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên hoặc đường dẫn..."
-            className="pl-8 text-xs h-9"
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="w-full sm:w-64"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Tìm theo tên hoặc đường dẫn..."
+        />
 
         <Button
           onClick={handleOpenCreateModal}

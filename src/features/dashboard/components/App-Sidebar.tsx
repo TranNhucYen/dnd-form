@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { mainNavItems, personalNavItems } from "@/shared/config/nav"
 import { ROUTES } from "@/shared/constants/routes"
 import { AuthUser } from "@/features/auth/types/auth.type"
+import { getInitials } from "@/shared/utils"
 
 interface AppSidebarProps {
   user?: Partial<AuthUser> | null
@@ -29,13 +30,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const displayName = user?.fullName?.trim() || "Người dùng"
   const displayEmail = user?.email?.trim() || ""
 
-  const initials = (user?.fullName || "")
-    .split(" ")
-    .filter(Boolean)
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "U"
+  const initials = getInitials(user?.fullName)
 
   return (
     <Sidebar>

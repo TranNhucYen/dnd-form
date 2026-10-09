@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import { ContributionItem, ContributionStatus } from '../types/community.type'
 import { CONTRIBUTION_STATUS_LABELS } from '../constants/community.constant'
+import { EmptyState } from '@/shared/components'
 import { ContributionFeedbackModal } from './ContributionFeedbackModal'
 
 interface CommunityContributionsProps {
@@ -122,23 +123,21 @@ export function CommunityContributions({
 
       {/* Contributions Table */}
       {contributions.length === 0 ? (
-        <div className="py-16 text-center flex flex-col items-center justify-center border border-dashed rounded-xl bg-card">
-          <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-3">
-            <UploadCloud className="size-6" />
-          </div>
-          <h3 className="font-semibold text-sm">Bạn chưa có đóng góp nào</h3>
-          <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-            Hãy chia sẻ các biểu mẫu hữu ích của bạn để giúp đỡ cộng đồng và lan tỏa giá trị!
-          </p>
-          <Button
-            size="sm"
-            onClick={onOpenContributeModal}
-            className="mt-4 text-xs gap-1.5"
-          >
-            <FolderPlus className="size-3.5" />
-            Đóng góp biểu mẫu ngay
-          </Button>
-        </div>
+        <EmptyState
+          icon={UploadCloud}
+          title="Bạn chưa có đóng góp nào"
+          description="Hãy chia sẻ các biểu mẫu hữu ích của bạn để giúp đỡ cộng đồng và lan tỏa giá trị!"
+          action={
+            <Button
+              size="sm"
+              onClick={onOpenContributeModal}
+              className="text-xs gap-1.5"
+            >
+              <FolderPlus className="size-3.5" />
+              Đóng góp biểu mẫu ngay
+            </Button>
+          }
+        />
       ) : (
         <Card className="overflow-hidden border-border/80">
           <CardHeader className="py-4 px-5 border-b bg-muted/20 flex flex-row items-center justify-between">

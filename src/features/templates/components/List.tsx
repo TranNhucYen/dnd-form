@@ -1,11 +1,10 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Plus, Search, RefreshCw, AlertCircle, FileQuestion } from "lucide-react"
+import { Plus } from "lucide-react"
 import Link from "next/link"
+import { SearchInput, EmptyState, ErrorAlert } from "@/shared/components"
 import { Card, CardSkeleton } from "./Card"
 import { useTemplateList } from "../hooks/useTemplate"
 
@@ -73,41 +72,16 @@ export default function List() {
         </Tabs>
 
         {/* Search input */}
-        <div className="relative w-full md:w-72">
-          <Search
-            className="absolute left-2.5 top-1/2 -translate-y-1/2
-            size-4 text-muted-foreground"
-          />
-          <Input
-            placeholder="Tìm kiếm biểu mẫu theo tên hoặc mô tả..."
-            className="pl-9 h-9 text-xs focus-visible:ring-1"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="w-full md:w-72"
+          placeholder="Tìm kiếm biểu mẫu theo tên hoặc mô tả..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* Error state */}
-      {error && (
-        <Alert variant="destructive" className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle />
-            <div>
-              <AlertTitle>Đã có lỗi xảy ra</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refetch}
-            className="cursor-pointer text-xs shrink-0"
-          >
-            <RefreshCw data-icon="inline-start" />
-            Thử lại
-          </Button>
-        </Alert>
-      )}
+      <ErrorAlert error={error} onRetry={refetch} />
 
       {/* Loading state */}
       {isLoading && (
@@ -120,20 +94,14 @@ export default function List() {
 
       {/* Empty state */}
       {!isLoading && !error && templates.length === 0 && (
-        <div
-          className="flex flex-col items-center justify-center py-16 px-4
-          border border-dashed border-border rounded-xl bg-muted/20 text-center"
-        >
-          <FileQuestion className="size-12 text-muted-foreground/60 mb-3" />
-          <h3 className="text-base font-semibold text-foreground">
-            Không tìm thấy biểu mẫu phù hợp
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            {searchTerm
+        <EmptyState
+          title="Không tìm thấy biểu mẫu phù hợp"
+          description={
+            searchTerm
               ? `Không có kết quả nào khớp với "${searchTerm}". Hãy thử từ khóa khác.`
-              : "Hiện tại chưa có biểu mẫu nào trong danh mục này."}
-          </p>
-        </div>
+              : "Hiện tại chưa có biểu mẫu nào trong danh mục này."
+          }
+        />
       )}
 
       {/* Templates grid */}
