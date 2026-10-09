@@ -2,6 +2,7 @@ import { db } from '@/db'
 import { user, form, template } from '@/db/schema'
 import { eq, count } from 'drizzle-orm'
 import { UserProfile, UpdateProfileInput } from '../types/account.type'
+import { formatDate } from '@/shared/utils'
 
 export interface IAccountRepository {
   getProfile(userId: number): Promise<UserProfile | null>
@@ -29,8 +30,7 @@ export const drizzleAccountRepository: IAccountRepository = {
       db.select({ count: count() }).from(template).where(eq(template.createdById, userId)),
     ])
 
-    const createdDate = new Date(foundUser.createdAt)
-    const joinedAt = createdDate.toLocaleDateString('vi-VN', {
+    const joinedAt = formatDate(foundUser.createdAt, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

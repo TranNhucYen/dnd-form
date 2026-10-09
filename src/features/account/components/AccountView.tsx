@@ -24,6 +24,7 @@ import {
   Globe,
 } from 'lucide-react'
 import { useAccount } from '../hooks/useAccount'
+import { formatNumber } from '@/shared/utils'
 import { ProfileForm } from './ProfileForm'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { LogoutModal } from './LogoutModal'
@@ -126,14 +127,14 @@ export function AccountView() {
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground flex items-center gap-1">
               <FileSpreadsheet className="size-3.5 text-primary" />
-              {profile.formsCount.toLocaleString('vi-VN')}
+              {formatNumber(profile.formsCount)}
             </span>
             <span className="text-xs text-muted-foreground">Biểu mẫu</span>
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground flex items-center gap-1">
               <Globe className="size-3.5 text-primary" />
-              {profile.contributionsCount.toLocaleString('vi-VN')}
+              {formatNumber(profile.contributionsCount)}
             </span>
             <span className="text-xs text-muted-foreground">Đóng góp</span>
           </div>

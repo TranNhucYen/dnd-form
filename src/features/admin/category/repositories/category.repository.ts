@@ -2,6 +2,7 @@ import { db } from '@/db'
 import { templateCategory } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { Category, CreateCategoryInput, UpdateCategoryInput } from '../types/category.type'
+import { formatDate } from '@/shared/utils'
 
 export interface ICategoryRepository {
   getCategories(): Promise<Category[]>
@@ -23,13 +24,11 @@ export const drizzleCategoryRepository: ICategoryRepository = {
       id: r.id,
       name: r.name,
       slug: r.slug,
-      createdAt: r.createdAt
-        ? r.createdAt.toLocaleDateString('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric', 
-          })
-        : undefined,
+      createdAt: formatDate(r.createdAt, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }) || undefined,
     }))
   },
 

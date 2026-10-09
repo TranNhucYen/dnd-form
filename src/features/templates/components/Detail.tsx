@@ -22,6 +22,7 @@ import { useTemplateDetail } from "../hooks/useTemplate"
 import { useExportTemplatePdf } from "../hooks/useExportTemplatePdf"
 import { TemplatePricingType } from "../types/template.type"
 import { TemplateCanvasPreview, TemplateZoomModal } from "./preview"
+import { formatDate, formatNumber } from "@/shared/utils"
 
 export interface DetailProps {
   id: string
@@ -82,9 +83,7 @@ export function Detail({ id }: DetailProps) {
   }
 
   const isPaid = template.pricingType === TemplatePricingType.PAID
-  const formattedDate = template.updatedAt
-    ? new Date(template.updatedAt).toLocaleDateString("vi-VN")
-    : "Chưa cập nhật"
+  const formattedDate = formatDate(template.updatedAt, undefined, "Chưa cập nhật")
 
   return (
     <div className="w-full mx-auto flex flex-col gap-6">
@@ -122,7 +121,7 @@ export function Detail({ id }: DetailProps) {
             </Badge>
           </div>
           <span className="text-sm text-muted-foreground font-medium">
-            {template.downloads.toLocaleString("vi-VN")} lượt tải
+            {formatNumber(template.downloads)} lượt tải
           </span>
         </div>
 
