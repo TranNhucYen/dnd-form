@@ -14,7 +14,7 @@ let mockNotifications: AppNotification[] = [
     type: NotificationType.FORM_SHARED,
     title: 'Biểu mẫu mới được chia sẻ',
     message: 'Nguyễn Văn A đã chia sẻ biểu mẫu "Phiếu khảo sát mức độ hài lòng khách hàng Q3/2026" với quyền Chỉnh sửa (Editor).',
-    actionUrl: '/editor',
+    actionUrl: '/editor?formId=1',
     createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
   },
   {
