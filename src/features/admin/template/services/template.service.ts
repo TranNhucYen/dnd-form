@@ -9,10 +9,16 @@ import { Category } from '../../category/types/category.type'
 import { templateRepository } from '../repositories'
 import { notificationService } from '@/features/notifications/services/notification.service'
 import { ValidationError, NotFoundError, InternalError } from '@/shared/errors'
+import {
+  templatePaginationValidation,
+  updateTemplateValidation,
+} from '../validation/template.validation'
 
 export const templateService = {
   async getTemplates(params?: TemplatePaginationParams): Promise<TemplatePaginatedResult> {
-    return await templateRepository.getTemplates(params)
+    const parsed = templatePaginationValidation.safeParse(params ?? {})
+    const validParams = parsed.success ? parsed.data : params
+    return await templateRepository.getTemplates(validParams)
   },
 
   async getTemplateById(id: number): Promise<AdminTemplate> {
@@ -33,12 +39,9 @@ export const templateService = {
       throw new NotFoundError('Biểu mẫu mẫu không tồn tại.')
     }
 
-    if (data.title !== undefined && !data.title.trim()) {
-      throw new ValidationError('Tên biểu mẫu không được để trống.')
-    }
-
-    if (data.review_status === TemplateStatus.REJECTED && (!data.rejectReason || !data.rejectReason.trim())) {
-      throw new ValidationError('Vui lòng nhập lý do từ chối duyệt biểu mẫu.')
+    const parsed = updateTemplateValidation.safeParse(data)
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.issues[0].message)
     }
 
     const updated = await templateRepository.updateTemplate(id, data, adminUserId)

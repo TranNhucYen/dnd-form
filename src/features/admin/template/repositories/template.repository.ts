@@ -1,6 +1,6 @@
 import { db } from '@/db'
 import { template, templateCategory, user } from '@/db/schema'
-import { eq, desc, asc, and, or, like, count, sql } from 'drizzle-orm'
+import { eq, desc, asc, and, or, like, count, sql, SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/mysql-core'
 import {
   AdminTemplate,
@@ -21,10 +21,10 @@ export async function getTemplateCount(
   search: string = '',
   status?: string
 ): Promise<number> {
-  const conditions: any[] = []
+  const conditions: SQL[] = []
 
   if (status && status !== 'all') {
-    conditions.push(eq(template.reviewStatus, status as any))
+    conditions.push(eq(template.reviewStatus, status as TemplateStatus))
   }
 
   if (search) {
@@ -33,7 +33,7 @@ export async function getTemplateCount(
         like(template.name, `%${search}%`),
         like(creator.fullName, `%${search}%`),
         like(templateCategory.name, `%${search}%`)
-      )
+      )!
     )
   }
 
@@ -99,7 +99,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
     const search = params?.search?.trim() || ''
     const status = params?.status
 
-    const conditions: any[] = []
+    const conditions: SQL[] = []
 
     if (status && status !== 'all') {
       conditions.push(eq(template.reviewStatus, status))
@@ -111,7 +111,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
           like(template.name, `%${search}%`),
           like(creator.fullName, `%${search}%`),
           like(templateCategory.name, `%${search}%`)
-        )
+        )!
       )
     }
 

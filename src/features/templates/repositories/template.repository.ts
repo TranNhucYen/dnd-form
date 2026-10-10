@@ -1,6 +1,6 @@
 import { db } from '@/db'
 import { template, templateCategory, user, form, schemaJson, schemaMedia } from '@/db/schema'
-import { eq, and, or, like, desc, sql, count } from 'drizzle-orm'
+import { eq, and, or, like, desc, sql, count, SQL } from 'drizzle-orm'
 import {
   Template,
   TemplatePricingType,
@@ -37,7 +37,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
     const search = params?.search?.trim()
     const categoryName = params?.categoryName
 
-    const conditions = [
+    const conditions: SQL[] = [
       eq(template.reviewStatus, 'approved'),
       eq(template.status, 'active'),
     ]
