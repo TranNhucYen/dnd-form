@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { EditorWorkspace } from "@/features/editor";
+
+export const metadata: Metadata = {
+  title: "Trình thiết kế",
+};
 
 export default function EditorPage() {
   return (

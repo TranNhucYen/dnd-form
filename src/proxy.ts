@@ -4,7 +4,7 @@ import { verifyJwtToken } from '@/lib/jwt'
 import { ROUTES } from '@/shared/constants/routes'
 import { UserRole, UserStatus } from '@/shared/types/user.type'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth_token')?.value
   const user = token ? await verifyJwtToken(token) : null
@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
   const userRoutePrefixes = [
     ROUTES.HOME,
     ROUTES.MY_FORM,
+    ROUTES.SHARED_WITH_ME,
     ROUTES.EDITOR,
     ROUTES.TEMPLATES,
     ROUTES.COMMUNITY,
@@ -105,6 +106,7 @@ export const config = {
     '/',
     '/home/:path*',
     '/my-form/:path*',
+    '/shared-with-me/:path*',
     '/editor/:path*',
     '/templates/:path*',
     '/community/:path*',

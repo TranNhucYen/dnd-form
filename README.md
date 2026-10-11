@@ -1,11 +1,11 @@
-# DragForm - Form Design & Publishing Web Application
+# Dnd-form - Form Design & Publishing Web Application
 
 ---
 
 # PART 1: OVERVIEW & CORE FEATURES
 
 ## 1. Overview
-- **DragForm** is a web-based application designed for creating, managing, and printing forms, applications, or surveys directly within a browser.
+- **Dnd-form** is a web-based application designed for creating, managing, and printing forms, applications, or surveys directly within a browser.
 
 - Users interact directly on a paper-like canvas: selecting required components and placing them into position rather than manually configuring layouts.
 

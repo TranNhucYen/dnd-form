@@ -5,6 +5,7 @@ import { and, eq, desc, sql, inArray } from 'drizzle-orm'
 import { toInternalUnit } from '@/features/form-builder/domain/units'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
 import { hydrateImageUrls } from '@/features/editor/utils/schema-hydrate'
+import { notificationService } from '@/features/notifications/services/notification.service'
 import type {
   MyForm,
   CreateBlankFormInput,
@@ -400,10 +401,17 @@ export const drizzleMyFormRepository: IMyFormRepository = {
     userId: number,
     input: SaveSharingInput
   ): Promise<ShareTokenResult> {
-    return await db.transaction(async (tx) => {
+    const newlyInvitedUsers: { targetUserId: number; role: 'view' | 'edit' }[] = []
+
+    const txResult = await db.transaction(async (tx) => {
       const [formRecord] = await tx
-        .select({ id: form.id })
+        .select({
+          id: form.id,
+          name: form.name,
+          ownerName: user.fullName,
+        })
         .from(form)
+        .leftJoin(user, eq(form.ownerId, user.id))
         .where(and(eq(form.id, formId), eq(form.ownerId, userId)))
 
       if (!formRecord) {
@@ -497,6 +505,7 @@ export const drizzleMyFormRepository: IMyFormRepository = {
               subjectType: 'user',
               permission: role,
             })
+            newlyInvitedUsers.push({ targetUserId: targetUser.id, role })
           }
         }
       } else if (input.email && input.email.trim()) {
@@ -539,6 +548,7 @@ export const drizzleMyFormRepository: IMyFormRepository = {
             subjectType: 'user',
             permission: role,
           })
+          newlyInvitedUsers.push({ targetUserId: targetUser.id, role })
         }
       }
 
@@ -562,12 +572,34 @@ export const drizzleMyFormRepository: IMyFormRepository = {
       }))
 
       return {
-        isPublic: input.isPublic,
-        token,
-        shareUrl: token ? `/share/${token}` : null,
-        sharedWith,
+        data: {
+          isPublic: input.isPublic,
+          token,
+          shareUrl: token ? `/share/${token}` : null,
+          sharedWith,
+        },
+        formName: formRecord.name,
+        actorName: formRecord.ownerName ?? undefined,
       }
     })
+
+    // Gửi thông báo đến những người dùng mới được chia sẻ biểu mẫu
+    if (newlyInvitedUsers.length > 0) {
+      await Promise.all(
+        newlyInvitedUsers.map((invitee) =>
+          notificationService.notifyFormShared({
+            targetUserId: invitee.targetUserId,
+            actorId: userId,
+            actorName: txResult.actorName,
+            formId,
+            formName: txResult.formName,
+            role: invitee.role,
+          })
+        )
+      )
+    }
+
+    return txResult.data
   },
 
   async getPublicFormByToken(token: string): Promise<PublicFormDetail | null> {

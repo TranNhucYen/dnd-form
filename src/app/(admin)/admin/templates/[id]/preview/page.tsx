@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/db'
@@ -10,6 +11,10 @@ import { mockAdminTemplates } from '@/features/admin/template/repositories/templ
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'Xem trước form mẫu',
+}
 
 interface AdminTemplatePreviewPageProps {
   params: Promise<{ id: string }>

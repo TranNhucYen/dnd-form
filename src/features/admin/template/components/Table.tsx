@@ -24,11 +24,12 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import {
   LayoutTemplate,
-  Search,
   FileText,
   ListOrdered,
   MoreHorizontal,
 } from 'lucide-react'
+import { SearchInput } from '@/shared/components'
+import { formatNumber } from '@/shared/utils'
 import {
   AdminTemplate,
   TemplateStatus,
@@ -95,15 +96,12 @@ export function Table() {
         description="Danh sách biểu mẫu mẫu, phân loại, trạng thái duyệt và cấu hình trả phí"
         icon={<LayoutTemplate className="size-4" />}
       >
-        <div className="relative w-full sm:w-72">
-          <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên hoặc người tạo..."
-            className="pl-8 text-xs h-9"
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="w-full sm:w-72"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Tìm theo tên hoặc người tạo..."
+        />
       </AdminPageHeader>
 
       {/* Bộ lọc biểu mẫu theo trạng thái duyệt (Viết trực tiếp tại module Template) */}
@@ -148,7 +146,6 @@ export function Table() {
           <UITable>
             <AdminTableHeader
               columns={[
-                { title: 'ID', width: 'w-10', align: 'center', className: 'px-2' },
                 { title: 'Tên biểu mẫu', width: 'min-w-32', className: 'px-2' },
                 { title: 'Tạo bởi', width: 'w-28', className: 'px-2' },
                 { title: 'Chấp nhận bởi', width: 'w-28', className: 'px-2' },
@@ -165,7 +162,7 @@ export function Table() {
               {paginatedTemplates.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={11}
+                    colSpan={10}
                     className="text-center py-16 text-xs text-muted-foreground"
                   >
                     {isLoading
@@ -179,11 +176,6 @@ export function Table() {
                     key={item.id}
                     className="text-xs hover:bg-muted/40 transition-colors"
                   >
-                    {/* Cột ID */}
-                    <TableCell className="px-2 py-2.5 font-mono text-muted-foreground text-center">
-                      #{item.id}
-                    </TableCell>
-
                     {/* Cột Tên biểu mẫu (Bấm vào để xem trước biểu mẫu) */}
                     <TableCell className="px-2 py-2.5">
                       <div className="flex flex-col gap-0.5">
@@ -411,7 +403,7 @@ export function Table() {
 
                     {/* Cột Lượt tải */}
                     <TableCell className="px-2 py-2.5 text-right font-medium text-foreground">
-                      {item.downloads.toLocaleString('vi-VN')}
+                      {formatNumber(item.downloads)}
                     </TableCell>
                   </TableRow>
                 ))

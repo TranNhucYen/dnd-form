@@ -1,4 +1,5 @@
-import { User, CreateUserInput, UserStatus, UserRole } from '../types/user.type'
+import { User, CreateUserInput, UserStatus, UserRole, UserPaginationParams } from '../types/user.type'
+import { PaginatedResult } from '@/shared/types/pagination.type'
 import { userRepository } from '../repositories'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
@@ -6,8 +7,8 @@ import { createUserValidation, updateUserStatusValidation } from '../validation/
 import { ValidationError, NotFoundError, ForbiddenError, ConflictError, InternalError } from '@/shared/errors'
 
 export const userService = {
-  async getUsers(): Promise<User[]> {
-    return await userRepository.getUsers()
+  async getUsers(params?: UserPaginationParams): Promise<PaginatedResult<User>> {
+    return await userRepository.getUsers(params)
   },
 
   async getUserById(id: number): Promise<User | null> {

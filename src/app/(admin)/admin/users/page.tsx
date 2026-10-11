@@ -1,9 +1,14 @@
+import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { verifyJwtToken } from '@/lib/jwt'
 import { ROUTES } from '@/shared/constants/routes'
 import { UserRole } from '@/shared/types/user.type'
 import { UserTable } from '@/features/admin/user'
+
+export const metadata: Metadata = {
+  title: 'Quản lý người dùng',
+}
 
 export default async function AdminUsersPage() {
   const cookieStore = await cookies()

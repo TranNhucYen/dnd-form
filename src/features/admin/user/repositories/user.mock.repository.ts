@@ -1,5 +1,6 @@
 import { IUserRepository } from './user.repository'
-import { User, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
+import { User, CreateUserInput, UserRole, UserStatus, UserPaginationParams } from '../types/user.type'
+import { PaginatedResult } from '@/shared/types/pagination.type'
 
 export let mockAdminUsers: User[] = [
   {
@@ -149,8 +150,32 @@ export let mockAdminUsers: User[] = [
 ]
 
 export const userMockRepository: IUserRepository = {
-  async getUsers(): Promise<User[]> {
-    return [...mockAdminUsers]
+  async getUsers(params?: UserPaginationParams): Promise<PaginatedResult<User>> {
+    const page = Math.max(1, Number(params?.page) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(params?.pageSize) || 8))
+    const search = params?.search?.toLowerCase().trim() || ''
+
+    let filtered = [...mockAdminUsers]
+    if (search) {
+      filtered = filtered.filter(
+        (u) =>
+          u.fullName.toLowerCase().includes(search) ||
+          u.email.toLowerCase().includes(search)
+      )
+    }
+
+    const totalItems = filtered.length
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+    const offset = (page - 1) * pageSize
+    const items = filtered.slice(offset, offset + pageSize)
+
+    return {
+      items,
+      totalItems,
+      totalPages,
+      currentPage: page,
+      pageSize,
+    }
   },
 
   async getUserById(id: number): Promise<User | null> {
