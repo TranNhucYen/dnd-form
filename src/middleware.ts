@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
   const userRoutePrefixes = [
     ROUTES.HOME,
     ROUTES.MY_FORM,
+    ROUTES.SHARED_WITH_ME,
     ROUTES.EDITOR,
     ROUTES.TEMPLATES,
     ROUTES.COMMUNITY,
