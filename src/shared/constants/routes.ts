@@ -6,6 +6,7 @@ export const ROUTES = {
   // Dashboard / App Routes
   HOME: "/home",
   MY_FORM: "/my-form",
+  SHARED_WITH_ME: "/shared-with-me",
   EDITOR: "/editor",
   TEMPLATES: "/templates",
   COMMUNITY: "/community",
