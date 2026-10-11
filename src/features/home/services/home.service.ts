@@ -4,14 +4,14 @@ import type { HomeDashboardData } from '../types/home.type'
 
 export const homeService = {
   async getHomeDashboardData(userId: number): Promise<HomeDashboardData> {
-    const [allForms, allTemplates] = await Promise.all([
+    const [allForms, templatesRes] = await Promise.all([
       myFormService.getMyForms(userId),
-      templateService.getTemplates(),
+      templateService.getTemplates({ pageSize: 4 }),
     ])
 
     return {
       recentForms: allForms.slice(0, 4),
-      featuredTemplates: allTemplates.slice(0, 4),
+      featuredTemplates: templatesRes.items,
       totalFormsCount: allForms.length,
     }
   },

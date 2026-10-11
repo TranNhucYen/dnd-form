@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Download, Pencil, FileText } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { formatNumber } from "@/shared/utils"
 import { Template, TemplatePricingType } from "../types/template.type"
 
 export interface CardProps {
@@ -17,9 +18,9 @@ export function Card({ template }: CardProps) {
   return (
     <div
       className="
-        flex flex-col justify-between gap-4 p-4 bg-white 
-        border border-slate-200/80 rounded-xl shadow-xs 
-        hover:shadow-md hover:border-slate-300 transition-all duration-200
+        flex flex-col justify-between gap-4 p-4 bg-card text-card-foreground 
+        border border-border/80 rounded-xl shadow-xs 
+        hover:shadow-md hover:border-border transition-all duration-200
       "
     >
       <Link href={`/templates/${template.id}`} className="flex gap-4 group/link cursor-pointer">
@@ -28,13 +29,13 @@ export function Card({ template }: CardProps) {
           <AspectRatio
             ratio={210 / 297}
             className="
-              border border-slate-200 rounded-lg 
-              bg-slate-50 shadow-2xs overflow-hidden
-              flex items-center justify-center text-slate-300
-              group-hover/link:border-emerald-300 group-hover/link:bg-emerald-50/30 transition-all
+              border border-border rounded-lg 
+              bg-muted/50 shadow-2xs overflow-hidden
+              flex items-center justify-center text-muted-foreground/40
+              group-hover/link:border-emerald-500/30 group-hover/link:bg-emerald-500/10 transition-all
             "
           >
-            <FileText className="size-8 text-slate-300 group-hover/link:text-emerald-500 transition-colors" />
+            <FileText className="size-8 text-muted-foreground/40 group-hover/link:text-emerald-500 transition-colors" />
           </AspectRatio>
         </div>
 
@@ -42,7 +43,7 @@ export function Card({ template }: CardProps) {
         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
           <div className="flex flex-col gap-1.5">
             <h2
-              className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 group-hover/link:text-emerald-700 transition-colors"
+              className="text-sm font-bold text-foreground leading-snug line-clamp-2 group-hover/link:text-emerald-600 dark:group-hover/link:text-emerald-400 transition-colors"
               title={template.name}
             >
               {template.name}
@@ -53,30 +54,30 @@ export function Card({ template }: CardProps) {
                 variant="outline"
                 className={
                   isPaid
-                    ? "bg-amber-50 text-amber-700 border-amber-200 text-xs font-semibold rounded-md"
-                    : "bg-emerald-50 text-emerald-700 border-emerald-100 text-xs font-semibold rounded-md"
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-xs font-semibold rounded-md"
+                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs font-semibold rounded-md"
                 }
               >
                 {isPaid ? "Trả phí" : "Miễn phí"}
               </Badge>
-              <span className="text-[11px] text-slate-500 truncate font-medium">
+              <span className="text-[11px] text-muted-foreground truncate font-medium">
                 {template.categoryName}
               </span>
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5 mt-2">
-            <div className="flex items-center gap-1.5 text-slate-500">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
               <Download className="size-3.5" />
               <span className="text-xs font-medium">
-                {template.downloads.toLocaleString("vi-VN")} lượt tải
+                {formatNumber(template.downloads)} lượt tải
               </span>
             </div>
           </div>
         </div>
       </Link>
 
-      <div className="flex gap-2 pt-2 border-t border-slate-100">
+      <div className="flex gap-2 pt-2 border-t border-border">
         <Button
           variant="outline"
           size="sm"
@@ -100,8 +101,8 @@ export function CardSkeleton() {
   return (
     <div
       className="
-        flex flex-col justify-between gap-4 p-4 bg-white 
-        border border-slate-200/80 rounded-xl shadow-xs 
+        flex flex-col justify-between gap-4 p-4 bg-card 
+        border border-border/80 rounded-xl shadow-xs 
       "
     >
       <div className="flex gap-4">
@@ -110,8 +111,8 @@ export function CardSkeleton() {
           <AspectRatio
             ratio={210 / 297}
             className="
-              border border-slate-200 rounded-lg 
-              bg-slate-50 shadow-2xs overflow-hidden
+              border border-border rounded-lg 
+              bg-muted/50 shadow-2xs overflow-hidden
             "
           >
             <Skeleton className="w-full h-full" />
@@ -135,7 +136,7 @@ export function CardSkeleton() {
         </div>
       </div>
 
-      <div className="flex gap-2 pt-2 border-t border-slate-100">
+      <div className="flex gap-2 pt-2 border-t border-border">
         <Skeleton className="h-8 flex-1 rounded-md" />
         <Skeleton className="h-8 flex-1 rounded-md" />
       </div>

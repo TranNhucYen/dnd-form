@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import {
   Pagination,
   PaginationContent,
@@ -13,9 +11,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
-import { Plus, Search, RefreshCw, AlertCircle, FolderOpen } from 'lucide-react'
+import { Plus, FolderOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { SearchInput, EmptyState, ErrorAlert } from '@/shared/components'
 import { useMyFormList } from '../hooks/useMyForm'
 import type { MyForm } from '../types/my-form.type'
 import { saveFormSharingAction } from '../actions/my-form.action'
@@ -76,18 +75,12 @@ export default function MyFormList() {
 
       {/* Search section */}
       <div className="shrink-0 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-        <div className="relative w-full sm:w-96">
-          <Search
-            className="absolute left-2.5 top-1/2 -translate-y-1/2
-            size-4 text-muted-foreground"
-          />
-          <Input
-            placeholder="Tìm kiếm theo tên hoặc mô tả biểu mẫu..."
-            className="pl-9 h-9 text-xs focus-visible:ring-1"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="w-full sm:w-96"
+          placeholder="Tìm kiếm theo tên hoặc mô tả biểu mẫu..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
         <span className="text-xs text-muted-foreground self-end sm:self-center">
           Tổng số: <strong className="font-semibold text-foreground">{totalItems}</strong> biểu mẫu
@@ -95,26 +88,7 @@ export default function MyFormList() {
       </div>
 
       {/* Error state */}
-      {error && (
-        <Alert variant="destructive" className="shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle />
-            <div>
-              <AlertTitle>Đã có lỗi xảy ra</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refetch}
-            className="cursor-pointer text-xs shrink-0"
-          >
-            <RefreshCw data-icon="inline-start" />
-            Thử lại
-          </Button>
-        </Alert>
-      )}
+      <ErrorAlert error={error} onRetry={refetch} className="shrink-0" />
 
       {/* Loading Skeleton */}
       {isLoading && (
@@ -143,32 +117,28 @@ export default function MyFormList() {
 
       {/* Empty State */}
       {!isLoading && !error && forms.length === 0 && (
-        <div
-          className="flex-1 min-h-[260px]
-          flex flex-col items-center justify-center py-12 px-4
-          border border-dashed border-border rounded-xl bg-muted/20 text-center"
-        >
-          <FolderOpen className="size-12 text-muted-foreground/60 mb-3" />
-          <h3 className="text-base font-semibold text-foreground">
-            {searchTerm ? 'Không tìm thấy biểu mẫu phù hợp' : 'Chưa có biểu mẫu nào'}
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            {searchTerm
+        <EmptyState
+          className="flex-1 min-h-[260px] py-12"
+          icon={FolderOpen}
+          title={searchTerm ? 'Không tìm thấy biểu mẫu phù hợp' : 'Chưa có biểu mẫu nào'}
+          description={
+            searchTerm
               ? `Không tìm thấy kết quả khớp với "${searchTerm}". Hãy thử kiểm tra lại từ khóa.`
-              : 'Bạn chưa tạo biểu mẫu nào. Hãy bắt đầu tạo biểu mẫu đầu tiên của bạn!'}
-          </p>
-
-          {!searchTerm && (
-            <Button
-              size="sm"
-              className="mt-4 text-xs cursor-pointer"
-              onClick={() => setCreateModalOpen(true)}
-            >
-              <Plus data-icon="inline-start" />
-              Tạo biểu mẫu mới
-            </Button>
-          )}
-        </div>
+              : 'Bạn chưa tạo biểu mẫu nào. Hãy bắt đầu tạo biểu mẫu đầu tiên của bạn!'
+          }
+          action={
+            !searchTerm ? (
+              <Button
+                size="sm"
+                className="text-xs cursor-pointer"
+                onClick={() => setCreateModalOpen(true)}
+              >
+                <Plus data-icon="inline-start" />
+                Tạo biểu mẫu mới
+              </Button>
+            ) : undefined
+          }
+        />
       )}
 
       {/* Forms Table & Pagination */}

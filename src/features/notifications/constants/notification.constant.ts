@@ -1,4 +1,4 @@
-import { ROUTES } from '@/shared/constants/routes'
+import { ROUTES, DYNAMIC_ROUTES } from '@/shared/constants/routes'
 
 /** Mẫu tiêu đề, nội dung và đường dẫn thông báo */
 export const NOTIFICATION_TEMPLATES = {
@@ -14,5 +14,11 @@ export const NOTIFICATION_TEMPLATES = {
         `Biểu mẫu "${title}" đã bị từ chối phê duyệt. Lý do: ${reason?.trim() || 'Không đạt tiêu chuẩn kiểm duyệt'}`,
       ACTION_URL: ROUTES.COMMUNITY,
     },
+  },
+  FORM_SHARED: {
+    TITLE: 'Bạn nhận được quyền truy cập biểu mẫu mới',
+    MESSAGE: (actorName: string, formName: string, roleName: string) =>
+      `${actorName} đã chia sẻ biểu mẫu "${formName}" cho bạn với quyền ${roleName}.`,
+    ACTION_URL: (formId: number) => DYNAMIC_ROUTES.FORM_EDIT(formId),
   },
 } as const

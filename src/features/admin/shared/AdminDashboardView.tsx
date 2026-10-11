@@ -9,15 +9,16 @@ import {
 } from '@/components/ui/card'
 import { Users, LayoutDashboard, LayoutTemplate, Download, ChartBarStacked } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatNumber } from '@/shared/utils'
 import { useDashboardStats } from '../dashboard/hooks/useDashboardStats'
 
 export function AdminDashboardView() {
   const { stats, isLoading } = useDashboardStats()
 
-  const totalUsers = stats ? stats.totalUsers.toLocaleString('vi-VN') : '0'
-  const totalTemplates = stats ? stats.totalTemplates.toLocaleString('vi-VN') : '0'
-  const totalCategories = stats ? stats.totalCategories.toLocaleString('vi-VN') : '0'
-  const totalDownloads = stats ? stats.totalDownloads.toLocaleString('vi-VN') : '0'
+  const totalUsers = formatNumber(stats?.totalUsers)
+  const totalTemplates = formatNumber(stats?.totalTemplates)
+  const totalCategories = formatNumber(stats?.totalCategories)
+  const totalDownloads = formatNumber(stats?.totalDownloads)
 
   return (
     <div className="w-full h-full flex flex-col gap-5 overflow-y-auto p-1 sm:p-1.5">

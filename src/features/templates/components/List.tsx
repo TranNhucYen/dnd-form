@@ -1,11 +1,11 @@
 'use client'
 
+import { useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Plus, Search, RefreshCw, AlertCircle, FileQuestion } from "lucide-react"
+import { Plus } from "lucide-react"
 import Link from "next/link"
+import { SearchInput, EmptyState, ErrorAlert } from "@/shared/components"
 import { Card, CardSkeleton } from "./Card"
 import { useTemplateList } from "../hooks/useTemplate"
 
@@ -14,13 +14,41 @@ export default function List() {
     templates,
     categories,
     isLoading,
+    isFetchingMore,
+    hasMore,
     error,
     searchTerm,
     setSearchTerm,
     selectedCategory,
     setSelectedCategory,
+    loadMore,
     refetch,
   } = useTemplateList()
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasMore) return
+
+    // observer chạy ngầm để theo dõi khi người dùng cuộn đến cuối danh sách rồi tự động tải thêm dữ liệu templates nếu còn
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore()
+        }
+      },
+      {
+        root: null,
+        rootMargin: '200px',
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(sentinel)
+    // giải phóng observer khi component re-render hoặc unmount
+    return () => observer.disconnect()
+  }, [hasMore, loadMore])
 
   return (
     <div className="w-full mx-auto flex flex-col gap-6">
@@ -73,41 +101,16 @@ export default function List() {
         </Tabs>
 
         {/* Search input */}
-        <div className="relative w-full md:w-72">
-          <Search
-            className="absolute left-2.5 top-1/2 -translate-y-1/2
-            size-4 text-muted-foreground"
-          />
-          <Input
-            placeholder="Tìm kiếm biểu mẫu theo tên hoặc mô tả..."
-            className="pl-9 h-9 text-xs focus-visible:ring-1"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="w-full md:w-72"
+          placeholder="Tìm kiếm biểu mẫu theo tên hoặc mô tả..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* Error state */}
-      {error && (
-        <Alert variant="destructive" className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle />
-            <div>
-              <AlertTitle>Đã có lỗi xảy ra</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refetch}
-            className="cursor-pointer text-xs shrink-0"
-          >
-            <RefreshCw data-icon="inline-start" />
-            Thử lại
-          </Button>
-        </Alert>
-      )}
+      <ErrorAlert error={error} onRetry={refetch} />
 
       {/* Loading state */}
       {isLoading && (
@@ -120,29 +123,40 @@ export default function List() {
 
       {/* Empty state */}
       {!isLoading && !error && templates.length === 0 && (
-        <div
-          className="flex flex-col items-center justify-center py-16 px-4
-          border border-dashed border-border rounded-xl bg-muted/20 text-center"
-        >
-          <FileQuestion className="size-12 text-muted-foreground/60 mb-3" />
-          <h3 className="text-base font-semibold text-foreground">
-            Không tìm thấy biểu mẫu phù hợp
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            {searchTerm
+        <EmptyState
+          title="Không tìm thấy biểu mẫu phù hợp"
+          description={
+            searchTerm
               ? `Không có kết quả nào khớp với "${searchTerm}". Hãy thử từ khóa khác.`
-              : "Hiện tại chưa có biểu mẫu nào trong danh mục này."}
-          </p>
-        </div>
+              : "Hiện tại chưa có biểu mẫu nào trong danh mục này."
+          }
+        />
       )}
 
       {/* Templates grid */}
       {!isLoading && !error && templates.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {templates.map((template) => (
-            <Card key={template.id} template={template} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {templates.map((template) => (
+              <Card key={template.id} template={template} />
+            ))}
+            {/* Loading skeletons for infinite scroll */}
+            {isFetchingMore &&
+              Array.from({ length: 4 }).map((_, index) => (
+                <CardSkeleton key={`fetching-more-${index}`} />
+              ))}
+          </div>
+
+          {/* Sentinel element for infinite scroll */}
+          {hasMore && <div ref={sentinelRef} className="h-4 w-full" aria-hidden="true" />}
+
+          {/* End of list message */}
+          {!hasMore && (
+            <p className="text-center text-sm text-muted-foreground py-4">
+              Đã hiển thị tất cả biểu mẫu.
+            </p>
+          )}
+        </>
       )}
     </div>
   )

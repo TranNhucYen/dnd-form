@@ -22,6 +22,7 @@ import { useTemplateDetail } from "../hooks/useTemplate"
 import { useExportTemplatePdf } from "../hooks/useExportTemplatePdf"
 import { TemplatePricingType } from "../types/template.type"
 import { TemplateCanvasPreview, TemplateZoomModal } from "./preview"
+import { formatDate, formatNumber } from "@/shared/utils"
 
 export interface DetailProps {
   id: string
@@ -44,7 +45,7 @@ export function Detail({ id }: DetailProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="text-slate-500 hover:text-slate-800 gap-1.5 pl-2 cursor-pointer"
+              className="text-muted-foreground hover:text-foreground gap-1.5 pl-2 cursor-pointer"
             >
               <ArrowLeft className="size-4" />
               Quay lại danh sách
@@ -52,12 +53,12 @@ export function Detail({ id }: DetailProps) {
           </Link>
         </div>
 
-        <div className="flex flex-col items-center justify-center p-8 bg-red-50/50 border border-red-200 rounded-xl text-center">
-          <AlertCircle className="size-12 text-red-500 mb-3" />
-          <h2 className="text-lg font-bold text-slate-800">
+        <div className="flex flex-col items-center justify-center p-8 bg-destructive/10 border border-destructive/20 rounded-xl text-center">
+          <AlertCircle className="size-12 text-destructive mb-3" />
+          <h2 className="text-lg font-bold text-destructive">
             {error || "Không tìm thấy biểu mẫu"}
           </h2>
-          <p className="text-sm text-slate-500 mt-1 max-w-md">
+          <p className="text-sm text-muted-foreground mt-1 max-w-md">
             Biểu mẫu bạn đang tìm kiếm có thể đã bị xóa hoặc đường dẫn không hợp lệ.
           </p>
           <div className="flex gap-3 mt-6">
@@ -82,9 +83,7 @@ export function Detail({ id }: DetailProps) {
   }
 
   const isPaid = template.pricingType === TemplatePricingType.PAID
-  const formattedDate = template.updatedAt
-    ? new Date(template.updatedAt).toLocaleDateString("vi-VN")
-    : "Chưa cập nhật"
+  const formattedDate = formatDate(template.updatedAt, undefined, "Chưa cập nhật")
 
   return (
     <div className="w-full mx-auto flex flex-col gap-6">
@@ -94,7 +93,7 @@ export function Detail({ id }: DetailProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="text-slate-500 hover:text-slate-800 gap-1.5 pl-2 cursor-pointer"
+            className="text-muted-foreground hover:text-foreground gap-1.5 pl-2 cursor-pointer"
           >
             <ArrowLeft className="size-4" />
             Quay lại danh sách
@@ -103,26 +102,26 @@ export function Detail({ id }: DetailProps) {
       </div>
 
       {/* Header section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full border-b border-slate-100 pb-6 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full border-b border-border pb-6 gap-4">
         {/* Text Area */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold text-slate-900 leading-tight">
+            <h1 className="text-3xl font-bold text-foreground leading-tight">
               {template.name}
             </h1>
             <Badge
               variant="outline"
               className={
                 isPaid
-                  ? "bg-amber-50 text-amber-700 border-amber-200 font-semibold px-2.5 py-0.5 rounded-md"
-                  : "bg-emerald-50 text-emerald-700 border-emerald-100 font-semibold px-2.5 py-0.5 rounded-md"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 font-semibold px-2.5 py-0.5 rounded-md"
+                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-semibold px-2.5 py-0.5 rounded-md"
               }
             >
               {isPaid ? "Trả phí" : "Miễn phí"}
             </Badge>
           </div>
-          <span className="text-sm text-slate-500 font-medium">
-            {template.downloads.toLocaleString("vi-VN")} lượt tải
+          <span className="text-sm text-muted-foreground font-medium">
+            {formatNumber(template.downloads)} lượt tải
           </span>
         </div>
 
@@ -160,10 +159,10 @@ export function Detail({ id }: DetailProps) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         {/* Left Column (Ratio 2 / col-span-2) - Template Preview */}
         <div className="lg:col-span-2 flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Xem trước biểu mẫu
           </h3>
-          <div className="border border-slate-200 rounded-xl bg-slate-50 p-4 shadow-sm overflow-hidden">
+          <div className="border border-border rounded-xl bg-muted/30 p-4 shadow-xs overflow-hidden">
             <TemplateCanvasPreview
               schema={template.schemaContent}
               onZoomClick={() => setIsZoomOpen(true)}
@@ -175,10 +174,10 @@ export function Detail({ id }: DetailProps) {
         <div className="lg:col-span-3 flex flex-col gap-6">
           {/* General introduction */}
           <div className="flex flex-col gap-3">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-foreground">
               Giới thiệu biểu mẫu
             </h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {template.description || "Chưa có mô tả chi tiết cho biểu mẫu này."}
             </p>
           </div>
@@ -187,37 +186,37 @@ export function Detail({ id }: DetailProps) {
 
           {/* Quick Specifications */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <Tag className="size-5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg border border-border">
+              <Tag className="size-5 text-muted-foreground/70 shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold">
                   Danh mục
                 </span>
-                <span className="text-sm font-semibold text-slate-700 truncate">
+                <span className="text-sm font-semibold text-foreground truncate">
                   {template.categoryName}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <Calendar className="size-5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg border border-border">
+              <Calendar className="size-5 text-muted-foreground/70 shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold">
                   Cập nhật lần cuối
                 </span>
-                <span className="text-sm font-semibold text-slate-700 truncate">
+                <span className="text-sm font-semibold text-foreground truncate">
                   {formattedDate}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <User className="size-5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg border border-border">
+              <User className="size-5 text-muted-foreground/70 shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold">
                   Tác giả
                 </span>
-                <span className="text-sm font-semibold text-slate-700 truncate">
+                <span className="text-sm font-semibold text-foreground truncate">
                   {template.ownerName}
                 </span>
               </div>
@@ -228,7 +227,7 @@ export function Detail({ id }: DetailProps) {
 
           {/* Instructions */}
           <div className="flex flex-col gap-3">
-            <h3 className="text-base font-bold text-slate-800">
+            <h3 className="text-base font-bold text-foreground">
               Hướng dẫn điền biểu mẫu
             </h3>
             {template.guideline && template.guideline.length > 0 ? (
@@ -236,8 +235,8 @@ export function Detail({ id }: DetailProps) {
                 {template.guideline.map((step, idx) => {
                   const content = typeof step === "string" ? step : step.content
                   return (
-                    <li key={typeof step === "object" ? step.id : idx} className="flex gap-3 text-sm text-slate-600">
-                      <span className="flex items-center justify-center size-5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold shrink-0 mt-0.5">
+                    <li key={typeof step === "object" ? step.id : idx} className="flex gap-3 text-sm text-muted-foreground">
+                      <span className="flex items-center justify-center size-5 rounded-full bg-muted text-foreground text-xs font-bold shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
                       <span className="leading-relaxed">{content}</span>
@@ -246,7 +245,7 @@ export function Detail({ id }: DetailProps) {
                 })}
               </ol>
             ) : (
-              <p className="text-sm text-slate-500 italic">
+              <p className="text-sm text-muted-foreground italic">
                 Chưa có hướng dẫn cụ thể cho biểu mẫu này.
               </p>
             )}
@@ -276,7 +275,7 @@ export function DetailSkeleton() {
       </div>
 
       {/* Header section placeholder */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full border-b border-slate-100 pb-6 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full border-b border-border pb-6 gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
             <Skeleton className="h-9 w-64 rounded-md" />
@@ -295,7 +294,7 @@ export function DetailSkeleton() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         <div className="lg:col-span-2 flex flex-col gap-3">
           <Skeleton className="h-5 w-40 rounded" />
-          <div className="border border-slate-200 rounded-xl bg-slate-50 p-4">
+          <div className="border border-border rounded-xl bg-muted/30 p-4">
             <AspectRatio ratio={210 / 297} className="rounded-lg overflow-hidden">
               <Skeleton className="w-full h-full" />
             </AspectRatio>

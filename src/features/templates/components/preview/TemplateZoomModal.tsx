@@ -39,7 +39,7 @@ export function TemplateZoomModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header Toolbar */}
-        <DialogHeader className="flex flex-row items-center justify-between px-6 py-3 border-b shrink-0 bg-white">
+        <DialogHeader className="flex flex-row items-center justify-between px-6 py-3 border-b shrink-0 bg-background">
           <div className="flex flex-col gap-0.5 text-left pr-4">
             <DialogTitle className="text-base font-bold truncate max-w-sm sm:max-w-md">
               {templateName}
@@ -106,7 +106,7 @@ export function TemplateZoomModal({
         </DialogHeader>
 
         {/* Viewport xem trước cuộn trang */}
-        <div className="flex-1 overflow-auto bg-slate-50 p-8 flex">
+        <div className="flex-1 overflow-auto bg-muted/40 p-8 flex">
           <div className="m-auto shadow-md">
             <TemplateCanvasPreview
               schema={schema}

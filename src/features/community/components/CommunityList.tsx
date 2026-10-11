@@ -8,9 +8,9 @@ import {
   Globe,
   UploadCloud,
   RefreshCw,
-  AlertCircle,
   ShieldCheck,
 } from 'lucide-react'
+import { ErrorAlert } from '@/shared/components'
 import { useCommunity } from '../hooks/useCommunity'
 import { CommunityContributions } from './CommunityContributions'
 import { ContributeFormModal } from './ContributeFormModal'
@@ -88,13 +88,7 @@ export function CommunityList() {
           <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       ) : error ? (
-        <div className="py-12 text-center flex flex-col items-center justify-center border border-destructive/30 rounded-xl bg-destructive/5 text-destructive p-6">
-          <AlertCircle className="size-8 mb-2" />
-          <h3 className="font-semibold text-sm">{error}</h3>
-          <Button size="sm" variant="outline" onClick={refetch} className="mt-4 text-xs">
-            Thử lại
-          </Button>
-        </div>
+        <ErrorAlert error={error} onRetry={refetch} />
       ) : (
         /* Contributions and Status Table */
         <CommunityContributions

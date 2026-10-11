@@ -71,4 +71,41 @@ export const notificationService = {
       console.error('[NotificationService] Lỗi gửi thông báo xét duyệt biểu mẫu:', error)
     }
   },
+
+  /** Thông báo khi người dùng được chia sẻ biểu mẫu mới */
+  async notifyFormShared(params: {
+    targetUserId: number
+    actorId: number
+    actorName?: string
+    formId: number
+    formName: string
+    role: 'view' | 'edit'
+  }): Promise<void> {
+    try {
+      const { targetUserId, actorId, actorName, formId, formName, role } = params
+      const isEdit = role === 'edit'
+      const roleLabel = isEdit ? 'Chỉnh sửa' : 'Xem'
+      const senderName = actorName?.trim() || 'Một người dùng'
+
+      const title = NOTIFICATION_TEMPLATES.FORM_SHARED.TITLE
+      const message = NOTIFICATION_TEMPLATES.FORM_SHARED.MESSAGE(senderName, formName, roleLabel)
+      const actionUrl = NOTIFICATION_TEMPLATES.FORM_SHARED.ACTION_URL(formId)
+
+      await notificationRepository.create({
+        userId: targetUserId,
+        actorId,
+        type: NotificationType.FORM_SHARED,
+        title,
+        message,
+        actionUrl,
+        metadata: {
+          formId,
+          role,
+          formName,
+        },
+      })
+    } catch (error) {
+      console.error('[NotificationService] Lỗi khi gửi thông báo chia sẻ biểu mẫu:', error)
+    }
+  },
 }

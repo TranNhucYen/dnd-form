@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import {
   AdminTemplate,
@@ -13,6 +13,7 @@ import {
   getTemplatesAction,
   updateTemplateAction,
 } from '../actions/template.action'
+import { useDebounce } from '@/features/admin/shared'
 
 export function useTemplate(initialPageSize = 8) {
   const [templates, setTemplates] = useState<AdminTemplate[]>([])
@@ -23,24 +24,51 @@ export function useTemplate(initialPageSize = 8) {
   const [statusFilter, setStatusFilter] = useState<'all' | TemplateStatus>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
+  const [totalItems, setTotalItems] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [counts, setCounts] = useState({ all: 0, pending: 0, approved: 0, rejected: 0 })
+
+  const debouncedSearch = useDebounce(searchQuery, 400)
+
+  // Đưa về trang đầu tiên khi thay đổi ô tìm kiếm hoặc bộ lọc trạng thái
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, statusFilter])
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await getCategoriesAction()
+      if (res.success && res.data) {
+        setCategories(res.data)
+      }
+    } catch {
+      // Bỏ qua lỗi danh mục nếu đã tải trước đó
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCategories()
+  }, [fetchCategories])
 
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
-      const [templatesRes, categoriesRes] = await Promise.all([
-        getTemplatesAction(),
-        getCategoriesAction()
-      ])
+      const res = await getTemplatesAction({
+        page: currentPage,
+        pageSize,
+        search: debouncedSearch,
+        status: statusFilter,
+      })
 
-      if (templatesRes.success) {
-        setTemplates(templatesRes.data)
+      if (res.success && res.data) {
+        setTemplates(res.data.items)
+        setTotalItems(res.data.totalItems)
+        setTotalPages(res.data.totalPages)
+        setCounts(res.data.counts)
       } else {
-        setError(templatesRes.error)
-        toast.error(templatesRes.error)
-      }
-      if (categoriesRes.success) {
-        setCategories(categoriesRes.data)
+        setError(res.error)
+        toast.error(res.error)
       }
     } catch {
       const errorMsg = 'Không thể tải danh sách biểu mẫu mẫu.'
@@ -49,63 +77,14 @@ export function useTemplate(initialPageSize = 8) {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [currentPage, pageSize, debouncedSearch, statusFilter])
 
   useEffect(() => {
     fetchTemplates()
   }, [fetchTemplates])
 
-  // Đếm số lượng biểu mẫu theo từng trạng thái duyệt cho các tab
-  const counts = useMemo(() => {
-    return {
-      all: templates.length,
-      pending: templates.filter((t) => t.review_status === TemplateStatus.PENDING).length,
-      approved: templates.filter((t) => t.review_status === TemplateStatus.APPROVED).length,
-      rejected: templates.filter((t) => t.review_status === TemplateStatus.REJECTED).length,
-    }
-  }, [templates])
-
-  // Lọc danh sách biểu mẫu theo trạng thái duyệt và từ khóa tìm kiếm
-  const filteredTemplates = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-
-    return templates.filter((t) => {
-      const matchesStatus =
-        statusFilter === 'all' || t.review_status === statusFilter
-
-      if (!matchesStatus) return false
-      if (!q) return true
-
-      return (
-        t.title.toLowerCase().includes(q) ||
-        t.creatorName.toLowerCase().includes(q) ||
-        String(t.id).toLowerCase().includes(q) ||
-        (t.category?.name ? t.category.name.toLowerCase().includes(q) : false)
-      )
-    })
-  }, [templates, statusFilter, searchQuery])
-
-  // Đưa về trang đầu tiên khi thay đổi ô tìm kiếm hoặc bộ lọc trạng thái
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery, statusFilter])
-
-  const totalItems = filteredTemplates.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
-    }
-  }, [currentPage, totalPages])
-
-  const paginatedTemplates = useMemo(() => {
-    const start = (currentPage - 1) * pageSize
-    return filteredTemplates.slice(start, start + pageSize)
-  }, [filteredTemplates, currentPage, pageSize])
-
   const updateTemplate = async (id: number, data: UpdateTemplateInput) => {
-    // Cập nhật giao diện trước khi gọi API
+    // Cập nhật giao diện trước khi gọi API (Optimistic update)
     setTemplates((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t
@@ -127,7 +106,7 @@ export function useTemplate(initialPageSize = 8) {
         toast.error(res.error)
         fetchTemplates()
       } else if (res.data) {
-        setTemplates((prev) => prev.map((t) => (t.id === id ? res.data : t)))
+        await fetchTemplates()
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Lỗi khi cập nhật biểu mẫu mẫu.')
@@ -138,8 +117,8 @@ export function useTemplate(initialPageSize = 8) {
   return {
     templates,
     categories,
-    filteredTemplates,
-    paginatedTemplates,
+    filteredTemplates: templates,
+    paginatedTemplates: templates,
     isLoading,
     error,
     searchQuery,

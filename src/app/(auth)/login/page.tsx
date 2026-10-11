@@ -1,7 +1,8 @@
+import type { Metadata } from "next"
 import { LoginForm } from "@/features/auth"
 
-export const metadata = {
-  title: "Đăng nhập | DragForm",
+export const metadata: Metadata = {
+  title: "Đăng nhập",
   description: "Đăng nhập tài khoản DragForm để bắt đầu thiết kế biểu mẫu chuyên nghiệp.",
 }
 

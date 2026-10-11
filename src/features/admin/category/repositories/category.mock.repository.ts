@@ -1,6 +1,7 @@
 import { Category, CreateCategoryInput, UpdateCategoryInput } from '../types/category.type'
 import { ICategoryRepository } from './category.repository'
 import { slugify } from '../utils/slugify'
+import { formatDate } from '@/shared/utils'
 
 export let mockCategories: Category[] = [
   { id: 1, name: 'Khảo sát', slug: 'khao-sat', createdAt: '01/01/2026' },
@@ -32,7 +33,7 @@ export const categoryMockRepository: ICategoryRepository = {
         ? Math.max(...mockCategories.map((c) => c.id)) + 1
         : 1
 
-    const today = new Date().toLocaleDateString('vi-VN', {
+    const today = formatDate(new Date(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

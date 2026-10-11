@@ -20,12 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Users, Search, ShieldAlert, Shield, User as UserIcon, UserPlus } from 'lucide-react'
+import { Users, ShieldAlert, Shield, User as UserIcon, UserPlus } from 'lucide-react'
 import { User, UserRole, UserStatus } from '../types/user.type'
 import { useUser } from '../hooks/useUser'
 import { ChangeStatusModal } from './ChangeStatusModal'
 import { AddUserModal } from './AddUserModal'
 import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
+import { SearchInput } from '@/shared/components'
+import { getInitials } from '@/shared/utils'
 
 export function UserTable() {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false)
@@ -90,15 +92,6 @@ export function UserTable() {
     }
   }
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase()
-  }
-
   return (
     <div className="w-full h-full flex-1 min-h-0 flex flex-col gap-3">
       {/* Header trang dùng chung */}
@@ -107,15 +100,12 @@ export function UserTable() {
         description="Danh sách tài khoản, phân quyền và trạng thái hoạt động trong hệ thống"
         icon={<Users className="size-4" />}
       >
-        <div className="relative flex-1 sm:w-64">
-          <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên, email, ID..."
-            className="text-xs h-9 pl-8"
-          />
-        </div>
+        <SearchInput
+          wrapperClassName="flex-1 sm:w-64"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Tìm theo tên hoặc email..."
+        />
         <Button
           size="sm"
           onClick={() => setIsAddUserOpen(true)}
@@ -132,7 +122,6 @@ export function UserTable() {
           <Table>
             <AdminTableHeader
               columns={[
-                { title: 'ID', width: 'w-28' },
                 'Họ và tên',
                 'Email',
                 { title: 'Vai trò', width: 'w-36' },
@@ -143,7 +132,7 @@ export function UserTable() {
               {paginatedUsers.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={4}
                     className="text-center py-16 text-xs text-muted-foreground"
                   >
                     {isLoading
@@ -154,11 +143,6 @@ export function UserTable() {
               ) : (
                 paginatedUsers.map((item) => (
                   <TableRow key={item.id} className="text-xs hover:bg-muted/40 transition-colors">
-                    {/* Cột ID */}
-                    <TableCell className="px-4 py-3 font-mono text-muted-foreground">
-                      #{item.id}
-                    </TableCell>
-
                     {/* Cột Họ và tên */}
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-2.5">

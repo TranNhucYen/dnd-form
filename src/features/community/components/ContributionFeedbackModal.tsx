@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { ContributionItem, ContributionStatus } from '../types/community.type'
 import { CONTRIBUTION_STATUS_LABELS } from '../constants/community.constant'
+import { formatDate } from '@/shared/utils'
 
 interface ContributionFeedbackModalProps {
   item: ContributionItem | null
@@ -100,12 +101,12 @@ export function ContributionFeedbackModal({
               <span>Danh mục: <strong className="font-medium text-foreground">{item.categoryName}</strong></span>
               <span className="flex items-center gap-1">
                 <Calendar className="size-3" />
-                Ngày gửi: {new Date(item.submittedAt).toLocaleDateString('vi-VN')}
+                Ngày gửi: {formatDate(item.submittedAt)}
               </span>
               {item.reviewedAt && (
                 <span className="flex items-center gap-1">
                   <Clock className="size-3" />
-                  Ngày duyệt: {new Date(item.reviewedAt).toLocaleDateString('vi-VN')}
+                  Ngày duyệt: {formatDate(item.reviewedAt)}
                 </span>
               )}
             </div>

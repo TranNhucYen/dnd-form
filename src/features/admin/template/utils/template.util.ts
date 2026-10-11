@@ -1,4 +1,5 @@
 import { AdminTemplate, TemplateStatus } from '../types/template.type'
+import { formatDate } from '@/shared/utils'
 
 export const formatAdminTemplate = (r: Record<string, any>): AdminTemplate => ({
   id: r.id,
@@ -18,7 +19,5 @@ export const formatAdminTemplate = (r: Record<string, any>): AdminTemplate => ({
   approvedByEmail: r.approverEmail || undefined,
   rejectReason: r.rejectionReason || undefined,
   downloads: r.downloads || 0,
-  createdAt: r.createdAt
-    ? new Date(r.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    : '',
+  createdAt: formatDate(r.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' }),
 })

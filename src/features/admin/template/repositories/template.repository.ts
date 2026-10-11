@@ -1,53 +1,167 @@
 import { db } from '@/db'
 import { template, templateCategory, user } from '@/db/schema'
-import { eq, desc, asc } from 'drizzle-orm'
+import { eq, desc, asc, and, or, like, count, sql, SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/mysql-core'
-import { AdminTemplate, TemplateStatus, UpdateTemplateInput } from '../types/template.type'
+import {
+  AdminTemplate,
+  TemplateStatus,
+  UpdateTemplateInput,
+  TemplatePaginationParams,
+  TemplatePaginatedResult,
+} from '../types/template.type'
 import { Category } from '../../category/types/category.type'
 import { formatAdminTemplate } from '../utils/template.util'
-
-export interface ITemplateRepository {
-  getTemplates(): Promise<AdminTemplate[]>
-  getTemplateById(id: number): Promise<AdminTemplate | null>
-  updateTemplate(id: number, data: UpdateTemplateInput, adminUserId?: number): Promise<AdminTemplate | null>
-  getCategories(): Promise<Category[]>
-}
+import { formatDate } from '@/shared/utils'
 
 // Join cùng 1 bảng user 2 lần vào bảng template (dùng để lấy thông tin cả 2 user trong 1 query)
 const creator = alias(user, 'creator')
 const approver = alias(user, 'approver')
 
-export const drizzleTemplateRepository: ITemplateRepository = {
-  async getTemplates(): Promise<AdminTemplate[]> {
-    const rows = await db
-      .select({
-        id: template.id,
-        name: template.name,
-        createdById: template.createdById,
-        creatorName: creator.fullName,
-        creatorEmail: creator.email,
-        approvedById: template.approvedById,
-        approverName: approver.fullName,
-        approverEmail: approver.email,
-        categoryId: template.categoryId,
-        categoryName: templateCategory.name,
-        categorySlug: templateCategory.slug,
-        pricingType: template.pricingType,
-        description: template.description,
-        guideline: template.guideline,
-        reviewStatus: template.reviewStatus,
-        status: template.status,
-        rejectionReason: template.rejectionReason,
-        downloads: template.downloads,
-        createdAt: template.createdAt,
-      })
-      .from(template)
-      .leftJoin(creator, eq(template.createdById, creator.id))
-      .leftJoin(approver, eq(template.approvedById, approver.id))
-      .leftJoin(templateCategory, eq(template.categoryId, templateCategory.id))
-      .orderBy(desc(template.createdAt))
+export async function getTemplateCount(
+  search: string = '',
+  status?: string
+): Promise<number> {
+  const conditions: SQL[] = []
 
-    return rows.map(formatAdminTemplate)
+  if (status && status !== 'all') {
+    conditions.push(eq(template.reviewStatus, status as TemplateStatus))
+  }
+
+  if (search) {
+    conditions.push(
+      or(
+        like(template.name, `%${search}%`),
+        like(creator.fullName, `%${search}%`),
+        like(templateCategory.name, `%${search}%`)
+      )!
+    )
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+  const subquery = db
+    .select({ id: template.id })
+    .from(template)
+    .leftJoin(creator, eq(template.createdById, creator.id))
+    .leftJoin(templateCategory, eq(template.categoryId, templateCategory.id))
+    .where(whereClause)
+    .limit(10000)
+    .as('subquery')
+
+  const [countRes] = await db
+    .select({ count: count() })
+    .from(subquery)
+
+  return countRes?.count ?? 0
+}
+
+export async function getTemplateTabCounts(): Promise<{
+  all: number
+  pending: number
+  approved: number
+  rejected: number
+}> {
+  const subquery = db
+    .select({ reviewStatus: template.reviewStatus })
+    .from(template)
+    .limit(10000)
+    .as('subquery')
+
+  const [countsRes] = await db
+    .select({
+      all: count(),
+      pending: count(sql`CASE WHEN ${subquery.reviewStatus} = 'pending' THEN 1 END`),
+      approved: count(sql`CASE WHEN ${subquery.reviewStatus} = 'approved' THEN 1 END`),
+      rejected: count(sql`CASE WHEN ${subquery.reviewStatus} = 'rejected' THEN 1 END`),
+    })
+    .from(subquery)
+
+  return {
+    all: countsRes?.all ?? 0,
+    pending: countsRes?.pending ?? 0,
+    approved: countsRes?.approved ?? 0,
+    rejected: countsRes?.rejected ?? 0,
+  }
+}
+
+export interface ITemplateRepository {
+  getTemplates(params?: TemplatePaginationParams): Promise<TemplatePaginatedResult>
+  getTemplateById(id: number): Promise<AdminTemplate | null>
+  updateTemplate(id: number, data: UpdateTemplateInput, adminUserId?: number): Promise<AdminTemplate | null>
+  getCategories(): Promise<Category[]>
+}
+
+export const drizzleTemplateRepository: ITemplateRepository = {
+  async getTemplates(params?: TemplatePaginationParams): Promise<TemplatePaginatedResult> {
+    const page = Math.max(1, Number(params?.page) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(params?.pageSize) || 8))
+    const offset = (page - 1) * pageSize
+    const search = params?.search?.trim() || ''
+    const status = params?.status
+
+    const conditions: SQL[] = []
+
+    if (status && status !== 'all') {
+      conditions.push(eq(template.reviewStatus, status))
+    }
+
+    if (search) {
+      conditions.push(
+        or(
+          like(template.name, `%${search}%`),
+          like(creator.fullName, `%${search}%`),
+          like(templateCategory.name, `%${search}%`)
+        )!
+      )
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+    const [rows, totalItems, counts] = await Promise.all([
+      db
+        .select({
+          id: template.id,
+          name: template.name,
+          createdById: template.createdById,
+          creatorName: creator.fullName,
+          creatorEmail: creator.email,
+          approvedById: template.approvedById,
+          approverName: approver.fullName,
+          approverEmail: approver.email,
+          categoryId: template.categoryId,
+          categoryName: templateCategory.name,
+          categorySlug: templateCategory.slug,
+          pricingType: template.pricingType,
+          description: template.description,
+          guideline: template.guideline,
+          reviewStatus: template.reviewStatus,
+          status: template.status,
+          rejectionReason: template.rejectionReason,
+          downloads: template.downloads,
+          createdAt: template.createdAt,
+        })
+        .from(template)
+        .leftJoin(creator, eq(template.createdById, creator.id))
+        .leftJoin(approver, eq(template.approvedById, approver.id))
+        .leftJoin(templateCategory, eq(template.categoryId, templateCategory.id))
+        .where(whereClause)
+        .orderBy(desc(template.createdAt))
+        .limit(pageSize)
+        .offset(offset),
+      getTemplateCount(search, status),
+      getTemplateTabCounts(),
+    ])
+
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+
+    return {
+      items: rows.map(formatAdminTemplate),
+      totalItems,
+      totalPages,
+      currentPage: page,
+      pageSize,
+      counts,
+    }
   },
 
   async getTemplateById(id: number): Promise<AdminTemplate | null> {
@@ -145,9 +259,7 @@ export const drizzleTemplateRepository: ITemplateRepository = {
       id: r.id,
       name: r.name,
       slug: r.slug,
-      createdAt: r.createdAt
-        ? new Date(r.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
-        : undefined,
+      createdAt: formatDate(r.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' }) || undefined,
     }))
   },
 }

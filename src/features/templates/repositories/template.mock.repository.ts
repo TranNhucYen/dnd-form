@@ -1,5 +1,12 @@
 import { ITemplateRepository } from "./template.repository";
-import { Template, TemplateType, TemplatePricingType, TemplateStatus } from "../types/template.type";
+import {
+  Template,
+  TemplateType,
+  TemplatePricingType,
+  TemplateStatus,
+  GetTemplatesParams,
+  PaginatedTemplates,
+} from "../types/template.type";
 
 const mockData: Template[] = [
   {
@@ -118,12 +125,43 @@ const mockData: Template[] = [
 ];
 
 export const templateMockRepository: ITemplateRepository = {
+  async getCategories(): Promise<string[]> {
+    const unique = Array.from(new Set(mockData.map((item) => item.categoryName).filter(Boolean)))
+    return unique
+  },
   async getTemplateById(id: number): Promise<Template | null> {
     const template = mockData.find((item) => item.id === id);
     return template || null;
   },
-  async getTemplates(): Promise<Template[]> {
-    return mockData;
+  async getTemplates(params?: GetTemplatesParams): Promise<PaginatedTemplates> {
+    const page = Math.max(1, params?.page ?? 1);
+    const pageSize = Math.max(1, params?.pageSize ?? 25);
+    const search = params?.search?.trim().toLowerCase();
+    const categoryName = params?.categoryName;
+
+    const filtered = mockData.filter((item) => {
+      const matchesCategory =
+        !categoryName || categoryName === 'all' || item.categoryName === categoryName;
+      const matchesSearch =
+        !search ||
+        item.name.toLowerCase().includes(search) ||
+        (item.description?.toLowerCase().includes(search) ?? false);
+
+      return matchesCategory && matchesSearch;
+    });
+
+    const total = filtered.length;
+    const offset = (page - 1) * pageSize;
+    const items = filtered.slice(offset, offset + pageSize);
+    const hasMore = offset + items.length < total;
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+      hasMore,
+    };
   },
   async useTemplate(templateId: number): Promise<{ formId: number }> {
     const template = mockData.find((item) => item.id === templateId);
