@@ -5,7 +5,6 @@ import type { EditorState } from "@tiptap/pm/state";
 import type { FieldProps, DatatableFieldData } from "../types/field.types";
 import StarterKit from "@tiptap/starter-kit";
 import { TableKit } from "@tiptap/extension-table";
-import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { DEFAULT_FIELD_DATA } from "../../constants";
@@ -57,7 +56,6 @@ export function DatatableField({
           newGroupDelay: 300,
         },
       }),
-      Underline,
       TableKit.configure({
         table: {
           resizable: true,
