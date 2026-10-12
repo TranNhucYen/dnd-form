@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HomeTabContent, PageTabContent } from "./tabs";
-import { SaveTool, HistoryTools } from "./tools";
+import { SaveTool, NewFormTool, HistoryTools } from "./tools";
 
 export function EditorToolbar() {
   return (
@@ -9,6 +9,7 @@ export function EditorToolbar() {
       <Tabs defaultValue="home" className="w-full gap-0">
         <div className="flex h-8 items-center bg-transparent pr-2 gap-1.5">
           <SaveTool />
+          <NewFormTool />
           <HistoryTools />
           <div className="h-4 w-0.5 bg-border mx-0.5" />
           <TabsList variant="line">

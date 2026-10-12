@@ -28,7 +28,7 @@ export interface HistoryOptions {
 
 export const MAX_HISTORY_STEPS = 50;
 
-function createDefaultBlankPage(pageNumber: number = 1, id?: string): CanvasPage {
+export function createDefaultBlankPage(pageNumber: number = 1, id?: string): CanvasPage {
   return {
     id: id || `page_${Math.random().toString(36).substring(2, 9)}`,
     pageNumber,
@@ -126,6 +126,15 @@ export interface FormBuilderState {
   isSaving: boolean;
   setIsSaving: (isSaving: boolean) => void;
   triggerSave: () => Promise<void>;
+
+  // Adapter tạo form mới từ Toolbar
+  onNewForm?: () => void;
+  setOnNewForm: (handler?: () => void) => void;
+  triggerNewForm: () => void;
+
+  /** Cờ trạng thái đã thay đổi chưa lưu (dirty state) */
+  isDirty: boolean;
+  setIsDirty: (isDirty: boolean) => void;
 
   /** Trạng thái chỉ xem của biểu mẫu */
   isReadOnly: boolean;
@@ -615,8 +624,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   setIsSaving: (isSaving) => set({ isSaving }),
 
   triggerSave: async () => {
-    const { onSave, isSaving, getFormSchema } = get();
-    if (isSaving || !onSave) return;
+    const { onSave, isSaving, isDirty, getFormSchema } = get();
+    if (isSaving || !onSave || !isDirty) return;
     try {
       set({ isSaving: true });
       await onSave(getFormSchema());
@@ -624,6 +633,20 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       set({ isSaving: false });
     }
   },
+
+  onNewForm: undefined,
+  setOnNewForm: (handler) => set({ onNewForm: handler }),
+  triggerNewForm: () => {
+    const { onNewForm, resetForm } = get();
+    if (onNewForm) {
+      onNewForm();
+    } else {
+      resetForm();
+    }
+  },
+
+  isDirty: false,
+  setIsDirty: (isDirty) => set({ isDirty }),
 
   loadFormSchema: (schema) => {
     const rawPages = schema?.pages ?? [];
@@ -668,6 +691,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       future: [],
       canUndo: false,
       canRedo: false,
+      isDirty: false,
     });
   },
 }));

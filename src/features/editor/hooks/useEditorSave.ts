@@ -6,17 +6,29 @@ import { saveFormAction } from "../actions/editor.action";
 import { useFormBuilderStore } from "@/features/form-builder/store/useFormBuilderStore";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
 import { DYNAMIC_ROUTES } from "@/shared/constants/routes";
+import { clearFormDraft, createFormSnapshot } from "../utils/draft-storage";
+
+export interface UseEditorSaveOptions {
+  onSaveSuccess?: (savedSnapshot: string, newFormId: number, savedTitle: string) => void;
+}
 
 /** Hook quản lý lưu biểu mẫu và đồng bộ tiêu đề qua ref và state */
 export function useEditorSave(
   initialFormId?: number | null,
   isReadOnly = false,
+  options?: UseEditorSaveOptions,
 ) {
   const [formId, setFormId] = useState<number | null>(initialFormId ?? null);
   const [title, setTitle] = useState<string>("Biểu mẫu chưa đặt tên");
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const setOnSave = useFormBuilderStore((state) => state.setOnSave);
+  const setIsDirty = useFormBuilderStore((state) => state.setIsDirty);
+
+  const onSaveSuccessRef = useRef(options?.onSaveSuccess);
+  useEffect(() => {
+    onSaveSuccessRef.current = options?.onSaveSuccess;
+  }, [options?.onSaveSuccess]);
 
   const handleSave = useCallback(
     async (schema: FormSchemaJson) => {
@@ -42,9 +54,23 @@ export function useEditorSave(
         toast.success("Đã lưu biểu mẫu thành công", { id: toastId });
 
         // Đồng bộ tiêu đề chính thức trả về từ server
+        const savedTitle = res.data.title || finalTitle;
         if (res.data.title) {
           setTitle(res.data.title);
         }
+
+        const newFormId = res.data.formId ?? formId;
+
+        // Xóa bản nháp trong localStorage
+        clearFormDraft(formId);
+        if (!formId) {
+          clearFormDraft(null);
+        }
+
+        // Cập nhật snapshot mới và tắt cờ dirty
+        const savedSnapshot = createFormSnapshot(savedTitle, schema);
+        setIsDirty(false);
+        onSaveSuccessRef.current?.(savedSnapshot, newFormId, savedTitle);
 
         // Cập nhật formId vào state và URL nếu là form mới tạo
         if (!formId && res.data.formId) {
@@ -56,7 +82,7 @@ export function useEditorSave(
         toast.error(error instanceof Error ? error.message : "Đã xảy ra lỗi khi lưu", { id: toastId });
       }
     },
-    [formId, title],
+    [formId, title, setIsDirty],
   );
 
   // Ref trampoline: giữ tham chiếu mới nhất, tránh vòng lặp re-render
