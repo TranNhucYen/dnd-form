@@ -18,6 +18,7 @@ export function EditorWorkspace() {
     isReadOnly,
     title,
     setTitle,
+    savedTitle,
     titleInputRef,
     formId,
   } = useEditorWorkspace();
@@ -78,6 +79,7 @@ export function EditorWorkspace() {
           key={formId ?? "new"}
           inputRef={titleInputRef}
           defaultValue={title}
+          savedTitle={savedTitle}
           disabled={isReadOnly}
           onTitleChange={setTitle}
         />
