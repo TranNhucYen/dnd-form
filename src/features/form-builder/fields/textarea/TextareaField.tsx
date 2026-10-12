@@ -3,7 +3,6 @@ import type { FieldProps, TextareaFieldData } from "../types/field.types";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { closeHistory } from "@tiptap/pm/history";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { DEFAULT_FIELD_DATA } from "../../constants";
@@ -51,7 +50,6 @@ export function TextareaField({
           newGroupDelay: 300,
         },
       }),
-      Underline,
     ],
     content: data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.textarea.html,
     immediatelyRender: false,
