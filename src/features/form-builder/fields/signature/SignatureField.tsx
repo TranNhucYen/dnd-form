@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FieldProps, SignatureFieldData } from "../types/field.types";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
@@ -12,9 +12,7 @@ export function SignatureField({
   data,
   onDataChange,
 }: FieldProps<SignatureFieldData> = {}) {
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(
-    data?.value ?? null,
-  );
+  const signatureUrl = data?.value ?? null;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const defaultSig = DEFAULT_FIELD_DATA.signature;
@@ -36,10 +34,6 @@ export function SignatureField({
     },
   );
 
-  useEffect(() => {
-    setSignatureUrl(data?.value ?? null);
-  }, [data?.value]);
-
   return (
     <div className="flex h-full w-full flex-col justify-between p-2 bg-background select-none overflow-hidden">
       {/* Phần đầu: 2 dòng tiêu đề và ghi chú */}
@@ -59,7 +53,6 @@ export function SignatureField({
         src={signatureUrl}
         onOpen={() => setIsModalOpen(true)}
         onClear={() => {
-          setSignatureUrl(null);
           onDataChange?.({ value: undefined });
         }}
       />
@@ -77,7 +70,6 @@ export function SignatureField({
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onSave={(dataUrl) => {
-          setSignatureUrl(dataUrl);
           onDataChange?.({ value: dataUrl ?? undefined });
         }}
       />
