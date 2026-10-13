@@ -4,7 +4,6 @@ import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 
 export function useActiveToolbarState() {
   const editor = useEditorStore((state) => state.editor);
-  const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const selectedField = useFormBuilderStore((state) =>
     state.fields.find((f) => f.id === state.selectedFieldId)
   );
