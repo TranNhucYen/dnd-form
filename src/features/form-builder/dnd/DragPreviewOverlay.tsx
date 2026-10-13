@@ -21,8 +21,30 @@ export function DragPreviewOverlay({
 }: DragPreviewOverlayProps) {
   const fields = useFormBuilderStore((state) => state.fields);
 
+  // Chuyển tiếp mượt, tránh giật lag giữa DragOverlay và Field thật khi thả vào canvas
+  const handleDropAnimation = async ({
+    feedbackElement,
+    source,
+  }: {
+    feedbackElement?: Element;
+    source?: { data?: unknown };
+  }) => {
+    if (!feedbackElement) return;
+
+    const data = source?.data as FormBuilderDragData | undefined;
+    const isFromPalette = !data || !("fieldId" in data);
+
+    if (isFromPalette) {
+      const animation = feedbackElement.animate(
+        [{ opacity: 0.8 }, { opacity: 0 }],
+        { duration: 80, easing: "ease-out" },
+      );
+      await animation.finished.catch(() => {});
+    }
+  };
+
   return (
-    <DragOverlay dropAnimation={null}>
+    <DragOverlay dropAnimation={handleDropAnimation}>
       {(source) => {
         const data = source.data as FormBuilderDragData | undefined;
 

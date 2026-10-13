@@ -1,44 +1,43 @@
 .datatable-field-editor {
-  height: 100%;
   width: 100%;
   outline: none;
 }
 
 .datatable-field-editor .tiptap {
-  height: 100%;
   width: 100%;
   outline: none;
 }
 
+/* Ẩn đoạn văn trống thừa sinh ra ở đáy bảng */
+.datatable-field-editor .tiptap > p {
+  display: none !important;
+}
+
+/* Giữ bảng luôn khớp 100% chiều rộng của field, tránh tràn viền khi kéo giãn cột */
 .datatable-field-editor .tableWrapper {
-  height: 100%;
   width: 100%;
+  max-width: 100%;
   margin: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  overflow: hidden;
 }
-
-.datatable-field-editor *::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
-}
-
-.datatable-field-editor *::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 
 .datatable-field-editor table {
-  height: 100%;
-  width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
   table-layout: fixed;
   border-collapse: collapse;
   border: 1px solid black;
   margin: 0;
+  box-sizing: border-box;
 }
 
+/* Cắt chữ gọn (nowrap) để việc resize cột không làm rớt dòng gây thay đổi chiều cao (h) của bảng */
 .datatable-field-editor p {
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .datatable-field-editor th {
@@ -50,6 +49,10 @@
   font-weight: normal;
   position: relative;
   user-select: text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
 .datatable-field-editor td {
@@ -60,6 +63,10 @@
   position: relative;
   min-width: 40px;
   user-select: text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
 .datatable-field-editor strong,
@@ -76,12 +83,14 @@
   text-decoration: underline;
 }
 
+/* Vạch kẻ màu xanh mảnh hiển thị khi hover / resize vạch chia cột */
 .datatable-field-editor .column-resize-handle {
   position: absolute;
-  right: -2px;
+  right: -1px;
   top: 0;
   bottom: 0;
-  background-color: gray;
+  width: 2px;
+  background-color: #2563eb;
   pointer-events: none;
   z-index: 20;
 }

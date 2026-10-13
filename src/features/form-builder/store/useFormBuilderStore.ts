@@ -28,7 +28,7 @@ export interface HistoryOptions {
 
 export const MAX_HISTORY_STEPS = 50;
 
-function createDefaultBlankPage(pageNumber: number = 1, id?: string): CanvasPage {
+export function createDefaultBlankPage(pageNumber: number = 1, id?: string): CanvasPage {
   return {
     id: id || `page_${Math.random().toString(36).substring(2, 9)}`,
     pageNumber,
@@ -127,6 +127,15 @@ export interface FormBuilderState {
   setIsSaving: (isSaving: boolean) => void;
   triggerSave: () => Promise<void>;
 
+  // Adapter tạo form mới từ Toolbar
+  onNewForm?: () => void;
+  setOnNewForm: (handler?: () => void) => void;
+  triggerNewForm: () => void;
+
+  /** Cờ trạng thái đã thay đổi chưa lưu (dirty state) */
+  isDirty: boolean;
+  setIsDirty: (isDirty: boolean) => void;
+
   /** Trạng thái chỉ xem của biểu mẫu */
   isReadOnly: boolean;
   setIsReadOnly: (isReadOnly: boolean) => void;
@@ -180,7 +189,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         lastSnapshot.pages.length === currentSnapshot.pages.length &&
         lastSnapshot.activePageId === currentSnapshot.activePageId &&
         JSON.stringify(lastSnapshot.pages) ===
-          JSON.stringify(currentSnapshot.pages)
+        JSON.stringify(currentSnapshot.pages)
       ) {
         return;
       }
@@ -404,7 +413,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   // ===== THAO TÁC PHẦN TỬ TRÊN TRANG ACTIVE =====
   setSelectedFieldId: (id) => set({ selectedFieldId: id }),
 
-  selectAllFields: () => {},
+  selectAllFields: () => { },
 
   addField: (type, coordinates) => {
     get().recordHistory();
@@ -447,12 +456,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((field) =>
       field.id === fieldId
         ? {
-            ...field,
-            style: {
-              ...field.style,
-              ...style,
-            },
-          }
+          ...field,
+          style: {
+            ...field.style,
+            ...style,
+          },
+        }
         : field,
     );
 
@@ -470,12 +479,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((field) =>
       field.id === fieldId
         ? ({
-            ...field,
-            data: {
-              ...field.data,
-              ...data,
-            },
-          } as CanvasField)
+          ...field,
+          data: {
+            ...field.data,
+            ...data,
+          },
+        } as CanvasField)
         : field,
     );
 
@@ -491,11 +500,11 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((item) =>
       item.id === fieldId
         ? {
-            ...item,
-            x: change.position.x,
-            y: change.position.y,
-            ...change.size,
-          }
+          ...item,
+          x: change.position.x,
+          y: change.position.y,
+          ...change.size,
+        }
         : item,
     );
 
@@ -508,15 +517,33 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   measureField: (fieldId, size) =>
     set((state) => {
       const currentField = state.fields.find((item) => item.id === fieldId);
-      if (
-        !currentField ||
-        (currentField.width !== undefined && currentField.height !== undefined)
-      ) {
+      if (!currentField) {
+        return state;
+      }
+
+      const isInitialMeasure =
+        currentField.width === undefined || currentField.height === undefined;
+      // Tự động đồng bộ chiều cao mới vào store khi datatable thêm/xóa hàng
+      const isDatatableHeightChanged =
+        currentField.type === "datatable" &&
+        size.height !== undefined &&
+        Math.abs((currentField.height ?? 0) - size.height) > 1;
+
+      if (!isInitialMeasure && !isDatatableHeightChanged) {
         return state;
       }
 
       const nextFields = state.fields.map((item) =>
-        item.id === fieldId ? { ...item, ...size } : item,
+        item.id === fieldId
+          ? {
+            ...item,
+            width: currentField.width ?? size.width,
+            height:
+              currentField.type === "datatable"
+                ? size.height
+                : (currentField.height ?? size.height),
+          }
+          : item,
       );
 
       return {
@@ -615,8 +642,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   setIsSaving: (isSaving) => set({ isSaving }),
 
   triggerSave: async () => {
-    const { onSave, isSaving, getFormSchema } = get();
-    if (isSaving || !onSave) return;
+    const { onSave, isSaving, isDirty, getFormSchema } = get();
+    if (isSaving || !onSave || !isDirty) return;
     try {
       set({ isSaving: true });
       await onSave(getFormSchema());
@@ -624,6 +651,20 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       set({ isSaving: false });
     }
   },
+
+  onNewForm: undefined,
+  setOnNewForm: (handler) => set({ onNewForm: handler }),
+  triggerNewForm: () => {
+    const { onNewForm, resetForm } = get();
+    if (onNewForm) {
+      onNewForm();
+    } else {
+      resetForm();
+    }
+  },
+
+  isDirty: false,
+  setIsDirty: (isDirty) => set({ isDirty }),
 
   loadFormSchema: (schema) => {
     const rawPages = schema?.pages ?? [];
@@ -668,6 +709,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       future: [],
       canUndo: false,
       canRedo: false,
+      isDirty: false,
     });
   },
 }));
