@@ -1,52 +1,18 @@
-import { useRef, useState } from "react";
 import { Upload, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { uploadMediaAction } from "@/features/editor/actions/upload.action";
-import { validateImageFile, ACCEPT_IMAGE_TYPES } from "./image.utils";
+import { ACCEPT_IMAGE_TYPES } from "./image.utils";
+import { useImageUpload } from "./useImageUpload";
 import type { FieldToolbarProps, ImageFieldData } from "../types/field.types";
 
 export function ImageToolbar({
   data,
   onDataChange,
 }: FieldToolbarProps<ImageFieldData>) {
-  const [isUploading, setIsUploading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const hasImage = Boolean(data?.value);
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      event.target.value = "";
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await uploadMediaAction(formData);
-
-      if (res.success) {
-        onDataChange({ value: res.data.url, key: res.data.key });
-        toast.success("Tải ảnh lên thành công");
-      } else {
-        toast.error(res.error || "Tải tập tin lên thất bại");
-      }
-    } catch {
-      toast.error("Đã xảy ra lỗi khi tải ảnh lên");
-    } finally {
-      setIsUploading(false);
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
-    }
-  };
+  const { isUploading, inputRef, handleFileChange, triggerUpload } =
+    useImageUpload({
+      onSuccess: ({ url, key }) => onDataChange({ value: url, key }),
+    });
 
   return (
     <div className="flex items-center gap-0.5">
@@ -63,7 +29,7 @@ export function ImageToolbar({
         variant="ghost"
         size="sm"
         disabled={isUploading}
-        onClick={() => inputRef.current?.click()}
+        onClick={triggerUpload}
         className="h-7 gap-1 px-2 text-xs font-normal hover:bg-neutral-100"
         title={hasImage ? "Thay đổi hình ảnh" : "Tải hình ảnh lên"}
       >
