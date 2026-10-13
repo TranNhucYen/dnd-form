@@ -1,59 +1,24 @@
 "use client";
 
-import { useRef, useState } from "react";
 import type { FieldProps, ImageFieldData } from "../types/field.types";
 import { Image as ImageIcon, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { uploadMediaAction } from "@/features/editor/actions/upload.action";
-import { validateImageFile, ACCEPT_IMAGE_TYPES } from "./image.utils";
+import { ACCEPT_IMAGE_TYPES } from "./image.utils";
+import { useImageUpload } from "./useImageUpload";
 
 export function ImageField({
   data,
   onDataChange,
 }: FieldProps<ImageFieldData> = {}) {
   const url = data?.value ?? "";
-  const [isUploading, setIsUploading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file phía client 
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      event.target.value = "";
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await uploadMediaAction(formData);
-
-      if (res.success) {
-        onDataChange?.({ value: res.data.url, key: res.data.key });
-      } else {
-        toast.error(res.error || "Tải tập tin lên thất bại");
-      }
-    } catch (error) {
-      toast.error("Đã xảy ra lỗi khi tải ảnh lên");
-      console.error("[ImageField] Upload error:", error);
-    } finally {
-      setIsUploading(false);
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
-    }
-  };
+  const { isUploading, inputRef, handleFileChange, triggerUpload } =
+    useImageUpload({
+      onSuccess: ({ url: newUrl, key }) =>
+        onDataChange?.({ value: newUrl, key }),
+    });
 
   const handleTriggerUpload = (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (isUploading) return;
-    inputRef.current?.click();
+    triggerUpload();
   };
 
   return (
