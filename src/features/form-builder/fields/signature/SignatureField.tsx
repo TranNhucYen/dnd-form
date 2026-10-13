@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FieldProps, SignatureFieldData } from "../types/field.types";
 import { InputOverlay } from "../shared/InputOverlay";
-import { useInlineEdit } from "../shared/useInlineEdit";
+import { useInlineEdit, type UseInlineEditReturn } from "../shared/useInlineEdit";
 import { SignatureModal } from "./SignatureModal";
 import { PenLine, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,9 +12,7 @@ export function SignatureField({
   data,
   onDataChange,
 }: FieldProps<SignatureFieldData> = {}) {
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(
-    data?.value ?? null,
-  );
+  const signatureUrl = data?.value ?? null;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const defaultSig = DEFAULT_FIELD_DATA.signature;
@@ -36,10 +34,6 @@ export function SignatureField({
     },
   );
 
-  useEffect(() => {
-    setSignatureUrl(data?.value ?? null);
-  }, [data?.value]);
-
   return (
     <div className="flex h-full w-full flex-col justify-between p-2 bg-background select-none overflow-hidden">
       {/* Phần đầu: 2 dòng tiêu đề và ghi chú */}
@@ -59,7 +53,6 @@ export function SignatureField({
         src={signatureUrl}
         onOpen={() => setIsModalOpen(true)}
         onClear={() => {
-          setSignatureUrl(null);
           onDataChange?.({ value: undefined });
         }}
       />
@@ -77,7 +70,6 @@ export function SignatureField({
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onSave={(dataUrl) => {
-          setSignatureUrl(dataUrl);
           onDataChange?.({ value: dataUrl ?? undefined });
         }}
       />
@@ -138,7 +130,7 @@ function SignaturePreview({ src, onOpen, onClear }: {
  * InlineEditLine: Dòng văn bản cho phép chỉnh sửa in-place với InputOverlay
  */
 function InlineEditLine({ edit, className, }: {
-  edit: ReturnType<typeof useInlineEdit>; className?: string;
+  edit: UseInlineEditReturn<HTMLInputElement>; className?: string;
 }) {
   return (
     <div

@@ -3,6 +3,7 @@ import { FIELD_DEFINITIONS_MAP } from "../constants/fields.config";
 import { PAGE_PRESETS } from "../constants/form.constants";
 import {
   exportFormSchema,
+  getEffectivePageDimensions,
   importSchemaPageToCanvasPage,
 } from "../domain/transformers";
 import type { FieldResizeChange } from "../canvas/types/canvas.types";
@@ -589,7 +590,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   copyField: (fieldId) => {
     const target = get().fields.find((field) => field.id === fieldId);
-    return target ? { clipboardField: { ...target } } : get();
+    if (target) {
+      set({ clipboardField: { ...target } });
+    }
   },
 
   cutField: (fieldId) => {
@@ -714,26 +717,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 }));
 
-/**
- * Helper: Tính toán lại kích thước page bằng cách đảo ngược giá trị width và height dựa trên orientation
- */
-export function getEffectivePageDimensions(
-  pageSizePreset: PagePresetKey,
-  orientation: Orientation,
-): PageSize {
-  const baseSize = PAGE_PRESETS[pageSizePreset] ?? PAGE_PRESETS.A4;
-
-  if (orientation === "LANDSCAPE") {
-    return {
-      width: baseSize.height,
-      height: baseSize.width,
-    };
-  }
-  return {
-    width: baseSize.width,
-    height: baseSize.height,
-  };
-}
+export { getEffectivePageDimensions };
 
 /**
  * Hook: Lấy kích thước trang in thực tế an toàn cho SSR / hydration (tránh tạo object mới)

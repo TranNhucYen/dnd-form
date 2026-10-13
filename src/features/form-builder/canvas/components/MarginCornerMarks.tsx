@@ -1,9 +1,9 @@
-import { toInternalUnit, toScreenPx } from "../../domain/units";
-import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import type { MarginBounds } from "../types/canvas.types";
 
 type MarginCornerMarksProps = {
   canvasWidth: number;
   canvasHeight: number;
+  margins: MarginBounds;
 };
 
 const MARK_LENGTH = 12; // Chiều dài mỗi đoạn thẳng của góc vuông (px)
@@ -15,23 +15,12 @@ const MARK_LENGTH = 12; // Chiều dài mỗi đoạn thẳng của góc vuông 
 export function MarginCornerMarks({
   canvasWidth,
   canvasHeight,
+  margins,
 }: MarginCornerMarksProps) {
-  const margins = useFormBuilderStore((state) => state.margins);
-
-  const topMm = Number.parseFloat(margins.top) || 0;
-  const bottomMm = Number.parseFloat(margins.bottom) || 0;
-  const leftMm = Number.parseFloat(margins.left) || 0;
-  const rightMm = Number.parseFloat(margins.right) || 0;
-
-  const topPx = toScreenPx(toInternalUnit(topMm));
-  const bottomPx = toScreenPx(toInternalUnit(bottomMm));
-  const leftPx = toScreenPx(toInternalUnit(leftMm));
-  const rightPx = toScreenPx(toInternalUnit(rightMm));
-
-  const xLeft = leftPx;
-  const xRight = Math.max(0, canvasWidth - rightPx);
-  const yTop = topPx;
-  const yBottom = Math.max(0, canvasHeight - bottomPx);
+  const xLeft = margins.left;
+  const xRight = Math.max(0, canvasWidth - margins.right);
+  const yTop = margins.top;
+  const yBottom = Math.max(0, canvasHeight - margins.bottom);
 
   return (
     <svg

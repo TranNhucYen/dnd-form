@@ -19,15 +19,12 @@ export function TextareaField({
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
-  const [prevSelectedFieldId, setPrevSelectedFieldId] = useState(selectedFieldId);
-
   // Khi click ra ngoài canvas hoặc unselect field này thì tự động tắt editing
-  if (prevSelectedFieldId !== selectedFieldId) {
-    setPrevSelectedFieldId(selectedFieldId);
-    if (!isFieldSelected && isEditing) {
+  useEffect(() => {
+    if (!isFieldSelected) {
       setIsEditing(false);
     }
-  }
+  }, [isFieldSelected]);
 
   useEffect(() => {
     if (isEditing) {
