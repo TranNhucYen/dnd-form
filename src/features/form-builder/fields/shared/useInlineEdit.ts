@@ -1,13 +1,28 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export function useInlineEdit(
+export interface UseInlineEditReturn<
+  T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement,
+> {
+  value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+  isEditing: boolean;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  inputRef: React.RefObject<T | null>;
+  handleDoubleClick: (event?: React.MouseEvent) => void;
+  handleSubmit: () => void;
+  handleCancel: () => void;
+}
+
+export function useInlineEdit<
+  T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement,
+>(
   initialValue: string,
   onSave?: (val: string) => void,
-) {
+): UseInlineEditReturn<T> {
   const [value, setValue] = useState(initialValue);
   const [prevInitial, setPrevInitial] = useState(initialValue);
   const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<T>(null);
 
   // Tự đồng bộ nếu props từ ngoài thay đổi
   if (initialValue !== prevInitial) {
