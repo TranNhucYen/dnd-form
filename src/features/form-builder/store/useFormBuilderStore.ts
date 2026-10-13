@@ -189,7 +189,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         lastSnapshot.pages.length === currentSnapshot.pages.length &&
         lastSnapshot.activePageId === currentSnapshot.activePageId &&
         JSON.stringify(lastSnapshot.pages) ===
-          JSON.stringify(currentSnapshot.pages)
+        JSON.stringify(currentSnapshot.pages)
       ) {
         return;
       }
@@ -413,7 +413,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   // ===== THAO TÁC PHẦN TỬ TRÊN TRANG ACTIVE =====
   setSelectedFieldId: (id) => set({ selectedFieldId: id }),
 
-  selectAllFields: () => {},
+  selectAllFields: () => { },
 
   addField: (type, coordinates) => {
     get().recordHistory();
@@ -456,12 +456,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((field) =>
       field.id === fieldId
         ? {
-            ...field,
-            style: {
-              ...field.style,
-              ...style,
-            },
-          }
+          ...field,
+          style: {
+            ...field.style,
+            ...style,
+          },
+        }
         : field,
     );
 
@@ -479,12 +479,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((field) =>
       field.id === fieldId
         ? ({
-            ...field,
-            data: {
-              ...field.data,
-              ...data,
-            },
-          } as CanvasField)
+          ...field,
+          data: {
+            ...field.data,
+            ...data,
+          },
+        } as CanvasField)
         : field,
     );
 
@@ -500,11 +500,11 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((item) =>
       item.id === fieldId
         ? {
-            ...item,
-            x: change.position.x,
-            y: change.position.y,
-            ...change.size,
-          }
+          ...item,
+          x: change.position.x,
+          y: change.position.y,
+          ...change.size,
+        }
         : item,
     );
 
@@ -517,15 +517,33 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   measureField: (fieldId, size) =>
     set((state) => {
       const currentField = state.fields.find((item) => item.id === fieldId);
-      if (
-        !currentField ||
-        (currentField.width !== undefined && currentField.height !== undefined)
-      ) {
+      if (!currentField) {
+        return state;
+      }
+
+      const isInitialMeasure =
+        currentField.width === undefined || currentField.height === undefined;
+      // Tự động đồng bộ chiều cao mới vào store khi datatable thêm/xóa hàng
+      const isDatatableHeightChanged =
+        currentField.type === "datatable" &&
+        size.height !== undefined &&
+        Math.abs((currentField.height ?? 0) - size.height) > 1;
+
+      if (!isInitialMeasure && !isDatatableHeightChanged) {
         return state;
       }
 
       const nextFields = state.fields.map((item) =>
-        item.id === fieldId ? { ...item, ...size } : item,
+        item.id === fieldId
+          ? {
+            ...item,
+            width: currentField.width ?? size.width,
+            height:
+              currentField.type === "datatable"
+                ? size.height
+                : (currentField.height ?? size.height),
+          }
+          : item,
       );
 
       return {
