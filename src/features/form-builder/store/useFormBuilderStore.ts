@@ -589,7 +589,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   copyField: (fieldId) => {
     const target = get().fields.find((field) => field.id === fieldId);
-    return target ? { clipboardField: { ...target } } : get();
+    if (target) {
+      set({ clipboardField: { ...target } });
+    }
   },
 
   cutField: (fieldId) => {
