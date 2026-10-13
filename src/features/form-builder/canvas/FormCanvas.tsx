@@ -112,6 +112,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
         <MarginCornerMarks
           canvasWidth={canvasStyle.width}
           canvasHeight={canvasStyle.height}
+          margins={marginPx}
         />
 
         {fields.map((field) => {
