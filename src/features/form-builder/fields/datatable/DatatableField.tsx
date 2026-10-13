@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { useEffect, useRef } from "react";
+import { EditorContent, Node, useEditor } from "@tiptap/react";
 import { closeHistory } from "@tiptap/pm/history";
 import type { EditorState } from "@tiptap/pm/state";
 import type { FieldProps, DatatableFieldData } from "../types/field.types";
@@ -9,6 +9,15 @@ import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 import "./datatable.css";
+
+/**
+ * Giới hạn root document chỉ chứa bảng, ngăn ProseMirror tự chèn đoạn văn thừa ở đáy bảng
+ */
+const TableDocument = Node.create({
+  name: "doc",
+  topNode: true,
+  content: "table",
+});
 
 /**
  * Helper: Xác định vị trí bắt đầu (offset) của ô bảng (tableCell hoặc tableHeader) hiện tại
@@ -31,27 +40,23 @@ export function DatatableField({
 }: FieldProps<DatatableFieldData> = {}) {
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
-  const [isEditing, setIsEditing] = useState(false);
   const hasRecordedCellHistoryRef = useRef(false);
   const lastCellPosRef = useRef<number | null>(null);
 
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
 
-  // Khi click ra ngoài canvas hoặc unselect field này thì tự động tắt editing
-  if (!isFieldSelected && isEditing) {
-    setIsEditing(false);
-  }
-
   useEffect(() => {
-    if (isEditing) {
+    if (isFieldSelected) {
       hasRecordedCellHistoryRef.current = false;
       lastCellPosRef.current = null;
     }
-  }, [isEditing]);
+  }, [isFieldSelected]);
 
   const editor = useEditor({
     extensions: [
+      TableDocument,
       StarterKit.configure({
+        document: false, // Dùng TableDocument thay thế document mặc định
         undoRedo: {
           newGroupDelay: 300,
         },
@@ -61,13 +66,13 @@ export function DatatableField({
           resizable: true,
           renderWrapper: true,
           handleWidth: 6,
-          cellMinWidth: 25,
-          lastColumnResizable: true,
+          cellMinWidth: 35, // Độ rộng cột tối thiểu
+          lastColumnResizable: false, // Không kéo mép ngoài cùng để tránh vượt tổng width
         },
       }),
     ],
     immediatelyRender: false,
-    editable: false,
+    editable: true,
     content:
       data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.datatable.html,
     onSelectionUpdate: ({ editor }) => {
@@ -110,24 +115,15 @@ export function DatatableField({
     editorProps: {
       handleKeyDown: (_, event) => {
         if (event.key === "Escape") {
-          setIsEditing(false);
+          useFormBuilderStore.getState().setSelectedFieldId(null);
           return true;
         }
         return false;
       },
     },
     onFocus: ({ editor }) => setEditor(editor),
-    onBlur: ({ event }) => {
-      const relatedTarget = event?.relatedTarget as HTMLElement | null;
-      if (
-        relatedTarget &&
-        (relatedTarget.closest("[data-toolbar]") ||
-          relatedTarget.closest("[data-radix-popper-content-wrapper]") ||
-          relatedTarget.closest("[role='dialog']"))
-      ) {
-        return;
-      }
-      setIsEditing(false);
+    onBlur: () => {
+      // Khi blur, không làm gì nếu người dùng click vào toolbar
     },
     onDestroy: () => {
       if (useEditorStore.getState().editor === editor) {
@@ -138,22 +134,19 @@ export function DatatableField({
 
   useEffect(() => {
     if (!editor) return;
-    editor.setEditable(isEditing);
+    editor.setEditable(isFieldSelected);
     if (isFieldSelected) {
       setEditor(editor);
-      if (isEditing) {
-        editor.commands.focus();
-      }
     } else {
       if (useEditorStore.getState().editor === editor) {
         setEditor(null);
       }
     }
-  }, [isFieldSelected, isEditing, editor, setEditor]);
+  }, [isFieldSelected, editor, setEditor]);
 
   // Đồng bộ ngược khi dữ liệu từ store thay đổi (ví dụ khi Undo / Redo)
   useEffect(() => {
-    if (!editor || isEditing) return;
+    if (!editor || isFieldSelected) return;
     const currentHtml = editor.getHTML();
     const targetHtml = data?.html ?? "";
     if (targetHtml && currentHtml !== targetHtml) {
@@ -161,24 +154,18 @@ export function DatatableField({
         emitUpdate: false,
       });
     }
-  }, [data?.content, data?.html, editor, isEditing]);
-
-  const handleDoubleClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsEditing(true);
-  };
+  }, [data?.content, data?.html, editor, isFieldSelected]);
 
   if (!editor) return null;
 
   return (
     <div
-      onDoubleClick={handleDoubleClick}
       onPointerDown={(event) => {
-        if (isEditing) {
+        if (isFieldSelected) {
           event.stopPropagation();
         }
       }}
-      className={`h-full w-full overflow-hidden bg-white ${!isEditing ? "select-none" : "cursor-text"}`}
+      className={`w-full bg-white ${!isFieldSelected ? "select-none" : "cursor-text"}`}
     >
       <EditorContent className="datatable-field-editor" editor={editor} />
     </div>

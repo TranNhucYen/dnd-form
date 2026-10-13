@@ -128,7 +128,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
     type: "datatable",
     label: "Bảng dữ liệu",
     icon: <Table />,
-    resizeMode: "8-way",
+    resizeMode: "horizontal", // Chỉ cho phép kéo dãn chiều ngang, chiều cao tự điều chỉnh theo số hàng
     defaultSize: { width: 440, height: 70 },
     defaultData: DEFAULT_FIELD_DATA.datatable,
   },
@@ -143,6 +143,7 @@ export type FieldDefinitionMap = {
  */
 export const FIELD_DEFINITIONS_MAP: FieldDefinitionMap =
   FIELD_DEFINITIONS.reduce((acc, field) => {
-    acc[field.type] = field as any;
+    (acc as Record<FieldType, AnyFieldDefinition>)[field.type] = field;
     return acc;
   }, {} as FieldDefinitionMap);
+
