@@ -13,9 +13,10 @@ export function useExportFormPdf() {
   const downloadPdf = useCallback(async (id: number | string, name?: string) => {
     if (!id) return
 
+    const toastId = toast.loading('Đang tải xuống file PDF...')
+
     try {
       setIsExporting(true)
-      toast.info('Đang kết xuất tài liệu PDF chuẩn xác...')
 
       const response = await fetch(`/api/forms/${id}/export-pdf`)
       if (!response.ok) {
@@ -35,10 +36,10 @@ export function useExportFormPdf() {
       document.body.removeChild(downloadLink)
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000)
 
-      toast.success('Đã tải xuống file PDF thành công!')
+      toast.success('Đã tải xuống file PDF thành công!', { id: toastId })
     } catch (err) {
       console.error('Lỗi khi xuất PDF:', err)
-      toast.error(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi xuất file PDF')
+      toast.error(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tải xuống file PDF', { id: toastId })
     } finally {
       setIsExporting(false)
     }
