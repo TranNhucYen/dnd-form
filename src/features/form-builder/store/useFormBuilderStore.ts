@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { FIELD_DEFINITIONS_MAP } from "../constants/fields.config";
-import { PAGE_PRESETS } from "../constants/form.constants";
 import {
   exportFormSchema,
   getEffectivePageDimensions,
   importSchemaPageToCanvasPage,
 } from "../domain/transformers";
+
 import type { FieldResizeChange } from "../canvas/types/canvas.types";
 import type {
+  BackgroundPdfMetadata,
   CanvasField,
   CanvasPage,
   FieldData,
@@ -61,6 +62,9 @@ export interface FormBuilderState {
   pages: CanvasPage[];
   activePageId: string;
 
+  // Metadata của file PDF gốc nền form (nếu có)
+  backgroundPdf?: BackgroundPdfMetadata;
+
   // Cấu hình và dữ liệu của trang đang active (đồng bộ 2 chiều với activePage trong pages)
   pageSizePreset: PagePresetKey;
   orientation: Orientation;
@@ -87,6 +91,19 @@ export interface FormBuilderState {
   addPage: () => void;
   removePage: (pageId: string) => void;
   setActivePageId: (pageId: string) => void;
+
+  // Actions quản lý nền trang (PDF / Image Background)
+  setBackgroundPdf: (metadata?: BackgroundPdfMetadata) => void;
+  clearBackgroundPdf: () => void;
+  setPageBackground: (pageId: string, backgroundUrl?: string) => void;
+  setTransientPageBackground: (pageId: string, backgroundUrl: string) => void;
+  setBackgroundOpacity: (opacity: number) => void;
+  setMultiPageBackgrounds: (
+    backgroundUrls: string[],
+    pagePdfMap?: Record<number, number>,
+  ) => void;
+  clearPageBackground: (pageId: string) => void;
+
 
   // Actions cấu hình trang active
   setPageSizePreset: (preset: PagePresetKey) => void;
@@ -359,6 +376,103 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       selectedFieldId: null,
     });
   },
+
+  // Quản lý nền trang (PDF / IMAGE BACKGROUND)
+  setBackgroundPdf: (metadata) => {
+    set({ backgroundPdf: metadata, isDirty: true });
+  },
+
+  clearBackgroundPdf: () => {
+    get().recordHistory();
+    const { pages } = get();
+    const nextPages = pages.map((p) => ({
+      ...p,
+      backgroundUrl: undefined,
+      pdfPageNumber: undefined,
+    }));
+    set({
+      backgroundPdf: undefined,
+      pages: nextPages,
+      isDirty: true,
+    });
+  },
+
+  setPageBackground: (pageId, backgroundUrl) => {
+    get().recordHistory();
+    const { pages } = get();
+    const nextPages = pages.map((p) =>
+      p.id === pageId ? { ...p, backgroundUrl } : p,
+    );
+    set({ pages: nextPages, isDirty: true });
+  },
+
+  setTransientPageBackground: (pageId, backgroundUrl) => {
+    // KHÔNG recordHistory và KHÔNG bật isDirty (Lazy Load phục vụ hiển thị Canvas)
+    const { pages } = get();
+    const nextPages = pages.map((p) =>
+      p.id === pageId ? { ...p, backgroundUrl } : p,
+    );
+    set({ pages: nextPages });
+  },
+
+  setBackgroundOpacity: (opacity) => {
+    get().recordHistory();
+    const { backgroundPdf } = get();
+    if (!backgroundPdf) return;
+    set({
+      backgroundPdf: { ...backgroundPdf, opacity },
+      isDirty: true,
+    });
+  },
+
+  setMultiPageBackgrounds: (backgroundUrls, pagePdfMap) => {
+    if (!backgroundUrls.length) return;
+    get().recordHistory();
+    const { pages, pageSizePreset, orientation, margins } = get();
+    const nextPages = [...pages];
+
+    backgroundUrls.forEach((url, index) => {
+      const pdfPageNum = pagePdfMap ? pagePdfMap[index] : index + 1;
+      if (nextPages[index]) {
+        nextPages[index] = {
+          ...nextPages[index],
+          backgroundUrl: url,
+          pdfPageNumber: pdfPageNum,
+        };
+      } else {
+        const newPage = createDefaultBlankPage(index + 1);
+        newPage.pageSizePreset = pageSizePreset;
+        newPage.orientation = orientation;
+        newPage.margins = structuredClone(margins);
+        newPage.backgroundUrl = url;
+        newPage.pdfPageNumber = pdfPageNum;
+        nextPages.push(newPage);
+      }
+    });
+
+    const activePage =
+      nextPages.find((p) => p.id === get().activePageId) || nextPages[0];
+
+    set({
+      pages: nextPages,
+      activePageId: activePage.id,
+      pageSizePreset: activePage.pageSizePreset,
+      orientation: activePage.orientation,
+      margins: activePage.margins,
+      fields: activePage.fields,
+      isDirty: true,
+    });
+  },
+
+  clearPageBackground: (pageId) => {
+    get().recordHistory();
+    const { pages } = get();
+    const nextPages = pages.map((p) =>
+      p.id === pageId ? { ...p, backgroundUrl: undefined, pdfPageNumber: undefined } : p,
+    );
+    set({ pages: nextPages, isDirty: true });
+  },
+
 
   // ===== CẤU HÌNH TRANG ĐANG ACTIVE =====
   setPageSizePreset: (preset) => {
@@ -636,8 +750,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   getFormSchema: () => {
-    const { pages } = get();
-    return exportFormSchema(pages);
+    const { pages, backgroundPdf } = get();
+    return exportFormSchema(pages, backgroundPdf);
   },
 
   setOnSave: (handler) => set({ onSave: handler }),
@@ -683,6 +797,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
     set({
       pages: canvasPages,
+      backgroundPdf: schema?.backgroundPdf ? structuredClone(schema.backgroundPdf) : undefined,
       activePageId: firstPage.id,
       pageSizePreset: firstPage.pageSizePreset,
       orientation: firstPage.orientation,
@@ -693,6 +808,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       future: [],
       canUndo: false,
       canRedo: false,
+      isDirty: false,
     });
   },
 
@@ -700,6 +816,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const defaultPage = createDefaultBlankPage(1, "page_reset");
     set({
       pages: [defaultPage],
+      backgroundPdf: undefined,
       activePageId: defaultPage.id,
       pageSizePreset: defaultPage.pageSizePreset,
       orientation: defaultPage.orientation,

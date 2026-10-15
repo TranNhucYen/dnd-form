@@ -2,7 +2,7 @@ import 'server-only';
 import crypto from 'crypto';
 
 // Key có dạng: <timestamp>-<32 ký tự hex>.<ext>
-const STORAGE_KEY_PATTERN = /^\d+-[a-f0-9]{32}\.(jpg|png|webp)$/;
+const STORAGE_KEY_PATTERN = /^\d+-[a-f0-9]{32}\.(jpg|png|webp|pdf)$/;
 
 export function buildStorageKey(ext: string): string {
   const safeExt = ext.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'bin';

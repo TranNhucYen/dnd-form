@@ -148,6 +148,8 @@ export interface CanvasPage {
   orientation: Orientation;
   margins: PageMargins;
   fields: CanvasField[];
+  backgroundUrl?: string;
+  pdfPageNumber?: number; // Số trang tương ứng trong file PDF gốc
 }
 
 export interface FormBuilderSnapshot {
@@ -198,10 +200,22 @@ export interface FormPageSchema {
   name?: string;
   page: SchemaPageSettings;
   fields: SchemaField[];
+  pdfPageNumber?: number; // Số trang PDF gốc để render nền (1-based index)
+}
+
+export interface BackgroundPdfMetadata {
+  fileKey: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  totalPages: number;
+  opacity?: number; 
 }
 
 // Cấu trúc JSON lưu ở DB (danh sách các trang in)
 export interface FormSchemaJson {
   pages: FormPageSchema[];
+  backgroundPdf?: BackgroundPdfMetadata;
 }
+
 

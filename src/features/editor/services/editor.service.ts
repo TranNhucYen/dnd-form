@@ -30,6 +30,24 @@ export const editorService = {
     const mediaList: MediaInsertItem[] = [];
     const storage = getStorageService();
 
+    // Phân tích background Pdf nếu có
+    if (clonedSchema.backgroundPdf?.fileKey) {
+      const pdfKey = clonedSchema.backgroundPdf.fileKey;
+      if (!isValidStorageKey(pdfKey)) {
+        throw new ValidationError("Key tài liệu PDF nền không hợp lệ");
+      }
+
+      mediaList.push({
+        mediaType: "document",
+        signatureBase64: null,
+        fileKey: pdfKey,
+        fileUrl: storage.getUrl(pdfKey),
+      });
+
+      // Canvas-DB chỉ giữ fileKey trong metadata
+      clonedSchema.backgroundPdf.fileUrl = "";
+    }
+
     // Bóc tách media và dọn dẹp URL tạm thời khỏi schema
     for (const page of clonedSchema.pages ?? []) {
       for (const field of page.fields ?? []) {
