@@ -156,6 +156,7 @@ export interface FormBuilderSnapshot {
   pages: CanvasPage[];
   activePageId: string;
   selectedFieldId: string | null;
+  backgroundPdf?: BackgroundPdfMetadata;
 }
 // ==========================================================================================
 // Type của schema lưu ở DB (toàn bộ field, margins và page dimensions đều dùng InternalUnit số nguyên)

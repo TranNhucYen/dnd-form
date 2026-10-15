@@ -1,5 +1,7 @@
 import { SlidersHorizontal } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { EditableSelect, PageSizePopover } from "../components";
+import { DeleteAllPagesTool } from "../tools";
 import { MARGIN_FIELDS, MARGIN_OPTIONS } from "../constants/toolbar.constants";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 
@@ -48,6 +50,11 @@ export function PageTabContent() {
           </div>
         ))}
       </div>
+
+      <Separator orientation="vertical" className="h-5 mx-0.5" />
+
+      {/* Quản lý trang: Xóa toàn bộ trang */}
+      <DeleteAllPagesTool />
     </div>
   );
 }
