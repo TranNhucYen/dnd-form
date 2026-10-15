@@ -90,6 +90,7 @@ export interface FormBuilderState {
   // Actions quản lý trang
   addPage: () => void;
   removePage: (pageId: string) => void;
+  clearAllPages: () => void;
   setActivePageId: (pageId: string) => void;
 
   // Actions quản lý nền trang (PDF / Image Background)
@@ -199,6 +200,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         customSelectedId !== undefined
           ? customSelectedId
           : state.selectedFieldId,
+      backgroundPdf: state.backgroundPdf
+        ? structuredClone(state.backgroundPdf)
+        : undefined,
     };
 
     const lastSnapshot = state.past[state.past.length - 1];
@@ -207,7 +211,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         lastSnapshot.pages.length === currentSnapshot.pages.length &&
         lastSnapshot.activePageId === currentSnapshot.activePageId &&
         JSON.stringify(lastSnapshot.pages) ===
-        JSON.stringify(currentSnapshot.pages)
+          JSON.stringify(currentSnapshot.pages) &&
+        JSON.stringify(lastSnapshot.backgroundPdf) ===
+          JSON.stringify(currentSnapshot.backgroundPdf)
       ) {
         return;
       }
@@ -226,7 +232,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   undo: () => {
-    const { past, future, pages, activePageId, selectedFieldId } = get();
+    const { past, future, pages, activePageId, selectedFieldId, backgroundPdf } = get();
     if (past.length === 0) return;
 
     const previousSnapshot = past[past.length - 1];
@@ -236,6 +242,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       pages: structuredClone(pages),
       activePageId,
       selectedFieldId,
+      backgroundPdf: backgroundPdf ? structuredClone(backgroundPdf) : undefined,
     };
 
     const targetPage =
@@ -244,6 +251,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
     set({
       pages: previousSnapshot.pages,
+      backgroundPdf: previousSnapshot.backgroundPdf,
       activePageId: targetPage.id,
       pageSizePreset: targetPage.pageSizePreset,
       orientation: targetPage.orientation,
@@ -258,7 +266,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   redo: () => {
-    const { past, future, pages, activePageId, selectedFieldId } = get();
+    const { past, future, pages, activePageId, selectedFieldId, backgroundPdf } = get();
     if (future.length === 0) return;
 
     const nextSnapshot = future[0];
@@ -268,6 +276,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       pages: structuredClone(pages),
       activePageId,
       selectedFieldId,
+      backgroundPdf: backgroundPdf ? structuredClone(backgroundPdf) : undefined,
     };
 
     const targetPage =
@@ -278,6 +287,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
     set({
       pages: nextSnapshot.pages,
+      backgroundPdf: nextSnapshot.backgroundPdf,
       activePageId: targetPage.id,
       pageSizePreset: targetPage.pageSizePreset,
       orientation: targetPage.orientation,
@@ -357,6 +367,28 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: nextActivePage.margins,
       fields: nextActivePage.fields,
       selectedFieldId: null,
+    });
+  },
+
+  clearAllPages: () => {
+    const { pageSizePreset, orientation, margins } = get();
+    get().recordHistory();
+
+    const blankPage = createDefaultBlankPage(1);
+    blankPage.pageSizePreset = pageSizePreset;
+    blankPage.orientation = orientation;
+    blankPage.margins = structuredClone(margins);
+
+    set({
+      pages: [blankPage],
+      activePageId: blankPage.id,
+      pageSizePreset: blankPage.pageSizePreset,
+      orientation: blankPage.orientation,
+      margins: blankPage.margins,
+      fields: [],
+      selectedFieldId: null,
+      backgroundPdf: undefined,
+      isDirty: true,
     });
   },
 
