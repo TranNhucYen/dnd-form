@@ -1,6 +1,7 @@
 import { pxToInternalUnit, toInternalUnit, toMm, toScreenPx } from "./units";
 import { PAGE_PRESETS } from "../constants/form.constants";
 import type {
+  BackgroundPdfMetadata,
   CanvasField,
   CanvasPage,
   FormPageSchema,
@@ -100,6 +101,7 @@ export function exportCanvasPageToSchemaPage(page: CanvasPage): FormPageSchema {
       },
     },
     fields: page.fields.map(exportCanvasFieldToSchemaField),
+    ...(page.pdfPageNumber !== undefined ? { pdfPageNumber: page.pdfPageNumber } : {}),
   };
 }
 
@@ -120,14 +122,20 @@ export function importSchemaPageToCanvasPage(schemaPage: FormPageSchema): Canvas
       right: toMm(schemaPage.page?.margins?.right ?? toInternalUnit(20)).toString(),
     },
     fields: (schemaPage.fields ?? []).map(importSchemaFieldToCanvasField),
+    pdfPageNumber: schemaPage.pdfPageNumber,
   };
 }
 
 /**
- * Xuất FormSchemaJson từ danh sách CanvasPage[]
+ * Xuất FormSchemaJson từ danh sách CanvasPage[] và backgroundPdf metadata
  */
-export function exportFormSchema(pages: CanvasPage[]): FormSchemaJson {
+export function exportFormSchema(
+  pages: CanvasPage[],
+  backgroundPdf?: BackgroundPdfMetadata,
+): FormSchemaJson {
   return {
     pages: pages.map(exportCanvasPageToSchemaPage),
+    ...(backgroundPdf ? { backgroundPdf: structuredClone(backgroundPdf) } : {}),
   };
 }
+

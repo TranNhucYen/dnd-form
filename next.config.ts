@@ -22,8 +22,9 @@ function storageImagePatterns(): Pattern[] {
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: '6mb',
+      bodySizeLimit: '20mb',
     },
+    proxyClientMaxBodySize: '20mb',
   },
   images: {
     remotePatterns: storageImagePatterns(),

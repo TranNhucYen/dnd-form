@@ -78,7 +78,9 @@ export function HomeTabContent() {
         type="single"
         size="sm"
         value={textAlign}
-        onValueChange={(val) => val && setTextAlign(val as any)}
+        onValueChange={(val) =>
+          val && setTextAlign(val as "left" | "center" | "right" | "justify")
+        }
         disabled={isDisabled}
       >
         {TEXT_ALIGN_ITEMS.map(({ value, label, icon: Icon }) => (

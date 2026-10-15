@@ -1,11 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormSchemaJson, CanvasField } from '@/features/form-builder/types/formBuilder.types';
 import { importSchemaFieldToCanvasField } from '@/features/form-builder/domain/transformers';
 import { toMm, toInternalUnit } from '@/features/form-builder/domain/units';
 import { FieldRenderer } from '@/features/form-builder/fields/FieldRenderer';
+import { loadPdfDocument, renderPdfPageToBlobUrl } from '@/lib/pdf-client/pdf-extractor';
 import { usePrintReadiness } from './usePrintReadiness';
+
 
 export interface PrintCanvasProps {
   schema?: FormSchemaJson | null;
@@ -18,6 +20,58 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
   const pages = useMemo(() => {
     return schema?.pages ?? [];
   }, [schema?.pages]);
+
+  const fileUrl = schema?.backgroundPdf?.fileUrl;
+  const [pdfPageBlobs, setPdfPageBlobs] = useState<Record<number, string>>({});
+  const [isPdfLoading, setIsPdfLoading] = useState(Boolean(fileUrl));
+
+  // Lazy render tất cả các trang PDF nền cần thiết in
+  useEffect(() => {
+    if (!fileUrl) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    loadPdfDocument(fileUrl)
+      .then(async (pdf) => {
+        if (isCancelled) return;
+        const blobs: Record<number, string> = {};
+
+        for (const page of pages) {
+          const pageNum = page.pdfPageNumber;
+          if (pageNum && !blobs[pageNum]) {
+            try {
+              const blobUrl = await renderPdfPageToBlobUrl(pdf, pageNum);
+              blobs[pageNum] = blobUrl;
+            } catch (err) {
+              console.error(`Không thể render trang PDF ${pageNum} cho in ấn:`, err);
+            }
+          }
+        }
+
+        if (!isCancelled) {
+          setPdfPageBlobs(blobs);
+          setIsPdfLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Lỗi nạp PDF nền cho trang in:', err);
+        if (!isCancelled) setIsPdfLoading(false);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [fileUrl, pages]);
+
+  // Thu hồi Blob URLs khi unmount
+  useEffect(() => {
+    return () => {
+      Object.values(pdfPageBlobs).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [pdfPageBlobs]);
+
 
   // Kích thước mặc định của trang đầu tiên dùng cho @page
   const firstPageDimensions = useMemo(() => {
@@ -52,8 +106,8 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
     return count;
   }, [pages]);
 
-  // Đồng bộ trạng thái sẵn sàng với Puppeteer
-  usePrintReadiness({ expectedTipTapCount });
+  // Đồng bộ trạng thái sẵn sàng với Puppeteer (đợi cả TipTap lẫn PDF nền)
+  usePrintReadiness({ expectedTipTapCount, isPdfLoading });
 
   return (
     <>
@@ -90,6 +144,8 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
             ? page.fields.map(importSchemaFieldToCanvasField)
             : [];
 
+          const bgBlobUrl = page.pdfPageNumber ? pdfPageBlobs[page.pdfPageNumber] : undefined;
+
           return (
             <div
               key={page.id || `page_${index}`}
@@ -102,6 +158,18 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
                 boxSizing: 'border-box',
               }}
             >
+              {/* Lớp hiển thị ảnh nền PDF nếu có */}
+              {bgBlobUrl && (
+                <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
+                  <img
+                    src={bgBlobUrl}
+                    alt="Print Background"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                    draggable={false}
+                  />
+                </div>
+              )}
+
               {canvasFields.map((field) => (
                 <div
                   key={field.id}
@@ -112,6 +180,7 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
                     width: field.width !== undefined ? `${field.width}px` : undefined,
                     height: field.height !== undefined ? `${field.height}px` : undefined,
                     boxSizing: 'border-box',
+                    zIndex: 1,
                   }}
                 >
                   <div

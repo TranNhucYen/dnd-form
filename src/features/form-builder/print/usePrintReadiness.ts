@@ -10,15 +10,25 @@ declare global {
 
 interface UsePrintReadinessOptions {
   expectedTipTapCount: number;
+  isPdfLoading?: boolean;
 }
 
 /**
- * Hook đồng bộ trạng thái sẵn sàng của trang in (font, ảnh, TipTap) cho puppeteer
+ * Hook đồng bộ trạng thái sẵn sàng của trang in (font, ảnh, TipTap, PDF background) cho puppeteer
  */
-export function usePrintReadiness({ expectedTipTapCount }: UsePrintReadinessOptions) {
+export function usePrintReadiness({ expectedTipTapCount, isPdfLoading }: UsePrintReadinessOptions) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    
+    if (isPdfLoading) {
+      window.__DRAGFORM_RENDER_READY__ = false;
+      if (typeof document !== 'undefined') {
+        delete document.documentElement.dataset.renderReady;
+      }
+      return;
+    }
+
     let isCancelled = false;
 
     async function checkReadiness() {
@@ -104,7 +114,7 @@ export function usePrintReadiness({ expectedTipTapCount }: UsePrintReadinessOpti
     return () => {
       isCancelled = true;
     };
-  }, [expectedTipTapCount]);
+  }, [expectedTipTapCount, isPdfLoading]);
 
   return isReady;
 }

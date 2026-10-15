@@ -5,10 +5,16 @@ import type {
 } from '@/features/form-builder/types/formBuilder.types';
 import { getStorageService } from '@/lib/storage';
 
-/** Tạo URL đầy đủ hiển thị từ fileKey(tên file) cho các field ảnh trong schema */
+/** Tạo URL đầy đủ hiển thị từ fileKey(tên file) cho các field ảnh và backgroundPdf trong schema */
 export function hydrateImageUrls(schema?: FormSchemaJson | null): void {
-  if (!schema?.pages) return;
+  if (!schema) return;
   const storage = getStorageService();
+
+  if (schema.backgroundPdf?.fileKey) {
+    schema.backgroundPdf.fileUrl = storage.getUrl(schema.backgroundPdf.fileKey);
+  }
+
+  if (!schema.pages) return;
 
   for (const page of schema.pages) {
     if (!page.fields) continue;
