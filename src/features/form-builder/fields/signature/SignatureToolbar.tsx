@@ -1,7 +1,11 @@
 import { UserCheck, Eraser } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ToolbarField, ToolbarPopover } from "../shared/ToolbarPopover";
+import {
+  ToolbarCheckbox,
+  ToolbarField,
+  ToolbarPopover,
+} from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, SignatureFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 
@@ -27,18 +31,32 @@ export function SignatureToolbar({
   data,
   onDataChange,
 }: FieldToolbarProps<SignatureFieldData>) {
-  const defaults = DEFAULT_FIELD_DATA.signature;
+  const fieldData = { ...DEFAULT_FIELD_DATA.signature, ...data };
+  const { showSignatureLabels, showSignerName } = fieldData;
 
   return (
     <ToolbarPopover
       icon={UserCheck}
-      label="Người ký"
+      label={fieldData.label || "Người ký"}
       title="Cấu hình thông tin người ký"
     >
+      <div className="flex flex-col gap-0.5 border-b border-border pb-1.5 mb-1">
+        <ToolbarCheckbox
+          label="Hiển thị tiêu đề & ghi chú"
+          checked={showSignatureLabels}
+          onCheckedChange={(checked) => onDataChange({ showSignatureLabels: checked })}
+        />
+        <ToolbarCheckbox
+          label="Hiển thị họ tên người ký"
+          checked={showSignerName}
+          onCheckedChange={(checked) => onDataChange({ showSignerName: checked })}
+        />
+      </div>
+
       {TEXT_FIELDS.map(({ key, label, placeholder }) => (
         <ToolbarField key={key} label={label}>
           <Input
-            value={data?.[key] ?? defaults[key] ?? ""}
+            value={fieldData[key] ?? ""}
             onChange={(e) => onDataChange({ [key]: e.target.value })}
             placeholder={placeholder}
             className="h-7 text-xs"
@@ -46,7 +64,7 @@ export function SignatureToolbar({
         </ToolbarField>
       ))}
 
-      {data?.value && (
+      {fieldData.value && (
         <Button
           type="button"
           variant="outline"

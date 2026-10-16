@@ -7,14 +7,16 @@ export function TextField({
   width,
   onDataChange,
 }: FieldProps<TextFieldData> = {}) {
-  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.text.label;
-  const currentValue = data?.value;
+  const fieldData = { ...DEFAULT_FIELD_DATA.text, ...data };
 
   return (
     <DottedFieldLine
-      label={currentLabel}
-      value={currentValue}
+      label={fieldData.label}
+      value={fieldData.value}
       width={width}
+      showLabel={fieldData.showLabel}
+      showDottedLine={fieldData.showDottedLine}
+      placeholder={fieldData.placeholder}
       onLabelSave={(newLabel) => {
         onDataChange?.({ label: newLabel });
       }}

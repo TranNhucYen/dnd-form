@@ -7,6 +7,9 @@ export type DottedFieldLineProps = {
   label: string;
   value?: string;
   width?: number;
+  showLabel?: boolean;
+  showDottedLine?: boolean;
+  placeholder?: string;
   children?: ReactNode;
   onLabelSave?: (newLabel: string) => void;
 };
@@ -48,8 +51,21 @@ export function FieldLabel({
   );
 }
 
-export function FieldValue({ value }: { value?: string }) {
+export function FieldValue({
+  value,
+  placeholderHint,
+}: {
+  value?: string;
+  placeholderHint?: string;
+}) {
   if (!value) {
+    if (placeholderHint) {
+      return (
+        <span className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden px-1">
+          {placeholderHint}
+        </span>
+      );
+    }
     return (
       <span className="invisible relative z-10 select-none leading-[1.25]">
         &nbsp;
@@ -65,12 +81,15 @@ export function FieldValue({ value }: { value?: string }) {
 
 /**
  * DottedFieldLine: Khung hiển thị dùng chung chuẩn cho các trường dạng dòng kẻ chấm (Text, Number, Date, Select)
- * Hỗ trợ nhấp đúp vào bất kỳ đâu trên dòng để chỉnh sửa trực tiếp nhãn
+ * Hỗ trợ nhấp đúp vào bất kỳ đâu trên dòng để chỉnh sửa trực tiếp nhãn khi nhãn hiển thị
  */
 export function DottedFieldLine({
   label: initialLabel,
   value,
   width,
+  showLabel = true,
+  showDottedLine = true,
+  placeholder,
   children,
   onLabelSave,
 }: DottedFieldLineProps) {
@@ -84,26 +103,31 @@ export function DottedFieldLine({
     handleCancel,
   } = useInlineEdit(initialLabel, onLabelSave);
 
+  const isBothHiddenAndEmpty = !showLabel && !showDottedLine && !value;
+  const placeholderHint = isBothHiddenAndEmpty ? `[${placeholder || label || "Ô nhập"}]` : undefined;
+
   return (
     <span
       style={width !== undefined ? { width: "100%" } : undefined}
-      onDoubleClick={handleDoubleClick}
+      onDoubleClick={showLabel ? handleDoubleClick : undefined}
       className={`
         relative inline-flex items-baseline whitespace-nowrap overflow-hidden select-none cursor-text 
-        ${width === undefined ? "w-max" : "w-full"}`
+        ${width === undefined ? "w-max min-w-16" : "w-full"}`
       }
     >
-      <FieldLabel
-        label={label}
-        isEditing={isEditing}
-        onLabelChange={setLabel}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        inputRef={inputRef}
-      />
+      {showLabel && (
+        <FieldLabel
+          label={label}
+          isEditing={isEditing}
+          onLabelChange={setLabel}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          inputRef={inputRef}
+        />
+      )}
       <span className="relative inline-block min-w-0 flex-1 overflow-hidden leading-[1.25]">
-        <DotDecoration />
-        <FieldValue value={value} />
+        {showDottedLine && <DotDecoration />}
+        <FieldValue value={value} placeholderHint={placeholderHint} />
         {children}
       </span>
     </span>

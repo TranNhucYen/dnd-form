@@ -1,33 +1,52 @@
 import { CheckSquare2, Square } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  ToolbarCheckbox,
+  ToolbarField,
+  ToolbarPopover,
+} from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, CheckboxFieldData } from "../types/field.types";
+import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function CheckboxToolbar({
   data,
   onDataChange,
 }: FieldToolbarProps<CheckboxFieldData>) {
-  const isChecked = Boolean(data?.checked);
-
-  const toggleChecked = () => {
-    onDataChange({ checked: !isChecked });
-  };
+  const fieldData = { ...DEFAULT_FIELD_DATA.checkbox, ...data };
+  const { checked, label, showLabel, showBorder } = fieldData;
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={toggleChecked}
-      className={`h-7 gap-1 px-2 text-xs font-normal transition-colors ${
-        isChecked ? "text-blue-600 hover:bg-blue-50" : "text-neutral-600 hover:bg-neutral-100"
-      }`}
-      title="Bật/tắt trạng thái chọn"
+    <ToolbarPopover
+      icon={checked ? CheckSquare2 : Square}
+      label={label || (checked ? "Đã chọn" : "Hộp kiểm")}
+      title="Cấu hình hộp kiểm (Checkbox)"
     >
-      {isChecked ? (
-        <CheckSquare2 className="size-3.5 text-blue-600" />
-      ) : (
-        <Square className="size-3.5 text-neutral-400" />
-      )}
-      <span>{isChecked ? "Đã chọn" : "Chưa chọn"}</span>
-    </Button>
+      <ToolbarField label="Nhãn (Tiêu đề hộp kiểm)">
+        <Input
+          value={label}
+          onChange={(e) => onDataChange({ label: e.target.value })}
+          placeholder="VD: Nam, Nữ, Đồng ý..."
+          className="h-7 text-xs"
+        />
+      </ToolbarField>
+
+      <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
+        <ToolbarCheckbox
+          label="Hiển thị nhãn"
+          checked={showLabel}
+          onCheckedChange={(checked) => onDataChange({ showLabel: checked })}
+        />
+        <ToolbarCheckbox
+          label="Hiển thị khung viền ô vuông"
+          checked={showBorder}
+          onCheckedChange={(checked) => onDataChange({ showBorder: checked })}
+        />
+        <ToolbarCheckbox
+          label="Trạng thái đã chọn (Checked)"
+          checked={checked}
+          onCheckedChange={(nextChecked) => onDataChange({ checked: nextChecked })}
+        />
+      </div>
+    </ToolbarPopover>
   );
 }
