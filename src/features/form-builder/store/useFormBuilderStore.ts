@@ -463,6 +463,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const { pages, pageSizePreset, orientation, margins } = get();
     const nextPages = [...pages];
 
+    // Gán nền mới cho các trang tương ứng hoặc tạo trang mới nếu file mới nhiều trang hơn
     backgroundUrls.forEach((url, index) => {
       const pdfPageNum = pagePdfMap ? pagePdfMap[index] : index + 1;
       if (nextPages[index]) {
@@ -481,6 +482,15 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         nextPages.push(newPage);
       }
     });
+
+    // Xóa nền đối với các trang vượt quá số trang PDF mới 
+    for (let i = backgroundUrls.length; i < nextPages.length; i++) {
+      nextPages[i] = {
+        ...nextPages[i],
+        backgroundUrl: undefined,
+        pdfPageNumber: undefined,
+      };
+    }
 
     const activePage =
       nextPages.find((p) => p.id === get().activePageId) || nextPages[0];
