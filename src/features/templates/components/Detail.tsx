@@ -159,10 +159,27 @@ export function Detail({ id }: DetailProps) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         {/* Left Column (Ratio 2 / col-span-2) - Template Preview */}
         <div className="lg:col-span-2 flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Xem trước biểu mẫu
-          </h3>
-          <div className="border border-border rounded-xl bg-muted/30 p-4 shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Xem trước biểu mẫu
+            </h3>
+            {template.schemaContent?.pages && template.schemaContent.pages.length > 1 && (
+              <Badge variant="outline" className="text-[11px] font-normal">
+                {template.schemaContent.pages.length} trang
+              </Badge>
+            )}
+          </div>
+          <div
+            className="border border-border rounded-xl bg-muted/30 p-4 shadow-xs overflow-hidden cursor-pointer hover:border-primary/40 transition-colors"
+            onClick={() => setIsZoomOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setIsZoomOpen(true)
+              }
+            }}
+          >
             <TemplateCanvasPreview
               schema={template.schemaContent}
               onZoomClick={() => setIsZoomOpen(true)}
