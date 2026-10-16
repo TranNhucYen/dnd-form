@@ -12,41 +12,44 @@ export function SignatureField({
   data,
   onDataChange,
 }: FieldProps<SignatureFieldData> = {}) {
-  const signatureUrl = data?.value ?? null;
+  const fieldData = { ...DEFAULT_FIELD_DATA.signature, ...data };
+  const signatureUrl = fieldData.value ?? null;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const defaultSig = DEFAULT_FIELD_DATA.signature;
-
-  const titleEdit = useInlineEdit(data?.label ?? defaultSig.label, (newTitle) => {
+  const titleEdit = useInlineEdit(fieldData.label, (newTitle) => {
     onDataChange?.({ label: newTitle });
   });
   const noteEdit = useInlineEdit(
-    data?.subTitle ?? defaultSig.subTitle ?? "",
+    fieldData.subTitle ?? "",
     (newNote) => {
       onDataChange?.({ subTitle: newNote });
     },
   );
 
   const nameEdit = useInlineEdit(
-    data?.signerName ?? defaultSig.signerName ?? "",
+    fieldData.signerName ?? "",
     (newName) => {
       onDataChange?.({ signerName: newName });
     },
   );
 
+  const { showSignatureLabels, showSignerName } = fieldData;
+
   return (
     <div className="flex h-full w-full flex-col justify-between p-2 bg-background select-none overflow-hidden">
       {/* Phần đầu: 2 dòng tiêu đề và ghi chú */}
-      <div className="flex flex-col gap-0.5 shrink-0">
-        <InlineEditLine
-          edit={titleEdit}
-          className="text-center text-sm font-bold text-foreground"
-        />
-        <InlineEditLine
-          edit={noteEdit}
-          className="text-center text-xs italic text-muted-foreground"
-        />
-      </div>
+      {showSignatureLabels && (
+        <div className="flex flex-col gap-0.5 shrink-0">
+          <InlineEditLine
+            edit={titleEdit}
+            className="text-center text-sm font-bold text-foreground"
+          />
+          <InlineEditLine
+            edit={noteEdit}
+            className="text-center text-xs italic text-muted-foreground"
+          />
+        </div>
+      )}
 
       {/* Phần giữa: Khung hiển thị chữ ký */}
       <SignaturePreview
@@ -58,12 +61,14 @@ export function SignatureField({
       />
 
       {/* Phần dưới: Tên người ký */}
-      <div className="shrink-0">
-        <InlineEditLine
-          edit={nameEdit}
-          className="text-center text-sm font-medium text-foreground"
-        />
-      </div>
+      {showSignerName && (
+        <div className="shrink-0">
+          <InlineEditLine
+            edit={nameEdit}
+            className="text-center text-sm font-medium text-foreground"
+          />
+        </div>
+      )}
 
       {/* Modal vẽ chữ ký lớn, độc lập */}
       <SignatureModal

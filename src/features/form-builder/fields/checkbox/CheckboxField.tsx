@@ -8,7 +8,9 @@ export function CheckboxField({
   data,
   onDataChange,
 }: FieldProps<CheckboxFieldData> = {}) {
-  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.checkbox.label;
+  const fieldData = { ...DEFAULT_FIELD_DATA.checkbox, ...data };
+  const { checked, showLabel, showBorder } = fieldData;
+
   const {
     value: labelText,
     setValue: setLabelText,
@@ -17,39 +19,46 @@ export function CheckboxField({
     handleDoubleClick,
     handleSubmit,
     handleCancel,
-  } = useInlineEdit(currentLabel, (newLabel) => {
+  } = useInlineEdit(fieldData.label, (newLabel) => {
     onDataChange?.({ label: newLabel });
   });
 
   return (
     <div
-      onDoubleClick={handleDoubleClick}
+      onDoubleClick={showLabel ? handleDoubleClick : undefined}
       className="flex h-full w-max shrink-0 items-center gap-2 whitespace-nowrap select-none cursor-text"
     >
       <span
         onClick={(e) => {
           e.stopPropagation();
-          onDataChange?.({ checked: !data?.checked });
+          onDataChange?.({ checked: !checked });
         }}
-        className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-none border border-gray-400 bg-white"
-        title={data?.checked ? "Bỏ chọn" : "Chọn"}
+        className={`flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-none transition-colors ${
+          showBorder
+            ? "border border-gray-400 bg-white"
+            : "border border-dashed border-neutral-300 print:border-transparent bg-transparent"
+        }`}
+        title={checked ? "Bỏ chọn" : "Chọn"}
       >
-        {data?.checked && <Check className="size-3 text-neutral-800" strokeWidth={3} />}
+        {checked && <Check className="size-3 text-neutral-800" strokeWidth={3} />}
       </span>
-      <span className="relative inline-block min-w-4">
-        <span className={`select-none whitespace-pre ${isEditing ? "invisible" : ""}`}>
-          {labelText || " "}
+
+      {showLabel && (
+        <span className="relative inline-block min-w-4">
+          <span className={`select-none whitespace-pre ${isEditing ? "invisible" : ""}`}>
+            {labelText || " "}
+          </span>
+          {isEditing && (
+            <InputOverlay
+              value={labelText}
+              onChange={setLabelText}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              inputRef={inputRef}
+            />
+          )}
         </span>
-        {isEditing && (
-          <InputOverlay
-            value={labelText}
-            onChange={setLabelText}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            inputRef={inputRef}
-          />
-        )}
-      </span>
+      )}
     </div>
   );
 }

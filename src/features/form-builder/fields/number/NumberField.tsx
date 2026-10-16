@@ -7,14 +7,17 @@ export function NumberField({
   width,
   onDataChange,
 }: FieldProps<NumberFieldData> = {}) {
-  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.number.label;
-  const currentValue = data?.value !== undefined ? String(data.value) : undefined;
+  const fieldData = { ...DEFAULT_FIELD_DATA.number, ...data };
+  const currentValue = fieldData.value !== undefined ? String(fieldData.value) : undefined;
 
   return (
     <DottedFieldLine
-      label={currentLabel}
+      label={fieldData.label}
       value={currentValue}
       width={width}
+      showLabel={fieldData.showLabel}
+      showDottedLine={fieldData.showDottedLine}
+      placeholder={fieldData.placeholder}
       onLabelSave={(newLabel) => {
         onDataChange?.({ label: newLabel });
       }}

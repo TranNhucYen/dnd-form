@@ -7,14 +7,15 @@ export function SelectField({
   width,
   onDataChange,
 }: FieldProps<SelectFieldData> = {}) {
-  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.select.label;
-  const currentValue = data?.value;
+  const fieldData = { ...DEFAULT_FIELD_DATA.select, ...data };
 
   return (
     <DottedFieldLine
-      label={currentLabel}
-      value={currentValue}
+      label={fieldData.label}
+      value={fieldData.value}
       width={width}
+      showLabel={fieldData.showLabel}
+      showDottedLine={fieldData.showDottedLine}
       onLabelSave={(newLabel) => {
         onDataChange?.({ label: newLabel });
       }}

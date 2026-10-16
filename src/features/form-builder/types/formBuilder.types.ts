@@ -33,6 +33,8 @@ export type TextFieldData = {
   label: string;
   value?: string;
   placeholder?: string;
+  showLabel: boolean;
+  showDottedLine: boolean;
 };
 
 export type NumberFieldData = {
@@ -41,17 +43,23 @@ export type NumberFieldData = {
   placeholder?: string;
   min?: number;
   max?: number;
+  showLabel: boolean;
+  showDottedLine: boolean;
 };
 
 export type SelectFieldData = {
   label: string;
   options: string[];
   value?: string;
+  showLabel: boolean;
+  showDottedLine: boolean;
 };
 
 export type DateFieldData = {
   label: string; // Địa danh
   value?: string; // Chuỗi định dạng ngày dd/mm/yyyy hoặc yyyy-mm-dd
+  showDateLabels: boolean;
+  showDottedLine: boolean;
 };
 
 export type LabelFieldData = {
@@ -61,6 +69,8 @@ export type LabelFieldData = {
 export type CheckboxFieldData = {
   label: string;
   checked: boolean;
+  showLabel: boolean;
+  showBorder: boolean;
 };
 
 export type LineFieldData = Record<string, never>;
@@ -72,7 +82,7 @@ export type QrCodeFieldData = {
 export type TextareaFieldData = {
   content?: JSONContent;
   html?: string;
-  showBorder?: boolean;
+  showBorder: boolean;
 };
 
 export type SignatureFieldData = {
@@ -80,6 +90,8 @@ export type SignatureFieldData = {
   subTitle?: string;
   signerName?: string;
   value?: string;
+  showSignatureLabels: boolean;
+  showSignerName: boolean;
 };
 
 export type ImageFieldData = {
