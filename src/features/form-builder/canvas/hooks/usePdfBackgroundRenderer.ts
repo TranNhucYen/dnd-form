@@ -108,8 +108,8 @@ export function usePdfBackgroundRenderer() {
 
     loadingDocKeyRef.current = fileKey;
 
-    // Giải phóng blob cũ của file trước đó (nếu có)
-    clearBlobCache();
+    // Làm mới cache nội bộ cho tài liệu mới
+    blobCacheRef.current.clear();
 
     loadPdfDocument(fileUrl)
       .then(async (pdf) => {
