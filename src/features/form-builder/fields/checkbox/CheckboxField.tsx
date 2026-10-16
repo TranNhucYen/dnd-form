@@ -31,7 +31,7 @@ export function CheckboxField({
           e.stopPropagation();
           onDataChange?.({ checked: !data?.checked });
         }}
-        className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded border border-gray-400 bg-white"
+        className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-none border border-gray-400 bg-white"
         title={data?.checked ? "Bỏ chọn" : "Chọn"}
       >
         {data?.checked && <Check className="size-3 text-neutral-800" strokeWidth={3} />}
