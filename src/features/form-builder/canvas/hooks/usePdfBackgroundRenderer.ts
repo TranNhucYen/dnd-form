@@ -34,6 +34,16 @@ export function usePdfBackgroundRenderer() {
   const clearBlobCache = () => {
     blobCacheRef.current.forEach((blobUrl) => URL.revokeObjectURL(blobUrl));
     blobCacheRef.current.clear();
+
+    // Reset các backgroundUrl dạng blob trong store để tránh lưu URL đã revoke khi remount
+    const state = useFormBuilderStore.getState();
+    const hasBlobPages = state.pages.some((p) => p.backgroundUrl?.startsWith("blob:"));
+    if (hasBlobPages) {
+      const cleanedPages = state.pages.map((p) =>
+        p.backgroundUrl?.startsWith("blob:") ? { ...p, backgroundUrl: undefined } : p,
+      );
+      useFormBuilderStore.setState({ pages: cleanedPages });
+    }
   };
 
   // Hàm render 1 trang PDF cụ thể cho 1 pageId
@@ -117,9 +127,15 @@ export function usePdfBackgroundRenderer() {
           await renderPageForId(currentActive.id, currentActive.pdfPageNumber);
         }
 
-        // 2. Preload ngầm cho tất cả các trang còn lại có pdfPageNumber
-        for (const page of state.pages) {
-          if (page.id !== state.activePageId && page.pdfPageNumber && !page.backgroundUrl) {
+        // 2. Chỉ preload trang kế cận (+ - 1 trang)
+        const activeIndex = state.pages.findIndex((p) => p.id === state.activePageId);
+        const adjacentPages = [
+          state.pages[activeIndex + 1],
+          state.pages[activeIndex - 1],
+        ].filter(Boolean);
+
+        for (const page of adjacentPages) {
+          if (page && page.pdfPageNumber && !page.backgroundUrl) {
             renderPageForId(page.id, page.pdfPageNumber).catch(() => {});
           }
         }
@@ -136,6 +152,16 @@ export function usePdfBackgroundRenderer() {
   useEffect(() => {
     if (pdfDocRef.current && activePdfPageNum && !hasBgUrl && activePageId) {
       renderPageForId(activePageId, activePdfPageNum);
+    }
+
+    // Preload thêm trang kế tiếp để chuẩn bị sẵn sàng khi người dùng chuyển trang
+    if (pdfDocRef.current && activePageId) {
+      const state = useFormBuilderStore.getState();
+      const activeIdx = state.pages.findIndex((p) => p.id === activePageId);
+      const nextPage = state.pages[activeIdx + 1];
+      if (nextPage?.pdfPageNumber && !nextPage.backgroundUrl) {
+        renderPageForId(nextPage.id, nextPage.pdfPageNumber).catch(() => {});
+      }
     }
   }, [activePageId, activePdfPageNum, hasBgUrl, renderPageForId]);
 
