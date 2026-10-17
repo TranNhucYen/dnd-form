@@ -1,4 +1,4 @@
-import type { FieldData } from "../../types/formBuilder.types";
+import type { FieldData, FieldStyle } from "../../types/formBuilder.types";
 
 export type {
   TextFieldData,
@@ -15,11 +15,13 @@ export type {
   DatatableFieldData,
   FieldDataMap,
   FieldData,
+  FieldStyle,
 } from "../../types/formBuilder.types";
 
 export type FieldProps<T = FieldData> = {
   id?: string;
-  data?: T;
+  data: T;
+  style?: FieldStyle;
   width?: number;
   height?: number;
   onDataChange?: (
@@ -32,7 +34,7 @@ export type FieldComponent<T = FieldData> = (props: FieldProps<T>) => React.Reac
 
 export type FieldToolbarProps<T = FieldData> = {
   id: string;
-  data?: T;
+  data: T;
   onDataChange: (
     patch: Partial<T>,
     options?: { skipHistory?: boolean },

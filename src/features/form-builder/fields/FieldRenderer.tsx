@@ -38,6 +38,7 @@ export function FieldRenderer({
   type,
   id,
   data,
+  style,
   width,
   height,
   onDataChange,
@@ -48,6 +49,7 @@ export function FieldRenderer({
     <Field
       id={id}
       data={data}
+      style={style}
       width={width}
       height={height}
       onDataChange={onDataChange}

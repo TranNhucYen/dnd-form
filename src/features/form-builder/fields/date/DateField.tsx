@@ -1,38 +1,55 @@
 import { DotDecoration } from "../shared/DotDecoration";
+import { FieldScopeSlot } from "../shared/FieldScopeSlot";
+import { getFieldPartStyle } from "../shared/fieldStyle.utils";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
 import type { FieldProps, DateFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 
 /**
- * DateSlot: Ô trong ngày tháng năm
+ * DateSlot: Ô trong ngày tháng năm (Giá trị - Value)
  */
 function DateSlot({
+  fieldId,
   value,
   className,
   showDottedLine = true,
+  style,
 }: {
+  fieldId?: string;
   value?: string;
   className: string;
   showDottedLine?: boolean;
+  style?: React.CSSProperties;
 }) {
   return (
-    <span
+    <FieldScopeSlot
+      fieldId={fieldId}
+      scope="value"
       className={`relative inline-flex h-[1lh] items-center justify-center overflow-hidden leading-[1.25] ${className}`}
     >
       {showDottedLine && <DotDecoration />}
-      {value && <span className="relative z-10 px-0.5 leading-[1.25]">{value}</span>}
-    </span>
+      {value && (
+        <span style={style} className="relative z-10 select-none px-0.5 leading-[1.25]">
+          {value}
+        </span>
+      )}
+    </FieldScopeSlot>
   );
 }
 
 export function DateField({
+  id,
   data,
+  style,
   width,
   onDataChange,
-}: FieldProps<DateFieldData> = {}) {
-  const fieldData = { ...DEFAULT_FIELD_DATA.date, ...data };
+}: FieldProps<DateFieldData>) {
+  const fieldData = data;
   const { showDateLabels, showDottedLine } = fieldData;
+
+  const labelCustomStyle = getFieldPartStyle(style, "label");
+  const valueCustomStyle = getFieldPartStyle(style, "value");
 
   const {
     value: locationText,
@@ -57,16 +74,22 @@ export function DateField({
       style={width !== undefined ? { width: "100%" } : undefined}
       onDoubleClick={handleDoubleClick}
       className={`
-        relative inline-flex items-center whitespace-nowrap overflow-hidden select-none cursor-text
+        relative inline-flex items-center whitespace-nowrap overflow-hidden select-none ${isEditing ? "cursor-text" : "cursor-move"}
         ${width === undefined ? "w-max min-w-16" : "w-full"}
       `}
     >
-      {/* Vùng địa điểm dạng chấm */}
-      <span className="relative inline-block h-[1lh] min-w-6 flex-1 overflow-hidden leading-[1.25]">
+      {/* Vùng địa điểm dạng chấm (Giá trị - Value) */}
+      <FieldScopeSlot
+        fieldId={id}
+        scope="value"
+        isEditing={isEditing}
+        className="relative inline-block h-[1lh] min-w-6 flex-1 overflow-hidden leading-[1.25]"
+      >
         {showDottedLine && <DotDecoration />}
         {locationText && (
           <span
-            className={`relative z-10 pr-1 leading-[1.25] ${
+            style={valueCustomStyle}
+            className={`relative z-10 select-none pr-1 leading-[1.25] ${
               isEditing ? "invisible" : ""
             }`}
           >
@@ -82,7 +105,7 @@ export function DateField({
             inputRef={inputRef}
           />
         )}
-      </span>
+      </FieldScopeSlot>
 
       {/* Placeholder gợi ý khi ẩn hết và chưa có giá trị */}
       {isCompletelyEmptyAndHidden && (
@@ -91,14 +114,65 @@ export function DateField({
         </span>
       )}
 
-      {/* Phần value ngày tháng năm */}
+      {/* Phần ngày tháng năm */}
       <span className="shrink-0 inline-flex items-center leading-[1.25]">
-        {showDateLabels ? <span>, ngày </span> : <span className="w-2 shrink-0 inline-block" />}
-        <DateSlot value={day} className="min-w-7" showDottedLine={showDottedLine} />
-        {showDateLabels ? <span> tháng </span> : <span className="w-2 shrink-0 inline-block" />}
-        <DateSlot value={month} className="min-w-7" showDottedLine={showDottedLine} />
-        {showDateLabels ? <span> năm </span> : <span className="w-2 shrink-0 inline-block" />}
-        <DateSlot value={year} className="min-w-10" showDottedLine={showDottedLine} />
+        {showDateLabels ? (
+          <FieldScopeSlot
+            fieldId={id}
+            scope="label"
+            style={labelCustomStyle}
+            className="select-none"
+          >
+            , ngày&nbsp;
+          </FieldScopeSlot>
+        ) : (
+          <span className="w-2 shrink-0 inline-block" />
+        )}
+        <DateSlot
+          fieldId={id}
+          value={day}
+          className="min-w-7"
+          showDottedLine={showDottedLine}
+          style={valueCustomStyle}
+        />
+        {showDateLabels ? (
+          <FieldScopeSlot
+            fieldId={id}
+            scope="label"
+            style={labelCustomStyle}
+            className="select-none"
+          >
+            &nbsp;tháng&nbsp;
+          </FieldScopeSlot>
+        ) : (
+          <span className="w-2 shrink-0 inline-block" />
+        )}
+        <DateSlot
+          fieldId={id}
+          value={month}
+          className="min-w-7"
+          showDottedLine={showDottedLine}
+          style={valueCustomStyle}
+        />
+        {showDateLabels ? (
+          <FieldScopeSlot
+            fieldId={id}
+            scope="label"
+            style={labelCustomStyle}
+            className="select-none"
+          >
+            &nbsp;năm&nbsp;
+          </FieldScopeSlot>
+        ) : (
+          <span className="w-2 shrink-0 inline-block" />
+        )}
+        <DateSlot
+          fieldId={id}
+          value={year}
+          className="min-w-10"
+          showDottedLine={showDottedLine}
+          style={valueCustomStyle}
+        />
       </span>
     </span>
   );

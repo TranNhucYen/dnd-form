@@ -18,7 +18,19 @@ export type FieldType =
   | "image"
   | "datatable";
 
+export type FieldPartKey = "label" | "value" | "subTitle" | string;
+
+export interface FieldPartStyle {
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline";
+  color?: string;
+  fontSize?: string;
+  fontFamily?: string;
+}
+
 export interface FieldStyle {
+  // Phong cách cơ sở cho toàn bộ field
   fontFamily?: string;
   fontSize?: string;
   fontWeight?: "normal" | "bold";
@@ -27,7 +39,12 @@ export interface FieldStyle {
   textAlign?: "left" | "center" | "right" | "justify";
   color?: string;
   backgroundColor?: string;
+
+  // Định dạng theo từng phần tử (parts) bên trong field
+  parts?: Partial<Record<FieldPartKey, FieldPartStyle>>;
 }
+
+export type FormatScope = "all" | "label" | "value" | "subTitle" | string;
 
 export type TextFieldData = {
   label: string;
@@ -87,8 +104,8 @@ export type TextareaFieldData = {
 
 export type SignatureFieldData = {
   label: string;
-  subTitle?: string;
-  signerName?: string;
+  subTitle: string;
+  signerName: string;
   value?: string;
   showSignatureLabels: boolean;
   showSignerName: boolean;
@@ -126,10 +143,10 @@ export type BaseCanvasField<T extends FieldType = FieldType> = {
   type: T;
   x: number;
   y: number;
-  width?: number;
-  height?: number;
-  style?: FieldStyle;
-  data?: FieldDataMap[T];
+  width: number;
+  height: number;
+  style: FieldStyle;
+  data: FieldDataMap[T];
 };
 
 export type CanvasField = {
@@ -178,10 +195,10 @@ export type BaseSchemaField<T extends FieldType = FieldType> = {
   type: T;
   x: InternalUnit;
   y: InternalUnit;
-  width?: InternalUnit;
-  height?: InternalUnit;
-  style?: FieldStyle;
-  data?: FieldDataMap[T];
+  width: InternalUnit;
+  height: InternalUnit;
+  style: FieldStyle;
+  data: FieldDataMap[T];
 };
 
 export type SchemaField = {
