@@ -7,9 +7,8 @@ import { DEFAULT_FIELD_DATA } from "../../constants";
 export function CheckboxField({
   data,
   onDataChange,
-}: FieldProps<CheckboxFieldData> = {}) {
-  const fieldData = { ...DEFAULT_FIELD_DATA.checkbox, ...data };
-  const { checked, showLabel, showBorder } = fieldData;
+}: FieldProps<CheckboxFieldData>) {
+  const { checked, showLabel, showBorder } = data;
 
   const {
     value: labelText,
@@ -19,7 +18,7 @@ export function CheckboxField({
     handleDoubleClick,
     handleSubmit,
     handleCancel,
-  } = useInlineEdit(fieldData.label, (newLabel) => {
+  } = useInlineEdit(data.label, (newLabel) => {
     onDataChange?.({ label: newLabel });
   });
 

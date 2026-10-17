@@ -11,7 +11,7 @@ export function TextareaField({
   id,
   data,
   onDataChange,
-}: FieldProps<TextareaFieldData> = {}) {
+}: FieldProps<TextareaFieldData>) {
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
@@ -48,7 +48,7 @@ export function TextareaField({
         },
       }),
     ],
-    content: data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.textarea.html,
+    content: data.content ?? data.html ?? DEFAULT_FIELD_DATA.textarea.html,
     immediatelyRender: false,
     editable: false,
     onUpdate: ({ editor }) => {

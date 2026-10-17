@@ -8,8 +8,8 @@ import { useImageUpload } from "./useImageUpload";
 export function ImageField({
   data,
   onDataChange,
-}: FieldProps<ImageFieldData> = {}) {
-  const url = data?.value ?? "";
+}: FieldProps<ImageFieldData>) {
+  const url = data.value ?? "";
   const { isUploading, inputRef, handleFileChange, triggerUpload } =
     useImageUpload({
       onSuccess: ({ url: newUrl, key }) =>
