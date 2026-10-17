@@ -12,10 +12,12 @@ import type {
   CanvasField,
   CanvasPage,
   FieldData,
+  FieldPartStyle,
   FieldStyle,
   FieldType,
   FormBuilderSnapshot,
   FormSchemaJson,
+  FormatScope,
   Orientation,
   PageMargins,
   PagePresetKey,
@@ -74,6 +76,8 @@ export interface FormBuilderState {
   // Tương tác phần tử trên Canvas
   selectedFieldId: string | null;
   clipboardField: CanvasField | null;
+  formatScope: FormatScope;
+  setFormatScope: (scope: FormatScope) => void;
 
   // Quản lý Lịch sử (Undo / Redo History)
   past: FormBuilderSnapshot[];
@@ -113,11 +117,19 @@ export interface FormBuilderState {
   setMarginValue: (key: keyof PageMargins, value: string) => void;
 
   // Actions phần tử Form trên trang active
-  setSelectedFieldId: (id: string | null) => void;
+  setSelectedFieldId: (
+    id: string | null,
+    scope?: FormatScope,
+  ) => void;
   selectAllFields: () => void;
   addField: (type: FieldType, coordinates: { x: number; y: number }) => void;
   updateFieldPosition: (fieldId: string, coordinates: { x: number; y: number }) => void;
   updateFieldStyle: (fieldId: string, style: Partial<FieldStyle>) => void;
+  updateFieldPartStyle: (
+    fieldId: string,
+    part: string,
+    partStyle: Partial<FieldPartStyle>,
+  ) => void;
   updateFieldData: (
     fieldId: string,
     data: Partial<FieldData>,
@@ -179,6 +191,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   selectedFieldId: null,
   clipboardField: null,
+  formatScope: "all",
+  setFormatScope: (formatScope) => set({ formatScope }),
 
   isReadOnly: false,
   setIsReadOnly: (isReadOnly) => set({ isReadOnly }),
@@ -568,7 +582,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   // ===== THAO TÁC PHẦN TỬ TRÊN TRANG ACTIVE =====
-  setSelectedFieldId: (id) => set({ selectedFieldId: id }),
+  setSelectedFieldId: (id, scope = "all") =>
+    set({ selectedFieldId: id, formatScope: scope }),
 
   selectAllFields: () => { },
 
@@ -579,9 +594,10 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       id: globalThis.crypto.randomUUID(),
       type,
       ...coordinates,
-      width: def?.defaultSize?.width,
-      height: def?.defaultSize?.height,
-      data: def?.defaultData ? structuredClone(def.defaultData) : undefined,
+      width: def.defaultSize.width,
+      height: def.defaultSize.height,
+      data: structuredClone(def.defaultData),
+      style: def.defaultStyle ? structuredClone(def.defaultStyle) : {},
     } as CanvasField;
 
     const { fields, pages, activePageId } = get();
@@ -617,10 +633,49 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
           style: {
             ...field.style,
             ...style,
+            ...(style.parts !== undefined
+              ? {
+                parts:
+                  style.parts === undefined
+                    ? undefined
+                    : {
+                      ...field.style?.parts,
+                      ...style.parts,
+                    },
+              }
+              : {}),
           },
         }
         : field,
     );
+
+    set({
+      fields: nextFields,
+      pages: updateActivePageFields(pages, activePageId, nextFields),
+    });
+  },
+
+  updateFieldPartStyle: (fieldId, part, partStyle) => {
+    get().recordHistory();
+    const { fields, pages, activePageId } = get();
+    const nextFields = fields.map((field) => {
+      if (field.id !== fieldId) return field;
+      const currentParts = field.style?.parts || {};
+      const currentPart = currentParts[part] || {};
+      return {
+        ...field,
+        style: {
+          ...field.style,
+          parts: {
+            ...currentParts,
+            [part]: {
+              ...currentPart,
+              ...partStyle,
+            },
+          },
+        },
+      };
+    });
 
     set({
       fields: nextFields,
@@ -678,15 +733,13 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         return state;
       }
 
-      const isInitialMeasure =
-        currentField.width === undefined || currentField.height === undefined;
       // Tự động đồng bộ chiều cao mới vào store khi datatable thêm/xóa hàng
       const isDatatableHeightChanged =
         currentField.type === "datatable" &&
         size.height !== undefined &&
-        Math.abs((currentField.height ?? 0) - size.height) > 1;
+        Math.abs(currentField.height - size.height) > 1;
 
-      if (!isInitialMeasure && !isDatatableHeightChanged) {
+      if (!isDatatableHeightChanged) {
         return state;
       }
 
@@ -694,11 +747,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         item.id === fieldId
           ? {
             ...item,
-            width: currentField.width ?? size.width,
-            height:
-              currentField.type === "datatable"
-                ? size.height
-                : (currentField.height ?? size.height),
+            height: size.height,
           }
           : item,
       );
@@ -731,7 +780,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       id: globalThis.crypto.randomUUID(),
       x: target.x + 10,
       y: target.y + 10,
-      data: target.data ? structuredClone(target.data) : undefined,
+      data: structuredClone(target.data),
+      style: structuredClone(target.style),
     } as CanvasField;
 
     const { fields, pages, activePageId } = get();
@@ -777,9 +827,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       id: globalThis.crypto.randomUUID(),
       x: clipboardField.x + offset.x,
       y: clipboardField.y + offset.y,
-      data: clipboardField.data
-        ? structuredClone(clipboardField.data)
-        : undefined,
+      data: structuredClone(clipboardField.data),
+      style: structuredClone(clipboardField.style),
     } as CanvasField;
 
     const nextFields = [...fields, pastedField];
@@ -846,6 +895,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: firstPage.margins,
       fields: firstPage.fields,
       selectedFieldId: null,
+      formatScope: "all",
       past: [],
       future: [],
       canUndo: false,
@@ -865,6 +915,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: defaultPage.margins,
       fields: defaultPage.fields,
       selectedFieldId: null,
+      formatScope: "all",
       clipboardField: null,
       isReadOnly: false,
       past: [],

@@ -177,8 +177,8 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
                     position: 'absolute',
                     left: `${field.x}px`,
                     top: `${field.y}px`,
-                    width: field.width !== undefined ? `${field.width}px` : undefined,
-                    height: field.height !== undefined ? `${field.height}px` : undefined,
+                    width: `${field.width}px`,
+                    height: `${field.height}px`,
                     boxSizing: 'border-box',
                     zIndex: 1,
                   }}
@@ -202,6 +202,7 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
                       width={field.width}
                       height={field.height}
                       data={field.data}
+                      style={field.style}
                     />
                   </div>
                 </div>

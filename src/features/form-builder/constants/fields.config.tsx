@@ -13,7 +13,7 @@ import {
   Text,
   Type,
 } from "lucide-react";
-import type { FieldDataMap, FieldType } from "../types/formBuilder.types";
+import type { FieldDataMap, FieldStyle, FieldType } from "../types/formBuilder.types";
 import { DEFAULT_FIELD_DATA } from "./defaultFieldData";
 
 export const PALETTE_ITEM_CENTER = { x: 42, y: 25 } as const;
@@ -25,8 +25,9 @@ export type FieldDefinition<T extends FieldType = FieldType> = {
   label: string;
   icon: React.ReactNode;
   resizeMode: FieldResizeMode;
-  defaultSize?: { width: number; height: number };
+  defaultSize: { width: number; height: number };
   defaultData: FieldDataMap[T];
+  defaultStyle?: Partial<FieldStyle>;
 };
 
 
@@ -107,6 +108,15 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
     resizeMode: "8-way",
     defaultSize: { width: 130, height: 140 },
     defaultData: DEFAULT_FIELD_DATA.signature,
+    defaultStyle: {
+      textAlign: "center",
+      fontSize: "14",
+      parts: {
+        label: { fontWeight: "bold", fontStyle: "normal" },
+        subTitle: { fontWeight: "normal", fontStyle: "italic" },
+        value: { fontWeight: "bold", fontStyle: "normal" },
+      },
+    },
   },
   {
     type: "qrcode",

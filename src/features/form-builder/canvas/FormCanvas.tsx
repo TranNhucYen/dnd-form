@@ -138,8 +138,6 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
 
         {fields.map((field) => {
           const isResizable = RESIZABLE_FIELD_TYPES.includes(field.type);
-          const hasMeasuredSize =
-            field.width !== undefined && field.height !== undefined;
 
           return (
             <FormFieldShell
@@ -148,8 +146,8 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
               type={field.type}
               position={{ x: field.x, y: field.y }}
               size={
-                isResizable && hasMeasuredSize
-                  ? { width: field.width!, height: field.height! }
+                isResizable
+                  ? { width: field.width, height: field.height }
                   : undefined
               }
               fieldStyle={field.style}
@@ -176,6 +174,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
                 width={field.width}
                 height={field.height}
                 data={field.data}
+                style={field.style}
                 onDataChange={(patch, options) =>
                   updateFieldData(field.id, patch, options)
                 }
