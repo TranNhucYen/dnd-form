@@ -168,12 +168,12 @@ export function FormFieldShell({
           <ResizeHandles type={type} onResizeStart={startResize} />
         )}
 
-        {isSelected && !isDragging && (
+        {isSelected && !isDragging && currentField && (
           <FieldFloatingToolbar
             fieldId={id}
             type={type}
             position={position}
-            data={currentField?.data}
+            data={currentField.data}
             onDataChange={(patch, options) =>
               updateFieldData(id, patch, options)
             }

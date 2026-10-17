@@ -37,7 +37,7 @@ export function DatatableField({
   id,
   data,
   onDataChange,
-}: FieldProps<DatatableFieldData> = {}) {
+}: FieldProps<DatatableFieldData>) {
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const hasRecordedCellHistoryRef = useRef(false);
@@ -74,7 +74,7 @@ export function DatatableField({
     immediatelyRender: false,
     editable: true,
     content:
-      data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.datatable.html,
+      data.content ?? data.html ?? DEFAULT_FIELD_DATA.datatable.html,
     onSelectionUpdate: ({ editor }) => {
       const currentCellPos = getActiveCellPos(editor.state);
       if (
