@@ -5,6 +5,8 @@ export type {
   NumberFieldData,
   SelectFieldData,
   DateFieldData,
+  DateFieldSlots,
+  DateFieldSlotKey,
   LabelFieldData,
   CheckboxFieldData,
   LineFieldData,

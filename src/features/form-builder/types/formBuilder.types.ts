@@ -72,11 +72,21 @@ export type SelectFieldData = {
   showDottedLine: boolean;
 };
 
+export type DateFieldSlotKey = "location" | "day" | "month" | "year";
+
+export type DateFieldSlots = {
+  location: number;
+  day: number;
+  month: number;
+  year: number;
+};
+
 export type DateFieldData = {
   label: string; // Địa danh
   value?: string; // Chuỗi định dạng ngày dd/mm/yyyy hoặc yyyy-mm-dd
   showDateLabels: boolean;
   showDottedLine: boolean;
+  slots?: DateFieldSlots;
 };
 
 export type LabelFieldData = {
