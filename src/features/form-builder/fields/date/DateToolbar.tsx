@@ -63,6 +63,19 @@ export function DateToolbar({
         />
       </div>
 
+      {!showDateLabels && (
+        <div className="border-b border-border pb-1.5 mb-0.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDataChange({ slots: undefined })}
+            className="h-7 w-full text-xs text-muted-foreground hover:text-foreground justify-center"
+          >
+            Đặt lại vị trí 4 ô mặc định
+          </Button>
+        </div>
+      )}
+
       <ToolbarField label="Ngày tháng năm">
         <div className="flex items-center gap-1.5">
           <Input

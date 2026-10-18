@@ -5,6 +5,7 @@ import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
 import type { FieldProps, DateFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
+import { DateSlotsLayout } from "./DateSlotsLayout";
 
 /**
  * DateSlot: Ô trong ngày tháng năm (Giá trị - Value)
@@ -38,7 +39,7 @@ function DateSlot({
   );
 }
 
-export function DateField({
+function DateNormalLayout({
   id,
   data,
   style,
@@ -67,7 +68,7 @@ export function DateField({
   const [day, month, year] = fieldData.value?.split("/") ?? [];
 
   const isCompletelyEmptyAndHidden =
-    !showDateLabels && !showDottedLine && !locationText && !day && !month && !year;
+    !showDottedLine && !locationText && !day && !month && !year;
 
   return (
     <span
@@ -176,4 +177,12 @@ export function DateField({
       </span>
     </span>
   );
+}
+
+export function DateField(props: FieldProps<DateFieldData>) {
+  if (!props.data.showDateLabels) {
+    return <DateSlotsLayout {...props} />;
+  }
+
+  return <DateNormalLayout {...props} />;
 }

@@ -78,7 +78,7 @@ export function FormFieldShell({
 
           return (
             target.closest(
-              '[data-resize-handle="true"], [contenteditable="true"], .column-resize-handle, .resize-cursor, input, textarea'
+              '[data-resize-handle="true"], [contenteditable="true"], .column-resize-handle, .resize-cursor, [data-date-slot="true"], input, textarea'
             ) !== null
           );
         },
