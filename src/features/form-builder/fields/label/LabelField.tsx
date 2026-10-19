@@ -6,8 +6,8 @@ import { DEFAULT_FIELD_DATA } from "../../constants";
 export function LabelField({
   data,
   onDataChange,
-}: FieldProps<LabelFieldData> = {}) {
-  const initialText = data?.value ?? DEFAULT_FIELD_DATA.label.value;
+}: FieldProps<LabelFieldData>) {
+  const initialText = data.value;
   const {
     value: text,
     setValue: setText,

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { Check, Eraser, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,13 @@ export function SignatureModal({
   onOpenChange,
   onSave,
 }: SignatureModalProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark =
+    resolvedTheme === "dark" ||
+    (typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark"));
+  const strokeColor = isDark ? "#ffffff" : "#0f172a";
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -40,7 +48,7 @@ export function SignatureModal({
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.scale(dpr, dpr);
-      ctx.strokeStyle = "#0f172a";
+      ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 2.5;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -54,7 +62,7 @@ export function SignatureModal({
       initCanvas();
     });
     return () => cancelAnimationFrame(timer);
-  }, [open]);
+  }, [open, isDark]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.stopPropagation();
@@ -131,6 +139,7 @@ export function SignatureModal({
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
+      ctx.strokeStyle = strokeColor;
     }
     setHasDrawn(false);
   };
@@ -138,8 +147,31 @@ export function SignatureModal({
   const handleSave = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dataUrl = canvas.toDataURL("image/png");
-    onSave(dataUrl);
+
+    // Đảm bảo ảnh chữ ký lưu ra luôn là màu mực tối (#0f172a) chuẩn tài liệu để hiển thị như cũ trên field
+    const offscreen = document.createElement("canvas");
+    offscreen.width = canvas.width;
+    offscreen.height = canvas.height;
+    const offCtx = offscreen.getContext("2d");
+    if (offCtx) {
+      offCtx.drawImage(canvas, 0, 0);
+      const imgData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+      const data = imgData.data;
+      // Chuẩn hóa màu nét vẽ về màu mực #0f172a, giữ nguyên độ trong suốt / mượt nét
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] > 0) {
+          data[i] = 15;
+          data[i + 1] = 23;
+          data[i + 2] = 42;
+        }
+      }
+      offCtx.putImageData(imgData, 0, 0);
+      const dataUrl = offscreen.toDataURL("image/png");
+      onSave(dataUrl);
+    } else {
+      const dataUrl = canvas.toDataURL("image/png");
+      onSave(dataUrl);
+    }
     onOpenChange(false);
   };
 

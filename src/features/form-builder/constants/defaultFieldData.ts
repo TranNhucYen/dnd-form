@@ -4,6 +4,8 @@ export const DEFAULT_FIELD_DATA: Readonly<FieldDataMap> = {
   text: {
     label: "Họ và tên",
     value: "",
+    showLabel: true,
+    showDottedLine: true,
   },
   textarea: {
     html: "<p>Đoạn văn</p>",
@@ -12,20 +14,28 @@ export const DEFAULT_FIELD_DATA: Readonly<FieldDataMap> = {
   number: {
     label: "Số lượng",
     value: undefined,
+    showLabel: true,
+    showDottedLine: true,
   },
   date: {
     label: "",
     value: undefined,
+    showDateLabels: true,
+    showDottedLine: true,
   },
   select: {
     label: "Danh sách",
     options: ["Lựa chọn 1", "Lựa chọn 2"],
     value: undefined,
+    showLabel: true,
+    showDottedLine: true,
   },
   line: {},
   checkbox: {
     label: "Hộp kiểm",
     checked: false,
+    showLabel: true,
+    showBorder: true,
   },
   label: {
     value: "Nhãn văn bản",
@@ -35,6 +45,8 @@ export const DEFAULT_FIELD_DATA: Readonly<FieldDataMap> = {
     subTitle: "(Ký, ghi rõ họ tên)",
     signerName: "Trần Văn A",
     value: undefined,
+    showSignatureLabels: true,
+    showSignerName: true,
   },
   qrcode: {
     value: "https://example.com",

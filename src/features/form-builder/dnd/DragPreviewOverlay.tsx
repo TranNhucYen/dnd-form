@@ -59,14 +59,14 @@ export function DragPreviewOverlay({
           : undefined;
 
         const fieldType = (canvasField?.type ?? data.type) as FieldType;
-        const isResizable = RESIZABLE_FIELD_TYPES.includes(fieldType);
+        const def = fieldType ? FIELD_DEFINITIONS_MAP[fieldType] : undefined;
+        if (!def) {
+          return null;
+        }
 
-        const defaultSize = fieldType
-          ? FIELD_DEFINITIONS_MAP[fieldType]?.defaultSize
-          : undefined;
-        const defaultData = fieldType
-          ? FIELD_DEFINITIONS_MAP[fieldType]?.defaultData
-          : undefined;
+        const isResizable = RESIZABLE_FIELD_TYPES.includes(fieldType);
+        const defaultSize = def.defaultSize;
+        const defaultData = def.defaultData;
 
         // Đối với field không cho resize (như checkbox), kích thước theo nội dung (undefined -> w-max)
         // Đối với field resizable, lấy kích thước thực tế từ canvas hoặc defaultSize nếu kéo từ palette
@@ -132,6 +132,7 @@ export function DragPreviewOverlay({
                 width={width}
                 height={height}
                 data={fieldData}
+                style={fieldStyle}
               />
             </div>
           </div>

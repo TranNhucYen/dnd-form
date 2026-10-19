@@ -78,7 +78,7 @@ export function FormFieldShell({
 
           return (
             target.closest(
-              '[data-resize-handle="true"], [contenteditable="true"], .column-resize-handle, .resize-cursor, input, textarea'
+              '[data-resize-handle="true"], [contenteditable="true"], .column-resize-handle, .resize-cursor, [data-date-slot="true"], input, textarea'
             ) !== null
           );
         },
@@ -168,12 +168,12 @@ export function FormFieldShell({
           <ResizeHandles type={type} onResizeStart={startResize} />
         )}
 
-        {isSelected && !isDragging && (
+        {isSelected && !isDragging && currentField && (
           <FieldFloatingToolbar
             fieldId={id}
             type={type}
             position={position}
-            data={currentField?.data}
+            data={currentField.data}
             onDataChange={(patch, options) =>
               updateFieldData(id, patch, options)
             }

@@ -3,18 +3,24 @@ import { DottedFieldLine } from "../shared/DottedFieldLine";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function TextField({
+  id,
   data,
+  style,
   width,
   onDataChange,
-}: FieldProps<TextFieldData> = {}) {
-  const currentLabel = data?.label ?? DEFAULT_FIELD_DATA.text.label;
-  const currentValue = data?.value;
+}: FieldProps<TextFieldData>) {
+  const fieldData = data;
 
   return (
     <DottedFieldLine
-      label={currentLabel}
-      value={currentValue}
+      fieldId={id}
+      label={fieldData.label}
+      value={fieldData.value}
       width={width}
+      showLabel={fieldData.showLabel}
+      showDottedLine={fieldData.showDottedLine}
+      placeholder={fieldData.placeholder}
+      style={style}
       onLabelSave={(newLabel) => {
         onDataChange?.({ label: newLabel });
       }}

@@ -94,3 +94,38 @@ export function ToolbarClearButton({
     </Button>
   );
 }
+
+/**
+ * ToolbarCheckbox: Ô kiểm dùng trong Toolbar Popover để bật/tắt hiển thị (nhãn, dòng kẻ chấm, viền...)
+ */
+export function ToolbarCheckbox({
+  label,
+  checked,
+  onCheckedChange,
+  description,
+}: {
+  label: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  description?: string;
+}) {
+  return (
+    <label className="flex items-center gap-2 cursor-pointer select-none py-1">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onCheckedChange(e.target.checked)}
+        className="size-3.5 rounded border-input accent-primary cursor-pointer focus:ring-1 focus:ring-ring"
+      />
+      <div className="flex flex-col">
+        <span className="text-xs text-neutral-500 leading-tight">
+          {label}
+        </span>
+        {description && (
+          <span className="text-[10px] text-muted-foreground leading-tight">{description}</span>
+        )}
+      </div>
+    </label>
+  );
+}
+

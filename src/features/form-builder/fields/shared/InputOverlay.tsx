@@ -1,4 +1,5 @@
 import type React from "react";
+import { cn } from "@/lib/utils";
 
 export type InputOverlayProps = {
   value: string;
@@ -6,6 +7,8 @@ export type InputOverlayProps = {
   onSubmit: () => void;
   onCancel: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  className?: string;
+  style?: React.CSSProperties;
 };
 
 /**
@@ -17,6 +20,8 @@ export function InputOverlay({
   onSubmit,
   onCancel,
   inputRef,
+  className,
+  style,
 }: InputOverlayProps) {
   return (
     <input
@@ -34,7 +39,11 @@ export function InputOverlay({
           onCancel();
         }
       }}
-      className="absolute inset-0 z-30 m-0 border-none bg-transparent p-0 font-[inherit] text-[inherit] outline-none select-text"
+      style={style}
+      className={cn(
+        "absolute inset-0 z-30 m-0 border-none bg-transparent p-0 font-[inherit] text-[inherit] outline-none select-text",
+        className,
+      )}
     />
   );
 }

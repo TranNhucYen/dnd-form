@@ -10,7 +10,7 @@ type FieldFloatingToolbarProps = {
   fieldId: string;
   type: FieldType;
   position: { x: number; y: number };
-  data?: FieldData;
+  data: FieldData;
   onDataChange: (
     patch: Partial<FieldData>,
     options?: { skipHistory?: boolean },

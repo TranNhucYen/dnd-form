@@ -18,7 +18,19 @@ export type FieldType =
   | "image"
   | "datatable";
 
+export type FieldPartKey = "label" | "value" | "subTitle" | string;
+
+export interface FieldPartStyle {
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline";
+  color?: string;
+  fontSize?: string;
+  fontFamily?: string;
+}
+
 export interface FieldStyle {
+  // Phong cách cơ sở cho toàn bộ field
   fontFamily?: string;
   fontSize?: string;
   fontWeight?: "normal" | "bold";
@@ -27,12 +39,19 @@ export interface FieldStyle {
   textAlign?: "left" | "center" | "right" | "justify";
   color?: string;
   backgroundColor?: string;
+
+  // Định dạng theo từng phần tử (parts) bên trong field
+  parts?: Partial<Record<FieldPartKey, FieldPartStyle>>;
 }
+
+export type FormatScope = "all" | "label" | "value" | "subTitle" | string;
 
 export type TextFieldData = {
   label: string;
   value?: string;
   placeholder?: string;
+  showLabel: boolean;
+  showDottedLine: boolean;
 };
 
 export type NumberFieldData = {
@@ -41,17 +60,33 @@ export type NumberFieldData = {
   placeholder?: string;
   min?: number;
   max?: number;
+  showLabel: boolean;
+  showDottedLine: boolean;
 };
 
 export type SelectFieldData = {
   label: string;
   options: string[];
   value?: string;
+  showLabel: boolean;
+  showDottedLine: boolean;
+};
+
+export type DateFieldSlotKey = "location" | "day" | "month" | "year";
+
+export type DateFieldSlots = {
+  location: number;
+  day: number;
+  month: number;
+  year: number;
 };
 
 export type DateFieldData = {
   label: string; // Địa danh
   value?: string; // Chuỗi định dạng ngày dd/mm/yyyy hoặc yyyy-mm-dd
+  showDateLabels: boolean;
+  showDottedLine: boolean;
+  slots?: DateFieldSlots;
 };
 
 export type LabelFieldData = {
@@ -61,6 +96,8 @@ export type LabelFieldData = {
 export type CheckboxFieldData = {
   label: string;
   checked: boolean;
+  showLabel: boolean;
+  showBorder: boolean;
 };
 
 export type LineFieldData = Record<string, never>;
@@ -72,14 +109,16 @@ export type QrCodeFieldData = {
 export type TextareaFieldData = {
   content?: JSONContent;
   html?: string;
-  showBorder?: boolean;
+  showBorder: boolean;
 };
 
 export type SignatureFieldData = {
   label: string;
-  subTitle?: string;
-  signerName?: string;
+  subTitle: string;
+  signerName: string;
   value?: string;
+  showSignatureLabels: boolean;
+  showSignerName: boolean;
 };
 
 export type ImageFieldData = {
@@ -114,10 +153,10 @@ export type BaseCanvasField<T extends FieldType = FieldType> = {
   type: T;
   x: number;
   y: number;
-  width?: number;
-  height?: number;
-  style?: FieldStyle;
-  data?: FieldDataMap[T];
+  width: number;
+  height: number;
+  style: FieldStyle;
+  data: FieldDataMap[T];
 };
 
 export type CanvasField = {
@@ -148,12 +187,15 @@ export interface CanvasPage {
   orientation: Orientation;
   margins: PageMargins;
   fields: CanvasField[];
+  backgroundUrl?: string;
+  pdfPageNumber?: number; // Số trang tương ứng trong file PDF gốc
 }
 
 export interface FormBuilderSnapshot {
   pages: CanvasPage[];
   activePageId: string;
   selectedFieldId: string | null;
+  backgroundPdf?: BackgroundPdfMetadata;
 }
 // ==========================================================================================
 // Type của schema lưu ở DB (toàn bộ field, margins và page dimensions đều dùng InternalUnit số nguyên)
@@ -163,10 +205,10 @@ export type BaseSchemaField<T extends FieldType = FieldType> = {
   type: T;
   x: InternalUnit;
   y: InternalUnit;
-  width?: InternalUnit;
-  height?: InternalUnit;
-  style?: FieldStyle;
-  data?: FieldDataMap[T];
+  width: InternalUnit;
+  height: InternalUnit;
+  style: FieldStyle;
+  data: FieldDataMap[T];
 };
 
 export type SchemaField = {
@@ -198,10 +240,22 @@ export interface FormPageSchema {
   name?: string;
   page: SchemaPageSettings;
   fields: SchemaField[];
+  pdfPageNumber?: number; // Số trang PDF gốc để render nền (1-based index)
+}
+
+export interface BackgroundPdfMetadata {
+  fileKey: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  totalPages: number;
+  opacity?: number; 
 }
 
 // Cấu trúc JSON lưu ở DB (danh sách các trang in)
 export interface FormSchemaJson {
   pages: FormPageSchema[];
+  backgroundPdf?: BackgroundPdfMetadata;
 }
+
 

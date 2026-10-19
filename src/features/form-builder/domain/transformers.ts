@@ -1,6 +1,7 @@
 import { pxToInternalUnit, toInternalUnit, toMm, toScreenPx } from "./units";
 import { PAGE_PRESETS } from "../constants/form.constants";
 import type {
+  BackgroundPdfMetadata,
   CanvasField,
   CanvasPage,
   FormPageSchema,
@@ -49,12 +50,10 @@ export function exportCanvasFieldToSchemaField(field: CanvasField): SchemaField 
     type: field.type,
     x: pxToInternalUnit(field.x),
     y: pxToInternalUnit(field.y),
-    ...(typeof field.width === "number" &&
-      Number.isFinite(field.width) && { width: pxToInternalUnit(field.width) }),
-    ...(typeof field.height === "number" &&
-      Number.isFinite(field.height) && { height: pxToInternalUnit(field.height) }),
-    ...(field.style && { style: structuredClone(field.style) }),
-    ...(field.data && { data: structuredClone(field.data) }),
+    width: pxToInternalUnit(field.width),
+    height: pxToInternalUnit(field.height),
+    style: structuredClone(field.style),
+    data: structuredClone(field.data),
   } as SchemaField;
 }
 
@@ -67,12 +66,10 @@ export function importSchemaFieldToCanvasField(field: SchemaField): CanvasField 
     type: field.type,
     x: toScreenPx(field.x),
     y: toScreenPx(field.y),
-    ...(typeof field.width === "number" &&
-      Number.isFinite(field.width) && { width: toScreenPx(field.width) }),
-    ...(typeof field.height === "number" &&
-      Number.isFinite(field.height) && { height: toScreenPx(field.height) }),
-    ...(field.style && { style: structuredClone(field.style) }),
-    ...(field.data && { data: structuredClone(field.data) }),
+    width: toScreenPx(field.width),
+    height: toScreenPx(field.height),
+    style: structuredClone(field.style),
+    data: structuredClone(field.data),
   } as CanvasField;
 }
 
@@ -100,6 +97,7 @@ export function exportCanvasPageToSchemaPage(page: CanvasPage): FormPageSchema {
       },
     },
     fields: page.fields.map(exportCanvasFieldToSchemaField),
+    ...(page.pdfPageNumber !== undefined ? { pdfPageNumber: page.pdfPageNumber } : {}),
   };
 }
 
@@ -111,23 +109,29 @@ export function importSchemaPageToCanvasPage(schemaPage: FormPageSchema): Canvas
     id: schemaPage.id,
     pageNumber: schemaPage.pageNumber,
     name: schemaPage.name,
-    pageSizePreset: schemaPage.page?.preset ?? "A4",
-    orientation: schemaPage.page?.orientation ?? "PORTRAIT",
+    pageSizePreset: schemaPage.page.preset,
+    orientation: schemaPage.page.orientation,
     margins: {
-      top: toMm(schemaPage.page?.margins?.top ?? toInternalUnit(20)).toString(),
-      bottom: toMm(schemaPage.page?.margins?.bottom ?? toInternalUnit(20)).toString(),
-      left: toMm(schemaPage.page?.margins?.left ?? toInternalUnit(20)).toString(),
-      right: toMm(schemaPage.page?.margins?.right ?? toInternalUnit(20)).toString(),
+      top: toMm(schemaPage.page.margins.top).toString(),
+      bottom: toMm(schemaPage.page.margins.bottom).toString(),
+      left: toMm(schemaPage.page.margins.left).toString(),
+      right: toMm(schemaPage.page.margins.right).toString(),
     },
-    fields: (schemaPage.fields ?? []).map(importSchemaFieldToCanvasField),
+    fields: schemaPage.fields.map(importSchemaFieldToCanvasField),
+    pdfPageNumber: schemaPage.pdfPageNumber,
   };
 }
 
 /**
- * Xuất FormSchemaJson từ danh sách CanvasPage[]
+ * Xuất FormSchemaJson từ danh sách CanvasPage[] và backgroundPdf metadata
  */
-export function exportFormSchema(pages: CanvasPage[]): FormSchemaJson {
+export function exportFormSchema(
+  pages: CanvasPage[],
+  backgroundPdf?: BackgroundPdfMetadata,
+): FormSchemaJson {
   return {
     pages: pages.map(exportCanvasPageToSchemaPage),
+    ...(backgroundPdf ? { backgroundPdf: structuredClone(backgroundPdf) } : {}),
   };
 }
+

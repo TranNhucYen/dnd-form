@@ -7,8 +7,8 @@ import { DEFAULT_FIELD_DATA } from "../../constants";
 export function QrCodeField({
   data,
   onDataChange,
-}: FieldProps<QrCodeFieldData> = {}) {
-  const qrValue = data?.value || DEFAULT_FIELD_DATA.qrcode.value;
+}: FieldProps<QrCodeFieldData>) {
+  const qrValue = data.value || DEFAULT_FIELD_DATA.qrcode.value;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSave = (newValue: string) => {

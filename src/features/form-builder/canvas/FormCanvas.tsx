@@ -8,6 +8,7 @@ import {
   useCanvasDragDrop,
   useCanvasFieldsState,
   useCanvasKeyboardShortcuts,
+  usePdfBackgroundRenderer,
 } from "./hooks";
 import {
   CanvasContextMenu,
@@ -29,10 +30,15 @@ type FormCanvasProps = {
  */
 export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
   useCanvasKeyboardShortcuts();
+  usePdfBackgroundRenderer();
 
   const effectiveDimensions = useEffectivePageDimensions();
   const margins = useFormBuilderStore((state) => state.margins);
   const updateFieldData = useFormBuilderStore((state) => state.updateFieldData);
+  const pages = useFormBuilderStore((state) => state.pages);
+  const activePageId = useFormBuilderStore((state) => state.activePageId);
+  const backgroundPdf = useFormBuilderStore((state) => state.backgroundPdf);
+  const activePage = pages.find((p) => p.id === activePageId);
 
   const internalSize = {
     width: toInternalUnit(effectiveDimensions.width),
@@ -105,6 +111,21 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
           height: `${canvasStyle.height}px`,
         }}
       >
+        {/* Lớp hiển thị ảnh nền PDF hoặc ảnh tải lên */}
+        {activePage?.backgroundUrl && (
+          <div
+            className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden"
+            style={{ opacity: backgroundPdf?.opacity ?? 1 }}
+          >
+            <img
+              src={activePage.backgroundUrl}
+              alt="Canvas Background"
+              className="w-full h-full object-contain pointer-events-none select-none"
+              draggable={false}
+            />
+          </div>
+        )}
+
         {/* Lớp hiển thị đường gióng thông minh (Smart Guides) */}
         <SmartGuidesOverlay guides={activeGuides} />
 
@@ -117,8 +138,6 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
 
         {fields.map((field) => {
           const isResizable = RESIZABLE_FIELD_TYPES.includes(field.type);
-          const hasMeasuredSize =
-            field.width !== undefined && field.height !== undefined;
 
           return (
             <FormFieldShell
@@ -127,8 +146,8 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
               type={field.type}
               position={{ x: field.x, y: field.y }}
               size={
-                isResizable && hasMeasuredSize
-                  ? { width: field.width!, height: field.height! }
+                isResizable
+                  ? { width: field.width, height: field.height }
                   : undefined
               }
               fieldStyle={field.style}
@@ -155,6 +174,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
                 width={field.width}
                 height={field.height}
                 data={field.data}
+                style={field.style}
                 onDataChange={(patch, options) =>
                   updateFieldData(field.id, patch, options)
                 }
