@@ -1,83 +1,125 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FieldProps, SignatureFieldData } from "../types/field.types";
+import { FieldScopeSlot } from "../shared/FieldScopeSlot";
 import { InputOverlay } from "../shared/InputOverlay";
-import { useInlineEdit } from "../shared/useInlineEdit";
+import { useInlineEdit, type UseInlineEditReturn } from "../shared/useInlineEdit";
 import { SignatureModal } from "./SignatureModal";
 import { PenLine, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { getFieldPartStyle } from "../shared/fieldStyle.utils";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function SignatureField({
+  id,
   data,
+  style,
   onDataChange,
-}: FieldProps<SignatureFieldData> = {}) {
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(
-    data?.value ?? null,
-  );
+}: FieldProps<SignatureFieldData>) {
+  const fieldData = data;
+  const signatureUrl = fieldData.value ?? null;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const defaultSig = DEFAULT_FIELD_DATA.signature;
-
-  const titleEdit = useInlineEdit(data?.label ?? defaultSig.label, (newTitle) => {
+  const titleEdit = useInlineEdit(fieldData.label, (newTitle) => {
     onDataChange?.({ label: newTitle });
   });
   const noteEdit = useInlineEdit(
-    data?.subTitle ?? defaultSig.subTitle ?? "",
+    fieldData.subTitle,
     (newNote) => {
       onDataChange?.({ subTitle: newNote });
     },
   );
 
   const nameEdit = useInlineEdit(
-    data?.signerName ?? defaultSig.signerName ?? "",
+    fieldData.signerName,
     (newName) => {
       onDataChange?.({ signerName: newName });
     },
   );
 
-  useEffect(() => {
-    setSignatureUrl(data?.value ?? null);
-  }, [data?.value]);
+  const { showSignatureLabels, showSignerName } = fieldData;
+
+  const labelCustomStyle = getFieldPartStyle(style, "label", {
+    fontWeight: "bold",
+    fontStyle: "normal",
+    textAlign: "center",
+  });
+
+  const noteCustomStyle = getFieldPartStyle(style, "subTitle", {
+    fontWeight: "normal",
+    fontStyle: "italic",
+    textAlign: "center",
+  });
+
+  const valueCustomStyle = getFieldPartStyle(style, "value", {
+    fontWeight: "bold",
+    fontStyle: "normal",
+    textAlign: "center",
+  });
 
   return (
-    <div className="flex h-full w-full flex-col justify-between p-2 bg-background select-none overflow-hidden">
+    <div className="flex h-full w-full flex-col justify-between p-2 bg-transparent select-none overflow-hidden">
       {/* Phần đầu: 2 dòng tiêu đề và ghi chú */}
-      <div className="flex flex-col gap-0.5 shrink-0">
-        <InlineEditLine
-          edit={titleEdit}
-          className="text-center text-sm font-bold text-foreground"
-        />
-        <InlineEditLine
-          edit={noteEdit}
-          className="text-center text-xs italic text-muted-foreground"
-        />
-      </div>
+      {showSignatureLabels && (
+        <div className="flex flex-col gap-0.5 shrink-0">
+          <FieldScopeSlot
+            fieldId={id}
+            scope="label"
+            as="div"
+            isEditing={titleEdit.isEditing}
+          >
+            <InlineEditLine
+              edit={titleEdit}
+              style={labelCustomStyle}
+              className="text-center"
+            />
+          </FieldScopeSlot>
+          <FieldScopeSlot
+            fieldId={id}
+            scope="subTitle"
+            as="div"
+            isEditing={noteEdit.isEditing}
+          >
+            <InlineEditLine
+              edit={noteEdit}
+              style={noteCustomStyle}
+              className="text-center"
+            />
+          </FieldScopeSlot>
+        </div>
+      )}
 
       {/* Phần giữa: Khung hiển thị chữ ký */}
       <SignaturePreview
         src={signatureUrl}
         onOpen={() => setIsModalOpen(true)}
         onClear={() => {
-          setSignatureUrl(null);
           onDataChange?.({ value: undefined });
         }}
       />
 
       {/* Phần dưới: Tên người ký */}
-      <div className="shrink-0">
-        <InlineEditLine
-          edit={nameEdit}
-          className="text-center text-sm font-medium text-foreground"
-        />
-      </div>
+      {showSignerName && (
+        <FieldScopeSlot
+          fieldId={id}
+          scope="value"
+          as="div"
+          isEditing={nameEdit.isEditing}
+          className="shrink-0"
+        >
+          <InlineEditLine
+            edit={nameEdit}
+            style={valueCustomStyle}
+            className="text-center"
+          />
+        </FieldScopeSlot>
+      )}
 
       {/* Modal vẽ chữ ký lớn, độc lập */}
       <SignatureModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onSave={(dataUrl) => {
-          setSignatureUrl(dataUrl);
           onDataChange?.({ value: dataUrl ?? undefined });
         }}
       />
@@ -137,18 +179,24 @@ function SignaturePreview({ src, onOpen, onClear }: {
 /**
  * InlineEditLine: Dòng văn bản cho phép chỉnh sửa in-place với InputOverlay
  */
-function InlineEditLine({ edit, className, }: {
-  edit: ReturnType<typeof useInlineEdit>; className?: string;
+function InlineEditLine({
+  edit,
+  className,
+  style,
+}: {
+  edit: UseInlineEditReturn<HTMLInputElement>;
+  className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
       onDoubleClick={edit.handleDoubleClick}
-      className="relative w-full cursor-text"
+      className={cn("relative w-full cursor-text", className)}
+      style={style}
     >
       <span
         className={cn(
-          "block w-full",
-          className,
+          "block w-full truncate",
           edit.isEditing && "invisible"
         )}
       >
@@ -161,6 +209,8 @@ function InlineEditLine({ edit, className, }: {
           onSubmit={edit.handleSubmit}
           onCancel={edit.handleCancel}
           inputRef={edit.inputRef}
+          className="w-full"
+          style={{ textAlign: style?.textAlign || "center" }}
         />
       )}
     </div>

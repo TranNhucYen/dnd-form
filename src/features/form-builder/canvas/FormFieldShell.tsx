@@ -77,7 +77,9 @@ export function FormFieldShell({
           }
 
           return (
-            target.closest('[data-resize-handle="true"], [contenteditable="true"], input, textarea') !== null
+            target.closest(
+              '[data-resize-handle="true"], [contenteditable="true"], .column-resize-handle, .resize-cursor, [data-date-slot="true"], input, textarea'
+            ) !== null
           );
         },
       }),
@@ -141,12 +143,13 @@ export function FormFieldShell({
               : undefined,
           outlineOffset: "2px",
           width: controlledSize?.width,
-          height: controlledSize?.height,
+          // Datatable tự co giãn chiều cao theo số hàng, các field khác cố định theo controlledSize
+          height: type === "datatable" ? undefined : controlledSize?.height,
           boxSizing: "border-box",
         }}
       >
         <div
-          className="h-full w-full"
+          className={type === "datatable" ? "w-full" : "h-full w-full"}
           style={{
             fontFamily: fieldStyle?.fontFamily || "Times New Roman",
             fontSize: fieldStyle?.fontSize ? `${fieldStyle.fontSize}px` : undefined,
@@ -165,12 +168,12 @@ export function FormFieldShell({
           <ResizeHandles type={type} onResizeStart={startResize} />
         )}
 
-        {isSelected && !isDragging && (
+        {isSelected && !isDragging && currentField && (
           <FieldFloatingToolbar
             fieldId={id}
             type={type}
             position={position}
-            data={currentField?.data}
+            data={currentField.data}
             onDataChange={(patch, options) =>
               updateFieldData(id, patch, options)
             }

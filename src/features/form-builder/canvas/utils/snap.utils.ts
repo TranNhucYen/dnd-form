@@ -67,9 +67,8 @@ function getTargetGuideLines(
       continue;
     }
 
-    const defaultSize = FIELD_DEFINITIONS_MAP[field.type]?.defaultSize;
-    const fWidth = field.width ?? defaultSize?.width ?? 0;
-    const fHeight = field.height ?? defaultSize?.height ?? 0;
+    const fWidth = field.width;
+    const fHeight = field.height;
 
     targetXLines.add(field.x);
     targetXLines.add(field.x + fWidth / 2);

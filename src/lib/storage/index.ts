@@ -16,5 +16,11 @@ export function getStorageService(): IStorageService {
 }
 
 export type { IStorageService, UploadFileInput, UploadResult } from './storage.types';
-export { validateImageBuffer, ImageValidationError } from './file-validator';
+export {
+  validateImageBuffer,
+  ImageValidationError,
+  validatePdfBuffer,
+  DocumentValidationError,
+} from './file-validator';
+export type { ValidatedImage, ValidatedPdf } from './file-validator';
 export { isValidStorageKey, buildStorageKey } from './storage.keys';

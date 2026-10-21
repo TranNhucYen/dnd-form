@@ -11,6 +11,7 @@ const MIME_MAP: Record<string, string> = {
   jpeg: 'image/jpeg',
   png: 'image/png',
   webp: 'image/webp',
+  pdf: 'application/pdf',
 };
 
 export async function GET(
@@ -23,7 +24,7 @@ export async function GET(
   const { key } = await params;
   if (!key || key.length === 0) return new NextResponse('Bad Request', { status: 400 });
 
-  // Chỉ nhận đúng các định dạng ảnh cho phép
+  // Chỉ nhận đúng các định dạng cho phép
   const ext = path.extname(key[key.length - 1]).slice(1).toLowerCase();
   const contentType = MIME_MAP[ext];
   if (!contentType) return new NextResponse('Not Found', { status: 404 });

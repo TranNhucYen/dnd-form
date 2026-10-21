@@ -1,19 +1,23 @@
 import { create } from "zustand";
 import { FIELD_DEFINITIONS_MAP } from "../constants/fields.config";
-import { PAGE_PRESETS } from "../constants/form.constants";
 import {
   exportFormSchema,
+  getEffectivePageDimensions,
   importSchemaPageToCanvasPage,
 } from "../domain/transformers";
+
 import type { FieldResizeChange } from "../canvas/types/canvas.types";
 import type {
+  BackgroundPdfMetadata,
   CanvasField,
   CanvasPage,
   FieldData,
+  FieldPartStyle,
   FieldStyle,
   FieldType,
   FormBuilderSnapshot,
   FormSchemaJson,
+  FormatScope,
   Orientation,
   PageMargins,
   PagePresetKey,
@@ -28,7 +32,7 @@ export interface HistoryOptions {
 
 export const MAX_HISTORY_STEPS = 50;
 
-function createDefaultBlankPage(pageNumber: number = 1, id?: string): CanvasPage {
+export function createDefaultBlankPage(pageNumber: number = 1, id?: string): CanvasPage {
   return {
     id: id || `page_${Math.random().toString(36).substring(2, 9)}`,
     pageNumber,
@@ -60,6 +64,9 @@ export interface FormBuilderState {
   pages: CanvasPage[];
   activePageId: string;
 
+  // Metadata của file PDF gốc nền form (nếu có)
+  backgroundPdf?: BackgroundPdfMetadata;
+
   // Cấu hình và dữ liệu của trang đang active (đồng bộ 2 chiều với activePage trong pages)
   pageSizePreset: PagePresetKey;
   orientation: Orientation;
@@ -69,6 +76,8 @@ export interface FormBuilderState {
   // Tương tác phần tử trên Canvas
   selectedFieldId: string | null;
   clipboardField: CanvasField | null;
+  formatScope: FormatScope;
+  setFormatScope: (scope: FormatScope) => void;
 
   // Quản lý Lịch sử (Undo / Redo History)
   past: FormBuilderSnapshot[];
@@ -85,7 +94,21 @@ export interface FormBuilderState {
   // Actions quản lý trang
   addPage: () => void;
   removePage: (pageId: string) => void;
+  clearAllPages: () => void;
   setActivePageId: (pageId: string) => void;
+
+  // Actions quản lý nền trang (PDF / Image Background)
+  setBackgroundPdf: (metadata?: BackgroundPdfMetadata) => void;
+  clearBackgroundPdf: () => void;
+  setPageBackground: (pageId: string, backgroundUrl?: string) => void;
+  setTransientPageBackground: (pageId: string, backgroundUrl: string) => void;
+  setBackgroundOpacity: (opacity: number) => void;
+  setMultiPageBackgrounds: (
+    backgroundUrls: string[],
+    pagePdfMap?: Record<number, number>,
+  ) => void;
+  clearPageBackground: (pageId: string) => void;
+
 
   // Actions cấu hình trang active
   setPageSizePreset: (preset: PagePresetKey) => void;
@@ -94,11 +117,19 @@ export interface FormBuilderState {
   setMarginValue: (key: keyof PageMargins, value: string) => void;
 
   // Actions phần tử Form trên trang active
-  setSelectedFieldId: (id: string | null) => void;
+  setSelectedFieldId: (
+    id: string | null,
+    scope?: FormatScope,
+  ) => void;
   selectAllFields: () => void;
   addField: (type: FieldType, coordinates: { x: number; y: number }) => void;
   updateFieldPosition: (fieldId: string, coordinates: { x: number; y: number }) => void;
   updateFieldStyle: (fieldId: string, style: Partial<FieldStyle>) => void;
+  updateFieldPartStyle: (
+    fieldId: string,
+    part: string,
+    partStyle: Partial<FieldPartStyle>,
+  ) => void;
   updateFieldData: (
     fieldId: string,
     data: Partial<FieldData>,
@@ -127,6 +158,15 @@ export interface FormBuilderState {
   setIsSaving: (isSaving: boolean) => void;
   triggerSave: () => Promise<void>;
 
+  // Adapter tạo form mới từ Toolbar
+  onNewForm?: () => void;
+  setOnNewForm: (handler?: () => void) => void;
+  triggerNewForm: () => void;
+
+  /** Cờ trạng thái đã thay đổi chưa lưu (dirty state) */
+  isDirty: boolean;
+  setIsDirty: (isDirty: boolean) => void;
+
   /** Trạng thái chỉ xem của biểu mẫu */
   isReadOnly: boolean;
   setIsReadOnly: (isReadOnly: boolean) => void;
@@ -151,6 +191,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   selectedFieldId: null,
   clipboardField: null,
+  formatScope: "all",
+  setFormatScope: (formatScope) => set({ formatScope }),
 
   isReadOnly: false,
   setIsReadOnly: (isReadOnly) => set({ isReadOnly }),
@@ -172,6 +214,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         customSelectedId !== undefined
           ? customSelectedId
           : state.selectedFieldId,
+      backgroundPdf: state.backgroundPdf
+        ? structuredClone(state.backgroundPdf)
+        : undefined,
     };
 
     const lastSnapshot = state.past[state.past.length - 1];
@@ -180,7 +225,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
         lastSnapshot.pages.length === currentSnapshot.pages.length &&
         lastSnapshot.activePageId === currentSnapshot.activePageId &&
         JSON.stringify(lastSnapshot.pages) ===
-          JSON.stringify(currentSnapshot.pages)
+          JSON.stringify(currentSnapshot.pages) &&
+        JSON.stringify(lastSnapshot.backgroundPdf) ===
+          JSON.stringify(currentSnapshot.backgroundPdf)
       ) {
         return;
       }
@@ -199,7 +246,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   undo: () => {
-    const { past, future, pages, activePageId, selectedFieldId } = get();
+    const { past, future, pages, activePageId, selectedFieldId, backgroundPdf } = get();
     if (past.length === 0) return;
 
     const previousSnapshot = past[past.length - 1];
@@ -209,6 +256,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       pages: structuredClone(pages),
       activePageId,
       selectedFieldId,
+      backgroundPdf: backgroundPdf ? structuredClone(backgroundPdf) : undefined,
     };
 
     const targetPage =
@@ -217,6 +265,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
     set({
       pages: previousSnapshot.pages,
+      backgroundPdf: previousSnapshot.backgroundPdf,
       activePageId: targetPage.id,
       pageSizePreset: targetPage.pageSizePreset,
       orientation: targetPage.orientation,
@@ -231,7 +280,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   redo: () => {
-    const { past, future, pages, activePageId, selectedFieldId } = get();
+    const { past, future, pages, activePageId, selectedFieldId, backgroundPdf } = get();
     if (future.length === 0) return;
 
     const nextSnapshot = future[0];
@@ -241,6 +290,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       pages: structuredClone(pages),
       activePageId,
       selectedFieldId,
+      backgroundPdf: backgroundPdf ? structuredClone(backgroundPdf) : undefined,
     };
 
     const targetPage =
@@ -251,6 +301,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
     set({
       pages: nextSnapshot.pages,
+      backgroundPdf: nextSnapshot.backgroundPdf,
       activePageId: targetPage.id,
       pageSizePreset: targetPage.pageSizePreset,
       orientation: targetPage.orientation,
@@ -333,6 +384,28 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     });
   },
 
+  clearAllPages: () => {
+    const { pageSizePreset, orientation, margins } = get();
+    get().recordHistory();
+
+    const blankPage = createDefaultBlankPage(1);
+    blankPage.pageSizePreset = pageSizePreset;
+    blankPage.orientation = orientation;
+    blankPage.margins = structuredClone(margins);
+
+    set({
+      pages: [blankPage],
+      activePageId: blankPage.id,
+      pageSizePreset: blankPage.pageSizePreset,
+      orientation: blankPage.orientation,
+      margins: blankPage.margins,
+      fields: [],
+      selectedFieldId: null,
+      backgroundPdf: undefined,
+      isDirty: true,
+    });
+  },
+
   setActivePageId: (pageId: string) => {
     const { pages, activePageId } = get();
     if (pageId === activePageId) return;
@@ -349,6 +422,113 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       selectedFieldId: null,
     });
   },
+
+  // Quản lý nền trang (PDF / IMAGE BACKGROUND)
+  setBackgroundPdf: (metadata) => {
+    set({ backgroundPdf: metadata, isDirty: true });
+  },
+
+  clearBackgroundPdf: () => {
+    get().recordHistory();
+    const { pages } = get();
+    const nextPages = pages.map((p) => ({
+      ...p,
+      backgroundUrl: undefined,
+      pdfPageNumber: undefined,
+    }));
+    set({
+      backgroundPdf: undefined,
+      pages: nextPages,
+      isDirty: true,
+    });
+  },
+
+  setPageBackground: (pageId, backgroundUrl) => {
+    get().recordHistory();
+    const { pages } = get();
+    const nextPages = pages.map((p) =>
+      p.id === pageId ? { ...p, backgroundUrl } : p,
+    );
+    set({ pages: nextPages, isDirty: true });
+  },
+
+  setTransientPageBackground: (pageId, backgroundUrl) => {
+    // KHÔNG recordHistory và KHÔNG bật isDirty (Lazy Load phục vụ hiển thị Canvas)
+    const { pages } = get();
+    const nextPages = pages.map((p) =>
+      p.id === pageId ? { ...p, backgroundUrl } : p,
+    );
+    set({ pages: nextPages });
+  },
+
+  setBackgroundOpacity: (opacity) => {
+    get().recordHistory();
+    const { backgroundPdf } = get();
+    if (!backgroundPdf) return;
+    set({
+      backgroundPdf: { ...backgroundPdf, opacity },
+      isDirty: true,
+    });
+  },
+
+  setMultiPageBackgrounds: (backgroundUrls, pagePdfMap) => {
+    if (!backgroundUrls.length) return;
+    get().recordHistory();
+    const { pages, pageSizePreset, orientation, margins } = get();
+    const nextPages = [...pages];
+
+    // Gán nền mới cho các trang tương ứng hoặc tạo trang mới nếu file mới nhiều trang hơn
+    backgroundUrls.forEach((url, index) => {
+      const pdfPageNum = pagePdfMap ? pagePdfMap[index] : index + 1;
+      if (nextPages[index]) {
+        nextPages[index] = {
+          ...nextPages[index],
+          backgroundUrl: url,
+          pdfPageNumber: pdfPageNum,
+        };
+      } else {
+        const newPage = createDefaultBlankPage(index + 1);
+        newPage.pageSizePreset = pageSizePreset;
+        newPage.orientation = orientation;
+        newPage.margins = structuredClone(margins);
+        newPage.backgroundUrl = url;
+        newPage.pdfPageNumber = pdfPageNum;
+        nextPages.push(newPage);
+      }
+    });
+
+    // Xóa nền đối với các trang vượt quá số trang PDF mới 
+    for (let i = backgroundUrls.length; i < nextPages.length; i++) {
+      nextPages[i] = {
+        ...nextPages[i],
+        backgroundUrl: undefined,
+        pdfPageNumber: undefined,
+      };
+    }
+
+    const activePage =
+      nextPages.find((p) => p.id === get().activePageId) || nextPages[0];
+
+    set({
+      pages: nextPages,
+      activePageId: activePage.id,
+      pageSizePreset: activePage.pageSizePreset,
+      orientation: activePage.orientation,
+      margins: activePage.margins,
+      fields: activePage.fields,
+      isDirty: true,
+    });
+  },
+
+  clearPageBackground: (pageId) => {
+    get().recordHistory();
+    const { pages } = get();
+    const nextPages = pages.map((p) =>
+      p.id === pageId ? { ...p, backgroundUrl: undefined, pdfPageNumber: undefined } : p,
+    );
+    set({ pages: nextPages, isDirty: true });
+  },
+
 
   // ===== CẤU HÌNH TRANG ĐANG ACTIVE =====
   setPageSizePreset: (preset) => {
@@ -402,9 +582,10 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   // ===== THAO TÁC PHẦN TỬ TRÊN TRANG ACTIVE =====
-  setSelectedFieldId: (id) => set({ selectedFieldId: id }),
+  setSelectedFieldId: (id, scope = "all") =>
+    set({ selectedFieldId: id, formatScope: scope }),
 
-  selectAllFields: () => {},
+  selectAllFields: () => { },
 
   addField: (type, coordinates) => {
     get().recordHistory();
@@ -413,9 +594,10 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       id: globalThis.crypto.randomUUID(),
       type,
       ...coordinates,
-      width: def?.defaultSize?.width,
-      height: def?.defaultSize?.height,
-      data: def?.defaultData ? structuredClone(def.defaultData) : undefined,
+      width: def.defaultSize.width,
+      height: def.defaultSize.height,
+      data: structuredClone(def.defaultData),
+      style: def.defaultStyle ? structuredClone(def.defaultStyle) : {},
     } as CanvasField;
 
     const { fields, pages, activePageId } = get();
@@ -447,14 +629,53 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((field) =>
       field.id === fieldId
         ? {
-            ...field,
-            style: {
-              ...field.style,
-              ...style,
-            },
-          }
+          ...field,
+          style: {
+            ...field.style,
+            ...style,
+            ...(style.parts !== undefined
+              ? {
+                parts:
+                  style.parts === undefined
+                    ? undefined
+                    : {
+                      ...field.style?.parts,
+                      ...style.parts,
+                    },
+              }
+              : {}),
+          },
+        }
         : field,
     );
+
+    set({
+      fields: nextFields,
+      pages: updateActivePageFields(pages, activePageId, nextFields),
+    });
+  },
+
+  updateFieldPartStyle: (fieldId, part, partStyle) => {
+    get().recordHistory();
+    const { fields, pages, activePageId } = get();
+    const nextFields = fields.map((field) => {
+      if (field.id !== fieldId) return field;
+      const currentParts = field.style?.parts || {};
+      const currentPart = currentParts[part] || {};
+      return {
+        ...field,
+        style: {
+          ...field.style,
+          parts: {
+            ...currentParts,
+            [part]: {
+              ...currentPart,
+              ...partStyle,
+            },
+          },
+        },
+      };
+    });
 
     set({
       fields: nextFields,
@@ -470,12 +691,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((field) =>
       field.id === fieldId
         ? ({
-            ...field,
-            data: {
-              ...field.data,
-              ...data,
-            },
-          } as CanvasField)
+          ...field,
+          data: {
+            ...field.data,
+            ...data,
+          },
+        } as CanvasField)
         : field,
     );
 
@@ -491,11 +712,11 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const nextFields = fields.map((item) =>
       item.id === fieldId
         ? {
-            ...item,
-            x: change.position.x,
-            y: change.position.y,
-            ...change.size,
-          }
+          ...item,
+          x: change.position.x,
+          y: change.position.y,
+          ...change.size,
+        }
         : item,
     );
 
@@ -508,15 +729,27 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   measureField: (fieldId, size) =>
     set((state) => {
       const currentField = state.fields.find((item) => item.id === fieldId);
-      if (
-        !currentField ||
-        (currentField.width !== undefined && currentField.height !== undefined)
-      ) {
+      if (!currentField) {
+        return state;
+      }
+
+      // Tự động đồng bộ chiều cao mới vào store khi datatable thêm/xóa hàng
+      const isDatatableHeightChanged =
+        currentField.type === "datatable" &&
+        size.height !== undefined &&
+        Math.abs(currentField.height - size.height) > 1;
+
+      if (!isDatatableHeightChanged) {
         return state;
       }
 
       const nextFields = state.fields.map((item) =>
-        item.id === fieldId ? { ...item, ...size } : item,
+        item.id === fieldId
+          ? {
+            ...item,
+            height: size.height,
+          }
+          : item,
       );
 
       return {
@@ -547,7 +780,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       id: globalThis.crypto.randomUUID(),
       x: target.x + 10,
       y: target.y + 10,
-      data: target.data ? structuredClone(target.data) : undefined,
+      data: structuredClone(target.data),
+      style: structuredClone(target.style),
     } as CanvasField;
 
     const { fields, pages, activePageId } = get();
@@ -562,7 +796,9 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   copyField: (fieldId) => {
     const target = get().fields.find((field) => field.id === fieldId);
-    return target ? { clipboardField: { ...target } } : get();
+    if (target) {
+      set({ clipboardField: { ...target } });
+    }
   },
 
   cutField: (fieldId) => {
@@ -591,9 +827,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       id: globalThis.crypto.randomUUID(),
       x: clipboardField.x + offset.x,
       y: clipboardField.y + offset.y,
-      data: clipboardField.data
-        ? structuredClone(clipboardField.data)
-        : undefined,
+      data: structuredClone(clipboardField.data),
+      style: structuredClone(clipboardField.style),
     } as CanvasField;
 
     const nextFields = [...fields, pastedField];
@@ -606,8 +841,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   getFormSchema: () => {
-    const { pages } = get();
-    return exportFormSchema(pages);
+    const { pages, backgroundPdf } = get();
+    return exportFormSchema(pages, backgroundPdf);
   },
 
   setOnSave: (handler) => set({ onSave: handler }),
@@ -615,8 +850,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   setIsSaving: (isSaving) => set({ isSaving }),
 
   triggerSave: async () => {
-    const { onSave, isSaving, getFormSchema } = get();
-    if (isSaving || !onSave) return;
+    const { onSave, isSaving, isDirty, getFormSchema } = get();
+    if (isSaving || !onSave || !isDirty) return;
     try {
       set({ isSaving: true });
       await onSave(getFormSchema());
@@ -624,6 +859,20 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       set({ isSaving: false });
     }
   },
+
+  onNewForm: undefined,
+  setOnNewForm: (handler) => set({ onNewForm: handler }),
+  triggerNewForm: () => {
+    const { onNewForm, resetForm } = get();
+    if (onNewForm) {
+      onNewForm();
+    } else {
+      resetForm();
+    }
+  },
+
+  isDirty: false,
+  setIsDirty: (isDirty) => set({ isDirty }),
 
   loadFormSchema: (schema) => {
     const rawPages = schema?.pages ?? [];
@@ -639,16 +888,19 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
     set({
       pages: canvasPages,
+      backgroundPdf: schema?.backgroundPdf ? structuredClone(schema.backgroundPdf) : undefined,
       activePageId: firstPage.id,
       pageSizePreset: firstPage.pageSizePreset,
       orientation: firstPage.orientation,
       margins: firstPage.margins,
       fields: firstPage.fields,
       selectedFieldId: null,
+      formatScope: "all",
       past: [],
       future: [],
       canUndo: false,
       canRedo: false,
+      isDirty: false,
     });
   },
 
@@ -656,42 +908,26 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
     const defaultPage = createDefaultBlankPage(1, "page_reset");
     set({
       pages: [defaultPage],
+      backgroundPdf: undefined,
       activePageId: defaultPage.id,
       pageSizePreset: defaultPage.pageSizePreset,
       orientation: defaultPage.orientation,
       margins: defaultPage.margins,
       fields: defaultPage.fields,
       selectedFieldId: null,
+      formatScope: "all",
       clipboardField: null,
       isReadOnly: false,
       past: [],
       future: [],
       canUndo: false,
       canRedo: false,
+      isDirty: false,
     });
   },
 }));
 
-/**
- * Helper: Tính toán lại kích thước page bằng cách đảo ngược giá trị width và height dựa trên orientation
- */
-export function getEffectivePageDimensions(
-  pageSizePreset: PagePresetKey,
-  orientation: Orientation,
-): PageSize {
-  const baseSize = PAGE_PRESETS[pageSizePreset] ?? PAGE_PRESETS.A4;
-
-  if (orientation === "LANDSCAPE") {
-    return {
-      width: baseSize.height,
-      height: baseSize.width,
-    };
-  }
-  return {
-    width: baseSize.width,
-    height: baseSize.height,
-  };
-}
+export { getEffectivePageDimensions };
 
 /**
  * Hook: Lấy kích thước trang in thực tế an toàn cho SSR / hydration (tránh tạo object mới)

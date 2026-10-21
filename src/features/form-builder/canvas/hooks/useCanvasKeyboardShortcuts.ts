@@ -3,19 +3,21 @@ import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 
 /** useCanvasKeyboardShortcuts: Quản lý toàn bộ tổ hợp phím tắt thao tác trên canvas */
 export function useCanvasKeyboardShortcuts() {
-  const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
-  const duplicateField = useFormBuilderStore((state) => state.duplicateField);
-  const copyField = useFormBuilderStore((state) => state.copyField);
-  const cutField = useFormBuilderStore((state) => state.cutField);
-  const pasteField = useFormBuilderStore((state) => state.pasteField);
-  const removeField = useFormBuilderStore((state) => state.removeField);
-  const undo = useFormBuilderStore((state) => state.undo);
-  const redo = useFormBuilderStore((state) => state.redo);
-  const triggerSave = useFormBuilderStore((state) => state.triggerSave);
-  const isReadOnly = useFormBuilderStore((state) => state.isReadOnly);
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const {
+        isReadOnly,
+        selectedFieldId,
+        triggerSave,
+        undo,
+        redo,
+        removeField,
+        duplicateField,
+        copyField,
+        cutField,
+        pasteField,
+      } = useFormBuilderStore.getState();
+
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
       const key = event.key.toLowerCase();
 
@@ -112,16 +114,5 @@ export function useCanvasKeyboardShortcuts() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    selectedFieldId,
-    duplicateField,
-    copyField,
-    cutField,
-    pasteField,
-    removeField,
-    undo,
-    redo,
-    triggerSave,
-    isReadOnly,
-  ]);
+  }, []);
 }

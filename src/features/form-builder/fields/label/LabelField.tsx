@@ -1,38 +1,24 @@
-import { useEffect, useRef, useState } from "react";
 import type { FieldProps, LabelFieldData } from "../types/field.types";
 import { TextareaOverlay } from "../shared/TextareaOverlay";
+import { useInlineEdit } from "../shared/useInlineEdit";
 import { DEFAULT_FIELD_DATA } from "../../constants";
 
 export function LabelField({
   data,
   onDataChange,
-}: FieldProps<LabelFieldData> = {}) {
-  const initialText = data?.value ?? DEFAULT_FIELD_DATA.label.value;
-  const [text, setText] = useState(initialText);
-  const [isEditing, setIsEditing] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    setText(initialText);
-  }, [initialText]);
-
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      const textarea = textareaRef.current;
-      textarea.focus();
-      const length = textarea.value.length;
-      textarea.setSelectionRange(length, length);
-
-      requestAnimationFrame(() => {
-        textarea.setSelectionRange(length, length);
-      });
-    }
-  }, [isEditing]);
-
-  const handleDoubleClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsEditing(true);
-  };
+}: FieldProps<LabelFieldData>) {
+  const initialText = data.value;
+  const {
+    value: text,
+    setValue: setText,
+    isEditing,
+    inputRef: textareaRef,
+    handleDoubleClick,
+    handleSubmit,
+    handleCancel,
+  } = useInlineEdit<HTMLTextAreaElement>(initialText, (newText) => {
+    onDataChange?.({ value: newText });
+  });
 
   return (
     <div
@@ -49,14 +35,8 @@ export function LabelField({
           <TextareaOverlay
             value={text}
             onChange={setText}
-            onSubmit={() => {
-              setIsEditing(false);
-              onDataChange?.({ value: text });
-            }}
-            onCancel={() => {
-              setText(initialText);
-              setIsEditing(false);
-            }}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
             textareaRef={textareaRef}
           />
         )}

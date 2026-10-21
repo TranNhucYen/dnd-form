@@ -2,6 +2,7 @@ import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  ToolbarCheckbox,
   ToolbarClearButton,
   ToolbarField,
   ToolbarPopover,
@@ -31,8 +32,8 @@ export function DateToolbar({
   data,
   onDataChange,
 }: FieldToolbarProps<DateFieldData>) {
-  const label = data?.label ?? DEFAULT_FIELD_DATA.date.label;
-  const value = data?.value;
+  const fieldData = { ...DEFAULT_FIELD_DATA.date, ...data };
+  const { label, value, showDateLabels, showDottedLine } = fieldData;
 
   return (
     <ToolbarPopover
@@ -48,6 +49,32 @@ export function DateToolbar({
           className="h-7 text-xs"
         />
       </ToolbarField>
+
+      <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
+        <ToolbarCheckbox
+          label="Hiển thị chữ 'ngày, tháng, năm'"
+          checked={showDateLabels}
+          onCheckedChange={(checked) => onDataChange({ showDateLabels: checked })}
+        />
+        <ToolbarCheckbox
+          label="Hiển thị dòng kẻ chấm"
+          checked={showDottedLine}
+          onCheckedChange={(checked) => onDataChange({ showDottedLine: checked })}
+        />
+      </div>
+
+      {!showDateLabels && (
+        <div className="border-b border-border pb-1.5 mb-0.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDataChange({ slots: undefined })}
+            className="h-7 w-full text-xs text-muted-foreground hover:text-foreground justify-center"
+          >
+            Đặt lại vị trí 4 ô mặc định
+          </Button>
+        </div>
+      )}
 
       <ToolbarField label="Ngày tháng năm">
         <div className="flex items-center gap-1.5">

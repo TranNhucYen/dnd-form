@@ -21,8 +21,30 @@ export function DragPreviewOverlay({
 }: DragPreviewOverlayProps) {
   const fields = useFormBuilderStore((state) => state.fields);
 
+  // Chuyển tiếp mượt, tránh giật lag giữa DragOverlay và Field thật khi thả vào canvas
+  const handleDropAnimation = async ({
+    feedbackElement,
+    source,
+  }: {
+    feedbackElement?: Element;
+    source?: { data?: unknown };
+  }) => {
+    if (!feedbackElement) return;
+
+    const data = source?.data as FormBuilderDragData | undefined;
+    const isFromPalette = !data || !("fieldId" in data);
+
+    if (isFromPalette) {
+      const animation = feedbackElement.animate(
+        [{ opacity: 0.8 }, { opacity: 0 }],
+        { duration: 80, easing: "ease-out" },
+      );
+      await animation.finished.catch(() => {});
+    }
+  };
+
   return (
-    <DragOverlay dropAnimation={null}>
+    <DragOverlay dropAnimation={handleDropAnimation}>
       {(source) => {
         const data = source.data as FormBuilderDragData | undefined;
 
@@ -37,14 +59,14 @@ export function DragPreviewOverlay({
           : undefined;
 
         const fieldType = (canvasField?.type ?? data.type) as FieldType;
-        const isResizable = RESIZABLE_FIELD_TYPES.includes(fieldType);
+        const def = fieldType ? FIELD_DEFINITIONS_MAP[fieldType] : undefined;
+        if (!def) {
+          return null;
+        }
 
-        const defaultSize = fieldType
-          ? FIELD_DEFINITIONS_MAP[fieldType]?.defaultSize
-          : undefined;
-        const defaultData = fieldType
-          ? FIELD_DEFINITIONS_MAP[fieldType]?.defaultData
-          : undefined;
+        const isResizable = RESIZABLE_FIELD_TYPES.includes(fieldType);
+        const defaultSize = def.defaultSize;
+        const defaultData = def.defaultData;
 
         // Đối với field không cho resize (như checkbox), kích thước theo nội dung (undefined -> w-max)
         // Đối với field resizable, lấy kích thước thực tế từ canvas hoặc defaultSize nếu kéo từ palette
@@ -110,6 +132,7 @@ export function DragPreviewOverlay({
                 width={width}
                 height={height}
                 data={fieldData}
+                style={fieldStyle}
               />
             </div>
           </div>

@@ -3,7 +3,6 @@ import type { FieldProps, TextareaFieldData } from "../types/field.types";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { closeHistory } from "@tiptap/pm/history";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { DEFAULT_FIELD_DATA } from "../../constants";
@@ -12,7 +11,7 @@ export function TextareaField({
   id,
   data,
   onDataChange,
-}: FieldProps<TextareaFieldData> = {}) {
+}: FieldProps<TextareaFieldData>) {
   const setEditor = useEditorStore((state) => state.setEditor);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const [isEditing, setIsEditing] = useState(false);
@@ -20,15 +19,12 @@ export function TextareaField({
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFieldSelected = id !== undefined ? selectedFieldId === id : false;
-  const [prevSelectedFieldId, setPrevSelectedFieldId] = useState(selectedFieldId);
-
   // Khi click ra ngoài canvas hoặc unselect field này thì tự động tắt editing
-  if (prevSelectedFieldId !== selectedFieldId) {
-    setPrevSelectedFieldId(selectedFieldId);
-    if (!isFieldSelected && isEditing) {
+  useEffect(() => {
+    if (!isFieldSelected) {
       setIsEditing(false);
     }
-  }
+  }, [isFieldSelected]);
 
   useEffect(() => {
     if (isEditing) {
@@ -51,9 +47,8 @@ export function TextareaField({
           newGroupDelay: 300,
         },
       }),
-      Underline,
     ],
-    content: data?.content ?? data?.html ?? DEFAULT_FIELD_DATA.textarea.html,
+    content: data.content ?? data.html ?? DEFAULT_FIELD_DATA.textarea.html,
     immediatelyRender: false,
     editable: false,
     onUpdate: ({ editor }) => {

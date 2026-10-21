@@ -7,8 +7,8 @@ export function sanitizeSignatureFromSchema(schema?: FormSchemaJson | null): For
   for (const page of cloned.pages) {
     if (Array.isArray(page.fields)) {
       for (const field of page.fields) {
-        if (field.type === 'signature' && field.data) {
-          (field.data as { value?: string }).value = '';
+        if (field.type === 'signature') {
+          field.data.value = '';
         }
       }
     }

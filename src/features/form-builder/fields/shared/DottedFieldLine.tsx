@@ -1,12 +1,20 @@
 import type { ReactNode } from "react";
+import type { FieldStyle } from "../../types/formBuilder.types";
 import { DotDecoration } from "./DotDecoration";
+import { FieldScopeSlot } from "./FieldScopeSlot";
+import { getFieldPartStyle } from "./fieldStyle.utils";
 import { InputOverlay } from "./InputOverlay";
 import { useInlineEdit } from "./useInlineEdit";
 
 export type DottedFieldLineProps = {
+  fieldId?: string;
   label: string;
   value?: string;
   width?: number;
+  showLabel?: boolean;
+  showDottedLine?: boolean;
+  placeholder?: string;
+  style?: FieldStyle;
   children?: ReactNode;
   onLabelSave?: (newLabel: string) => void;
 };
@@ -14,6 +22,7 @@ export type DottedFieldLineProps = {
 export function FieldLabel({
   label,
   isEditing,
+  style,
   onLabelChange,
   onSubmit,
   onCancel,
@@ -21,13 +30,16 @@ export function FieldLabel({
 }: {
   label: string;
   isEditing: boolean;
+  style?: FieldStyle;
   onLabelChange: (val: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
+  const labelCustomStyle = getFieldPartStyle(style, "label");
+
   return (
-    <span className="shrink-0">
+    <span className="shrink-0" style={labelCustomStyle}>
       <span className="relative inline-block min-w-6">
         {/* Thẻ span giúp có dãn theo text người dùng nhập */}
         <span className={`select-none whitespace-pre ${isEditing ? "invisible" : ""}`}>
@@ -48,8 +60,28 @@ export function FieldLabel({
   );
 }
 
-export function FieldValue({ value }: { value?: string }) {
+export function FieldValue({
+  value,
+  style,
+  placeholderHint,
+}: {
+  value?: string;
+  style?: FieldStyle;
+  placeholderHint?: string;
+}) {
+  const valueCustomStyle = getFieldPartStyle(style, "value");
+
   if (!value) {
+    if (placeholderHint) {
+      return (
+        <span
+          style={valueCustomStyle}
+          className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden px-1"
+        >
+          {placeholderHint}
+        </span>
+      );
+    }
     return (
       <span className="invisible relative z-10 select-none leading-[1.25]">
         &nbsp;
@@ -57,7 +89,10 @@ export function FieldValue({ value }: { value?: string }) {
     );
   }
   return (
-    <span className="relative z-10 pr-1 leading-[1.25]">
+    <span
+      style={valueCustomStyle}
+      className="relative z-10 select-none pr-1 leading-[1.25]"
+    >
       {value}
     </span>
   );
@@ -65,12 +100,17 @@ export function FieldValue({ value }: { value?: string }) {
 
 /**
  * DottedFieldLine: Khung hiển thị dùng chung chuẩn cho các trường dạng dòng kẻ chấm (Text, Number, Date, Select)
- * Hỗ trợ nhấp đúp vào bất kỳ đâu trên dòng để chỉnh sửa trực tiếp nhãn
+ * Hỗ trợ nhấp đúp vào bất kỳ đâu trên dòng để chỉnh sửa trực tiếp nhãn khi nhãn hiển thị
  */
 export function DottedFieldLine({
+  fieldId,
   label: initialLabel,
   value,
   width,
+  showLabel = true,
+  showDottedLine = true,
+  placeholder,
+  style,
   children,
   onLabelSave,
 }: DottedFieldLineProps) {
@@ -84,28 +124,45 @@ export function DottedFieldLine({
     handleCancel,
   } = useInlineEdit(initialLabel, onLabelSave);
 
+  const isBothHiddenAndEmpty = !showLabel && !showDottedLine && !value;
+  const placeholderHint = isBothHiddenAndEmpty ? `[${placeholder || label || "Ô nhập"}]` : undefined;
+
   return (
     <span
       style={width !== undefined ? { width: "100%" } : undefined}
-      onDoubleClick={handleDoubleClick}
+      onDoubleClick={showLabel ? handleDoubleClick : undefined}
       className={`
-        relative inline-flex items-baseline whitespace-nowrap overflow-hidden select-none cursor-text 
-        ${width === undefined ? "w-max" : "w-full"}`
+        relative inline-flex items-baseline whitespace-nowrap overflow-hidden select-none ${isEditing ? "cursor-text" : "cursor-move"}
+        ${width === undefined ? "w-max min-w-16" : "w-full"}`
       }
     >
-      <FieldLabel
-        label={label}
-        isEditing={isEditing}
-        onLabelChange={setLabel}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        inputRef={inputRef}
-      />
-      <span className="relative inline-block min-w-0 flex-1 overflow-hidden leading-[1.25]">
-        <DotDecoration />
-        <FieldValue value={value} />
+      {showLabel && (
+        <FieldScopeSlot
+          fieldId={fieldId}
+          scope="label"
+          isEditing={isEditing}
+          className="shrink-0"
+        >
+          <FieldLabel
+            label={label}
+            isEditing={isEditing}
+            style={style}
+            onLabelChange={setLabel}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            inputRef={inputRef}
+          />
+        </FieldScopeSlot>
+      )}
+      <FieldScopeSlot
+        fieldId={fieldId}
+        scope="value"
+        className="relative inline-block min-w-0 flex-1 overflow-hidden leading-[1.25]"
+      >
+        {showDottedLine && <DotDecoration />}
+        <FieldValue value={value} style={style} placeholderHint={placeholderHint} />
         {children}
-      </span>
+      </FieldScopeSlot>
     </span>
   );
 }
