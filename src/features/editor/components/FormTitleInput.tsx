@@ -93,6 +93,7 @@ export function FormTitleInput({
   return (
     <Input
       ref={inputRef}
+      data-form-title-input
       defaultValue={defaultValue}
       disabled={disabled}
       maxLength={150}
