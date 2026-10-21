@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HomeTabContent, PageTabContent, BackgroundTabContent } from "./tabs";
+import { HomeTabContent, PageTabContent, BackgroundTabContent, EFormTabContent } from "./tabs";
 import { SaveTool, NewFormTool, HistoryTools } from "./tools";
 
 export function EditorToolbar() {
@@ -16,6 +16,7 @@ export function EditorToolbar() {
             <TabsTrigger value="home">Home</TabsTrigger>
             <TabsTrigger value="page">Page</TabsTrigger>
             <TabsTrigger value="background">Background</TabsTrigger>
+            <TabsTrigger value="eform">E-Form</TabsTrigger>
           </TabsList>
         </div>
       
@@ -31,6 +32,10 @@ export function EditorToolbar() {
 
           <TabsContent value="background" className="m-0">
             <BackgroundTabContent />
+          </TabsContent>
+
+          <TabsContent value="eform" className="m-0">
+            <EFormTabContent />
           </TabsContent>
         </div>
       </Tabs>
