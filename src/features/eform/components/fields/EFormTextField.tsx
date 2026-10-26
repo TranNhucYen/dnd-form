@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 interface EFormTextFieldProps {
   data: TextFieldData;
   style?: FieldStyle;
+  onChange?: (value: string) => void;
 }
 
-export function EFormTextField({ data, style }: EFormTextFieldProps) {
+export function EFormTextField({ data, style, onChange }: EFormTextFieldProps) {
   const showLabel = data.showLabel !== false;
 
   return (
@@ -26,6 +27,8 @@ export function EFormTextField({ data, style }: EFormTextFieldProps) {
       )}
       <Input
         type="text"
+        defaultValue={data.value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={data.placeholder || "Nhập thông tin..."}
         className="h-9 w-full bg-white text-xs md:text-sm placeholder:text-neutral-400"
       />

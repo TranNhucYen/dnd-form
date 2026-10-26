@@ -9,9 +9,10 @@ import { Eraser } from "lucide-react";
 interface EFormSignatureFieldProps {
   data: SignatureFieldData;
   style?: FieldStyle;
+  onChange?: (value: string | undefined) => void;
 }
 
-export function EFormSignatureField({ data, style }: EFormSignatureFieldProps) {
+export function EFormSignatureField({ data, style, onChange }: EFormSignatureFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
   // Lưu các nét vẽ theo toạ độ chuẩn hoá (0..1) để vẽ lại vừa khít khi đổi kích thước canvas
@@ -92,13 +93,19 @@ export function EFormSignatureField({ data, style }: EFormSignatureFieldProps) {
   };
 
   const handlePointerUp = () => {
+    if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
+    const canvas = canvasRef.current;
+    if (canvas && strokesRef.current.length > 0) {
+      onChange?.(canvas.toDataURL("image/png"));
+    }
   };
 
   const handleClear = () => {
     strokesRef.current = [];
     redraw();
     setHasDrawn(false);
+    onChange?.(undefined);
   };
 
   return (

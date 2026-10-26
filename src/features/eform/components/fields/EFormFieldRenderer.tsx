@@ -27,10 +27,17 @@ import { EFormDatatableField } from "./EFormDatatableField";
 
 interface EFormFieldRendererProps {
   element: EFormElement;
+  onValueChange?: (fieldId: string, value: unknown) => void;
 }
 
-export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
-  const { type, rawField, style } = element;
+export function EFormFieldRenderer({
+  element,
+  onValueChange,
+}: EFormFieldRendererProps) {
+  const { id, type, rawField, style } = element;
+  const handleChange = onValueChange
+    ? (val: unknown) => onValueChange(id, val)
+    : undefined;
 
   switch (type) {
     case "text":
@@ -38,6 +45,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormTextField
           data={rawField.data as TextFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "number":
@@ -45,6 +53,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormNumberField
           data={rawField.data as NumberFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "select":
@@ -52,6 +61,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormSelectField
           data={rawField.data as SelectFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "date":
@@ -59,6 +69,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormDateField
           data={rawField.data as DateFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "textarea":
@@ -66,6 +77,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormTextareaField
           data={rawField.data as TextareaFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "checkbox":
@@ -73,6 +85,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormCheckboxField
           data={rawField.data as CheckboxFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "signature":
@@ -80,6 +93,7 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
         <EFormSignatureField
           data={rawField.data as SignatureFieldData}
           style={style}
+          onChange={handleChange}
         />
       );
     case "label":
@@ -97,7 +111,10 @@ export function EFormFieldRenderer({ element }: EFormFieldRendererProps) {
       return <EFormLineField />;
     case "datatable":
       return (
-        <EFormDatatableField data={rawField.data as DatatableFieldData} />
+        <EFormDatatableField
+          data={rawField.data as DatatableFieldData}
+          onChange={handleChange}
+        />
       );
     default:
       return null;
