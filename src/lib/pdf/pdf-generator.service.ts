@@ -7,6 +7,7 @@ export interface GeneratePdfOptions {
   widthMm?: number;
   heightMm?: number;
   timeoutMs?: number;
+  cookieHeader?: string;
 }
 
 /**
@@ -18,6 +19,7 @@ export const pdfGeneratorService = {
     widthMm,
     heightMm,
     timeoutMs = 30000,
+    cookieHeader,
   }: GeneratePdfOptions): Promise<Buffer> {
     const browser = await getBrowserInstance();
     const context = await browser.createBrowserContext();
@@ -50,6 +52,13 @@ export const pdfGeneratorService = {
         height: viewportHeight,
         deviceScaleFactor: 2,
       });
+
+      // Chuyển tiếp cookie xác thực người dùng nếu có (dành cho các trang in yêu cầu đăng nhập)
+      if (cookieHeader) {
+        await page.setExtraHTTPHeaders({
+          cookie: cookieHeader,
+        });
+      }
 
       // Giả lập media type print
       await page.emulateMediaType('print');

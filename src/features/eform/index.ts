@@ -8,3 +8,4 @@ export * from "./components/preview/EFormPreviewHeader";
 export * from "./components/collect/CollectFormModal";
 export * from "./components/collect/PublicCollectEFormView";
 export * from "./components/collect/SubmissionPrintViewer";
+export * from "./hooks/useExportSubmissionPdf";
