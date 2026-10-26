@@ -4,9 +4,10 @@ import { Label } from "@/components/ui/label";
 interface EFormSelectFieldProps {
   data: SelectFieldData;
   style?: FieldStyle;
+  onChange?: (value: string) => void;
 }
 
-export function EFormSelectField({ data, style }: EFormSelectFieldProps) {
+export function EFormSelectField({ data, style, onChange }: EFormSelectFieldProps) {
   const showLabel = data.showLabel !== false;
   const options = Array.isArray(data.options) ? data.options : [];
 
@@ -25,7 +26,8 @@ export function EFormSelectField({ data, style }: EFormSelectFieldProps) {
         </Label>
       )}
       <select
-        defaultValue=""
+        defaultValue={data.value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
         className="h-9 w-full rounded-md border border-neutral-300 bg-white px-3 py-1 text-xs md:text-sm shadow-2xs transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       >
         <option value="" disabled>

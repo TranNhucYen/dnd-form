@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, timestamp } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, text, timestamp, boolean } from 'drizzle-orm/mysql-core';
 import { user } from './user.schema';
 import { template } from './template.schema';
 import { schemaJson } from './schema_json.schema';
@@ -19,6 +19,9 @@ export const form = mysqlTable('form', {
   schemaId: int('schema_id')
     .notNull()
     .references(() => schemaJson.id),
+
+  isCollecting: boolean('is_collecting').default(false).notNull(),
+  collectToken: varchar('collect_token', { length: 255 }),
 
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),

@@ -56,3 +56,48 @@ export function getEFormTableData(html?: string): EFormTableData | null {
     return null;
   }
 }
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
+ * Ghi dữ liệu các ô (c_rIdx_cIdx) ngược lại vào chuỗi HTML bảng gốc
+ */
+export function injectCellsIntoTableHtml(
+  baseHtml: string | undefined,
+  cellsMap: Record<string, string>,
+): string {
+  if (!baseHtml || typeof window === "undefined") return baseHtml || "";
+
+  try {
+    const doc = new DOMParser().parseFromString(baseHtml, "text/html");
+    const tableEl = doc.querySelector("table");
+    if (!tableEl) return baseHtml;
+
+    const rowEls = tableEl.querySelectorAll("tr");
+    rowEls.forEach((tr, rIdx) => {
+      const cellEls = tr.querySelectorAll("th, td");
+      cellEls.forEach((el, cIdx) => {
+        const cellId = `c_${rIdx}_${cIdx}`;
+        if (Object.prototype.hasOwnProperty.call(cellsMap, cellId)) {
+          const val = cellsMap[cellId] ?? "";
+          const htmlLines = val
+            .split("\n")
+            .map((line) => `<p>${escapeHtml(line)}</p>`)
+            .join("");
+          el.innerHTML = htmlLines || "<p></p>";
+        }
+      });
+    });
+
+    return tableEl.outerHTML;
+  } catch {
+    return baseHtml;
+  }
+}
