@@ -8,4 +8,5 @@ export * from './schema_media.schema';
 export * from './template.schema';
 export * from './form.schema';
 export * from './form_share.schema';
+export * from './form_submission.schema';
 export * from './notification.schema';

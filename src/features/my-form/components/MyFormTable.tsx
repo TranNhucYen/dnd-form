@@ -33,6 +33,7 @@ import {
   Sparkles,
   Calendar,
   Download,
+  Inbox,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -43,6 +44,7 @@ interface MyFormTableProps {
   forms: MyForm[]
   onOpenPreview: (form: MyForm) => void
   onOpenShare: (form: MyForm) => void
+  onOpenCollect: (form: MyForm) => void
   onOpenDelete: (form: MyForm) => void
   onOpenDuplicate: (form: MyForm) => void
 }
@@ -51,6 +53,7 @@ export function MyFormTable({
   forms,
   onOpenPreview,
   onOpenShare,
+  onOpenCollect,
   onOpenDelete,
   onOpenDuplicate,
 }: MyFormTableProps) {
@@ -249,7 +252,7 @@ export function MyFormTable({
                       </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="end" className="w-48 text-xs">
+                    <DropdownMenuContent align="end" className="w-52 text-xs">
                       <DropdownMenuGroup>
                         <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
                           Thao tác
@@ -261,6 +264,15 @@ export function MyFormTable({
                             <Pencil />
                             <span>Chỉnh sửa form</span>
                           </Link>
+                        </DropdownMenuItem>
+
+                        {/* Collect via E-Form */}
+                        <DropdownMenuItem
+                          onClick={() => onOpenCollect(form)}
+                          className="cursor-pointer"
+                        >
+                          <Inbox className="text-emerald-600" />
+                          <span>Thu thập qua E-Form</span>
                         </DropdownMenuItem>
 
                         {/* Preview */}

@@ -5,9 +5,22 @@ import { Label } from "@/components/ui/label";
 interface EFormDateFieldProps {
   data: DateFieldData;
   style?: FieldStyle;
+  onChange?: (value: string) => void;
 }
 
-export function EFormDateField({ data, style }: EFormDateFieldProps) {
+function toInputDateValue(raw?: string): string {
+  if (!raw) return "";
+  const parts = raw.split("/");
+  if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+    const d = parts[0].padStart(2, "0");
+    const m = parts[1].padStart(2, "0");
+    const y = parts[2].padStart(4, "20");
+    return `${y}-${m}-${d}`;
+  }
+  return "";
+}
+
+export function EFormDateField({ data, style, onChange }: EFormDateFieldProps) {
   return (
     <div className="flex w-full flex-col gap-1.5">
       <Label
@@ -22,6 +35,8 @@ export function EFormDateField({ data, style }: EFormDateFieldProps) {
       </Label>
       <Input
         type="date"
+        defaultValue={toInputDateValue(data.value)}
+        onChange={(e) => onChange?.(e.target.value)}
         className="h-9 w-full bg-white text-xs md:text-sm text-neutral-700"
       />
     </div>
