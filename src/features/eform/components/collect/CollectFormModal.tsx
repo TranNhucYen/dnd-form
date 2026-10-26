@@ -272,7 +272,7 @@ export function CollectFormModal({
                         className="h-7 text-[11px] gap-1.5 cursor-pointer"
                       >
                         <Printer className="size-3.5" />
-                        <span>Xem & In</span>
+                        <span>xem & tải xuống</span>
                       </Button>
 
                       <Button

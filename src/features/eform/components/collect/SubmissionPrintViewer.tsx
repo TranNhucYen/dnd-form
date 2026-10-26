@@ -1,9 +1,10 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { Download, Loader2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PrintCanvas } from "@/features/form-builder/print/PrintCanvas";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
+import { useExportSubmissionPdf } from "../../hooks/useExportSubmissionPdf";
 
 interface SubmissionPrintViewerProps {
   submissionId: number;
@@ -18,8 +19,10 @@ export function SubmissionPrintViewer({
   submittedAt,
   schema,
 }: SubmissionPrintViewerProps) {
+  const { isExporting, downloadSubmissionPdf } = useExportSubmissionPdf();
+
   return (
-    <div className="light min-h-screen w-full bg-neutral-100 print:bg-white flex flex-col text-neutral-900">
+    <div className="light min-h-screen w-full bg-neutral-100 print:bg-white print:min-h-0 print:block flex flex-col text-neutral-900">
       {/* Thanh công cụ đồng bộ kiểu dáng với PublicFormViewer */}
       <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 px-6 py-3 flex items-center justify-between shadow-2xs print:hidden">
         <div className="flex flex-col min-w-0">
@@ -31,15 +34,31 @@ export function SubmissionPrintViewer({
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.print()}
-          className="cursor-pointer gap-2 shrink-0"
-        >
-          <Printer className="size-4" />
-          <span>In / Lưu PDF</span>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.print()}
+            className="cursor-pointer gap-2"
+          >
+            <Printer className="size-4" />
+            <span>In biểu mẫu</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => downloadSubmissionPdf(submissionId, formName)}
+            disabled={isExporting}
+            className="cursor-pointer gap-2"
+          >
+            {isExporting ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Download className="size-4" />
+            )}
+            <span>{isExporting ? "Đang xuất PDF..." : "Tải xuống PDF"}</span>
+          </Button>
+        </div>
       </header>
 
       {/* Khung giấy A4 1:1 với dữ liệu đã điền */}
