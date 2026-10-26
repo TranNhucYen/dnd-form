@@ -1,17 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import type { DatatableFieldData } from "@/features/form-builder/types/formBuilder.types";
-import { getEFormTableData } from "../../engine/table-ast-parser";
+import { getEFormTableData, injectCellsIntoTableHtml } from "../../engine/table-ast-parser";
 
 interface EFormDatatableFieldProps {
   data: DatatableFieldData;
+  onChange?: (value: { html: string; cells: Record<string, string> }) => void;
 }
 
-export function EFormDatatableField({ data }: EFormDatatableFieldProps) {
+export function EFormDatatableField({ data, onChange }: EFormDatatableFieldProps) {
   const tableData = useMemo(() => {
     return getEFormTableData(data.html);
   }, [data.html]);
+
+  const cellsMapRef = useRef<Record<string, string>>({});
 
   if (!tableData || tableData.rows.length === 0) {
     return (
@@ -28,6 +31,17 @@ export function EFormDatatableField({ data }: EFormDatatableFieldProps) {
   const firstEditableCellId = tableData.rows
     .flatMap((row) => row.cells)
     .find((cell) => !(cell.isHeader && cell.text))?.id;
+
+  const handleCellChange = (cellId: string, nextText: string) => {
+    cellsMapRef.current[cellId] = nextText;
+    if (onChange) {
+      const updatedHtml = injectCellsIntoTableHtml(data.html, cellsMapRef.current);
+      onChange({
+        html: updatedHtml,
+        cells: { ...cellsMapRef.current },
+      });
+    }
+  };
 
   return (
     <div className="w-full min-w-0 max-w-full my-2">
@@ -84,6 +98,7 @@ export function EFormDatatableField({ data }: EFormDatatableFieldProps) {
                         <textarea
                           rows={1}
                           defaultValue={cell.text}
+                          onChange={(e) => handleCellChange(cell.id, e.target.value)}
                           aria-label="Ô nhập liệu bảng"
                           placeholder="..."
                           className="block w-full resize-none bg-transparent border-0 p-0 text-xs md:text-sm text-neutral-800 placeholder:text-neutral-300 focus:outline-none [field-sizing:content]"

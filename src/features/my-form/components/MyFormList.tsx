@@ -15,6 +15,7 @@ import { Plus, FolderOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { SearchInput, EmptyState, ErrorAlert } from '@/shared/components'
+import { CollectFormModal } from '@/features/eform'
 import { useMyFormList } from '../hooks/useMyForm'
 import type { MyForm } from '../types/my-form.type'
 import { saveFormSharingAction } from '../actions/my-form.action'
@@ -47,6 +48,7 @@ export default function MyFormList() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [duplicateModalForm, setDuplicateModalForm] = useState<MyForm | null>(null)
   const [shareModalForm, setShareModalForm] = useState<MyForm | null>(null)
+  const [collectModalForm, setCollectModalForm] = useState<MyForm | null>(null)
   const [previewModalForm, setPreviewModalForm] = useState<MyForm | null>(null)
   const [deleteModalForm, setDeleteModalForm] = useState<MyForm | null>(null)
 
@@ -148,6 +150,7 @@ export default function MyFormList() {
             forms={forms}
             onOpenPreview={(form) => setPreviewModalForm(form)}
             onOpenShare={(form) => setShareModalForm(form)}
+            onOpenCollect={(form) => setCollectModalForm(form)}
             onOpenDelete={(form) => setDeleteModalForm(form)}
             onOpenDuplicate={(form) => setDuplicateModalForm(form)}
           />
@@ -253,6 +256,13 @@ export default function MyFormList() {
           toast.success('Đã cập nhật cài đặt chia sẻ thành công')
           refetch()
         }}
+      />
+
+      <CollectFormModal
+        formId={collectModalForm?.id ?? null}
+        formName={collectModalForm?.name}
+        open={!!collectModalForm}
+        onOpenChange={(open) => !open && setCollectModalForm(null)}
       />
 
       <PreviewFormModal

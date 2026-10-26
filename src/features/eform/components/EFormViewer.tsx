@@ -4,9 +4,10 @@ import { EFormPageRenderer } from "./EFormPageRenderer";
 interface EFormViewerProps {
   layout: EFormLayout;
   title?: string;
+  onValueChange?: (fieldId: string, value: unknown) => void;
 }
 
-export function EFormViewer({ layout, title }: EFormViewerProps) {
+export function EFormViewer({ layout, title, onValueChange }: EFormViewerProps) {
   if (!layout.pages || layout.pages.length === 0) {
     return (
       <div className="flex min-h-[300px] w-full items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-white p-8 text-center text-sm text-neutral-400">
@@ -33,6 +34,7 @@ export function EFormViewer({ layout, title }: EFormViewerProps) {
             <EFormPageRenderer
               page={page}
               totalPageCount={layout.pages.length}
+              onValueChange={onValueChange}
             />
             {idx < layout.pages.length - 1 && (
               <div className="my-6 md:my-8 flex items-center gap-4">

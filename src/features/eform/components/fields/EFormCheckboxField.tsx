@@ -4,12 +4,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface EFormCheckboxFieldProps {
   data: CheckboxFieldData;
   style?: FieldStyle;
+  onChange?: (checked: boolean) => void;
 }
 
-export function EFormCheckboxField({ data, style }: EFormCheckboxFieldProps) {
+export function EFormCheckboxField({ data, style, onChange }: EFormCheckboxFieldProps) {
   return (
     <label className="flex items-center gap-2.5 py-1.5 cursor-pointer select-none">
-      <Checkbox />
+      <Checkbox
+        defaultChecked={Boolean(data.checked)}
+        onCheckedChange={(checked) => onChange?.(Boolean(checked))}
+      />
       {data.showLabel !== false && (
         <span
           style={{

@@ -4,11 +4,13 @@ import { EFormRowRenderer } from "./EFormRowRenderer";
 interface EFormPageRendererProps {
   page: EFormPage;
   totalPageCount: number;
+  onValueChange?: (fieldId: string, value: unknown) => void;
 }
 
 export function EFormPageRenderer({
   page,
   totalPageCount,
+  onValueChange,
 }: EFormPageRendererProps) {
   return (
     <div className="flex w-full min-w-0 flex-col">
@@ -29,7 +31,11 @@ export function EFormPageRenderer({
       {/* Danh sách các hàng trường dữ liệu */}
       <div className="flex w-full min-w-0 flex-col gap-1">
         {page.rows.map((row) => (
-          <EFormRowRenderer key={row.id} row={row} />
+          <EFormRowRenderer
+            key={row.id}
+            row={row}
+            onValueChange={onValueChange}
+          />
         ))}
       </div>
     </div>

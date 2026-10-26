@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 interface EFormNumberFieldProps {
   data: NumberFieldData;
   style?: FieldStyle;
+  onChange?: (value: number | undefined) => void;
 }
 
-export function EFormNumberField({ data, style }: EFormNumberFieldProps) {
+export function EFormNumberField({ data, style, onChange }: EFormNumberFieldProps) {
   const showLabel = data.showLabel !== false;
 
   return (
@@ -28,6 +29,11 @@ export function EFormNumberField({ data, style }: EFormNumberFieldProps) {
         type="number"
         min={data.min}
         max={data.max}
+        defaultValue={data.value !== undefined ? String(data.value) : ""}
+        onChange={(e) => {
+          const val = e.target.value;
+          onChange?.(val === "" ? undefined : Number(val));
+        }}
         placeholder={data.placeholder || "0"}
         className="h-9 w-full bg-white text-xs md:text-sm placeholder:text-neutral-400"
       />
