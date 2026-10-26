@@ -11,7 +11,7 @@ import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.t
 import { SubmissionPrintViewer } from "@/features/eform/components/collect/SubmissionPrintViewer";
 
 export const metadata: Metadata = {
-  title: "Xem & In biểu mẫu đã điền",
+  title: "Xem & tải xuống biểu mẫu đã điền",
 };
 
 interface SubmissionPrintPageProps {
