@@ -53,7 +53,7 @@ export function Detail({ id }: DetailProps) {
           </Link>
         </div>
 
-        <div className="flex flex-col items-center justify-center p-8 bg-destructive/10 border border-destructive/20 rounded-xl text-center">
+        <div className="flex flex-col items-center justify-center p-8 bg-destructive/10 border border-destructive/20 rounded-lg text-center">
           <AlertCircle className="size-12 text-destructive mb-3" />
           <h2 className="text-lg font-bold text-destructive">
             {error || "Không tìm thấy biểu mẫu"}
@@ -170,7 +170,7 @@ export function Detail({ id }: DetailProps) {
             )}
           </div>
           <div
-            className="border border-border rounded-xl bg-muted/30 p-4 shadow-xs overflow-hidden cursor-pointer hover:border-primary/40 transition-colors"
+            className="border border-border rounded-lg bg-muted/30 p-4 shadow-xs overflow-hidden cursor-pointer hover:border-primary/40 transition-colors"
             onClick={() => setIsZoomOpen(true)}
             role="button"
             tabIndex={0}
@@ -311,7 +311,7 @@ export function DetailSkeleton() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         <div className="lg:col-span-2 flex flex-col gap-3">
           <Skeleton className="h-5 w-40 rounded" />
-          <div className="border border-border rounded-xl bg-muted/30 p-4">
+          <div className="border border-border rounded-lg bg-muted/30 p-4">
             <AspectRatio ratio={210 / 297} className="rounded-lg overflow-hidden">
               <Skeleton className="w-full h-full" />
             </AspectRatio>

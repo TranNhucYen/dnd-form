@@ -14,11 +14,11 @@ export function RecentFormCard({ form }: RecentFormCardProps) {
   const editUrl = DYNAMIC_ROUTES.FORM_EDIT(form.id)
 
   return (
-    <div className="flex flex-col justify-between p-4 bg-card border border-border/80 rounded-xl shadow-xs hover:shadow-md hover:border-primary/40 transition-all duration-200 group">
+    <div className="flex flex-col justify-between p-4 bg-card border border-border/80 rounded-lg shadow-xs hover:shadow-md hover:border-primary/40 transition-all duration-200 group">
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
-          <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-            <FileText className="size-5" />
+          <div className="size-9 rounded-md bg-muted text-foreground flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+            <FileText className="size-4.5" />
           </div>
         </div>
 
@@ -57,10 +57,10 @@ export function RecentFormCard({ form }: RecentFormCardProps) {
 
 export function RecentFormCardSkeleton() {
   return (
-    <div className="flex flex-col justify-between p-4 bg-card border border-border/80 rounded-xl shadow-xs animate-pulse">
+    <div className="flex flex-col justify-between p-4 bg-card border border-border/80 rounded-lg shadow-xs animate-pulse">
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between">
-          <div className="size-10 rounded-lg bg-muted" />
+          <div className="size-9 rounded-md bg-muted" />
         </div>
         <div className="space-y-2">
           <div className="h-4 w-3/4 bg-muted rounded" />

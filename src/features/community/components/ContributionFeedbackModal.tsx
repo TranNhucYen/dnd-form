@@ -73,7 +73,7 @@ export function ContributionFeedbackModal({
 
         <div className="flex flex-col gap-4 py-2">
           {/* Form Header Info */}
-          <div className="p-3.5 rounded-xl border border-border bg-muted/30 flex flex-col gap-2">
+          <div className="p-3.5 rounded-lg border border-border bg-muted/30 flex flex-col gap-2">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
                 <FileText className="size-4 text-muted-foreground shrink-0" />

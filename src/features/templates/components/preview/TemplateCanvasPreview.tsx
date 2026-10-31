@@ -160,7 +160,7 @@ export function TemplateCanvasPreview({
         ) : (
           schema?.backgroundPdf && (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none bg-neutral-50/70 z-0">
-              <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 text-muted-foreground max-w-[85%] shadow-xs">
+              <div className="flex flex-col items-center gap-2.5 p-4 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/40 text-muted-foreground max-w-[85%] shadow-xs">
                 {isLoadingPdf ? (
                   <Loader2 className="size-8 text-primary animate-spin" />
                 ) : (

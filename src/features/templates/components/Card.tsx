@@ -19,7 +19,7 @@ export function Card({ template }: CardProps) {
     <div
       className="
         flex flex-col justify-between gap-4 p-4 bg-card text-card-foreground 
-        border border-border/80 rounded-xl shadow-xs 
+        border border-border/80 rounded-lg shadow-xs 
         hover:shadow-md hover:border-border transition-all duration-200
       "
     >
@@ -29,13 +29,13 @@ export function Card({ template }: CardProps) {
           <AspectRatio
             ratio={210 / 297}
             className="
-              border border-border rounded-lg 
+              border border-border rounded-md 
               bg-muted/50 shadow-2xs overflow-hidden
               flex items-center justify-center text-muted-foreground/40
-              group-hover/link:border-emerald-500/30 group-hover/link:bg-emerald-500/10 transition-all
+              group-hover/link:border-foreground/30 group-hover/link:bg-muted transition-all
             "
           >
-            <FileText className="size-8 text-muted-foreground/40 group-hover/link:text-emerald-500 transition-colors" />
+            <FileText className="size-8 text-muted-foreground/40 group-hover/link:text-foreground transition-colors" />
           </AspectRatio>
         </div>
 
@@ -102,7 +102,7 @@ export function CardSkeleton() {
     <div
       className="
         flex flex-col justify-between gap-4 p-4 bg-card 
-        border border-border/80 rounded-xl shadow-xs 
+        border border-border/80 rounded-lg shadow-xs 
       "
     >
       <div className="flex gap-4">
@@ -111,7 +111,7 @@ export function CardSkeleton() {
           <AspectRatio
             ratio={210 / 297}
             className="
-              border border-border rounded-lg 
+              border border-border rounded-md 
               bg-muted/50 shadow-2xs overflow-hidden
             "
           >
