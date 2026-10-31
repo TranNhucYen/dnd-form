@@ -6,6 +6,7 @@ export const ROUTES = {
   // Dashboard / App Routes
   HOME: "/home",
   MY_FORM: "/my-form",
+  COLLECTION_STATS: "/collection-stats",
   SHARED_WITH_ME: "/shared-with-me",
   EDITOR: "/editor",
   TEMPLATES: "/templates",
@@ -26,6 +27,7 @@ export const DYNAMIC_ROUTES = {
   FORM_EDIT: (id: string | number) => `/editor?formId=${id}`,
   FORM_DETAIL: (id: string | number) => `/my-form/${id}`,
   TEMPLATE_DETAIL: (id: string | number) => `/templates/${id}`,
+  COLLECTION_STATS: (id?: string | number) => (id ? `/collection-stats?formId=${id}` : `/collection-stats`),
 } as const
 
 export type AppRoutes = typeof ROUTES[keyof typeof ROUTES]

@@ -6,12 +6,11 @@ import { handleActionError } from "@/shared/utils/action.util";
 import type { ActionResponse } from "@/shared/types/action.type";
 import {
   collectService,
+  type CollectingFormSummary,
   type FormCollectionConfig,
 } from "../services/collect.service";
 
-async function getAuthenticatedUserId(): Promise<
-  { userId: number } | { error: string; code: string }
-> {
+async function getAuthenticatedUserId(): Promise<{ userId: number } | { error: string; code: string }> {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth_token")?.value;
 
@@ -36,6 +35,27 @@ async function getAuthenticatedUserId(): Promise<
   }
 
   return { userId: user.id };
+}
+
+/**
+ * Lấy danh sách biểu mẫu của người dùng hiện tại phục vụ trang thống kê
+ */
+export async function getUserCollectingFormsAction(): Promise<ActionResponse<CollectingFormSummary[]>> {
+  try {
+    const authResult = await getAuthenticatedUserId();
+    if ("error" in authResult) {
+      return {
+        success: false,
+        error: authResult.error,
+        code: authResult.code,
+      };
+    }
+
+    const data = await collectService.getUserCollectingForms(authResult.userId);
+    return { success: true, data };
+  } catch (error) {
+    return handleActionError(error, "getUserCollectingFormsAction");
+  }
 }
 
 export async function getFormCollectionConfigAction(
@@ -118,7 +138,7 @@ export async function deleteFormSubmissionAction(
 }
 
 /**
- * Server Action công khai (không cần đăng nhập) để người dùng ngoài nộp E-Form
+ * Server Action công khai (không cần đăng nhập) để người dùng điền dữ liệu dưới dạng eform
  */
 export async function submitPublicEFormAction(
   token: string,

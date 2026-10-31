@@ -26,7 +26,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
-      <main className="flex-1 min-w-0 overflow-x-hidden">
+      <main className="flex-1 min-w-0 overflow-x-clip">
         <SidebarTrigger />
         <div className="p-6">{children}</div> 
       </main>

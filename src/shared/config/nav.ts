@@ -1,4 +1,16 @@
-import { Home, LayoutTemplate, FileEdit, Globe, Bell, Settings, User, FileText, Users, type LucideIcon } from "lucide-react"
+import {
+  Home,
+  LayoutTemplate,
+  FileEdit,
+  Globe,
+  Bell,
+  Settings,
+  User,
+  FileText,
+  Users,
+  BarChart3,
+  type LucideIcon,
+} from "lucide-react"
 import { ROUTES } from "@/shared/constants/routes"
 
 export interface NavItem {
@@ -17,6 +29,11 @@ export const mainNavItems: NavItem[] = [
     title: "Biểu mẫu của tôi",
     url: ROUTES.MY_FORM,
     icon: FileText,
+  },
+  {
+    title: "Thống kê thu thập",
+    url: ROUTES.COLLECTION_STATS,
+    icon: BarChart3,
   },
   {
     title: "Chia sẻ với tôi",
