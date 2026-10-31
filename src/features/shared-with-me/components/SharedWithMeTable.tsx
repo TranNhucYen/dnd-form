@@ -23,7 +23,7 @@ export function SharedWithMeTable({ forms }: SharedWithMeTableProps) {
   const router = useRouter()
 
   return (
-    <div className="flex-1 min-h-[260px] rounded-xl border border-border bg-card overflow-hidden shadow-xs flex flex-col">
+    <div className="flex-1 min-h-[260px] rounded-lg border border-border bg-card overflow-hidden shadow-xs flex flex-col">
       <ScrollArea type="always" className="h-full w-full">
         <Table className="min-w-[650px]">
           <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur-xs shadow-xs">

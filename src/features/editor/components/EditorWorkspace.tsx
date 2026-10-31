@@ -47,7 +47,7 @@ export function EditorWorkspace() {
   if (accessError) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center h-[calc(100vh-10rem)]">
-        <div className="max-w-md p-8 bg-card border border-border rounded-2xl shadow-sm flex flex-col items-center gap-4">
+        <div className="max-w-md p-8 bg-card border border-border rounded-lg shadow-sm flex flex-col items-center gap-4">
           <div className="size-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
             <ShieldAlert className="size-6" />
           </div>

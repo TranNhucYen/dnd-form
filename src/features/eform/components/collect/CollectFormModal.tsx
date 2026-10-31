@@ -163,11 +163,11 @@ export function CollectFormModal({
         ) : (
           <div className="flex flex-col gap-6 py-2 min-w-0 w-full overflow-hidden">
             {/* Public link section — đồng bộ cấu trúc với ShareFormModal */}
-            <div className="p-4 rounded-xl bg-muted/50 border border-border flex flex-col gap-3 min-w-0 w-full">
+            <div className="p-4 rounded-lg bg-muted/50 border border-border flex flex-col gap-3 min-w-0 w-full">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div
-                    className={`size-8 rounded-lg flex items-center justify-center ${
+                    className={`size-8 rounded-md flex items-center justify-center ${
                       isCollecting
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-muted text-muted-foreground"

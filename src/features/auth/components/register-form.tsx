@@ -35,7 +35,7 @@ export function RegisterForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-87.5 space-y-6 rounded-xl border bg-card p-6 shadow-sm">
+      <div className="w-full max-w-87.5 space-y-6 rounded-lg border bg-card p-6 shadow-sm">
         <div className="space-y-1.5 text-center">
           <h1 className="text-2xl font-bold tracking-tight">Tạo tài khoản</h1>
           <p className="text-sm text-muted-foreground">Nhập thông tin bên dưới để tạo tài khoản</p>

@@ -29,13 +29,13 @@ export function QuickActionCard({
     <div
       onClick={onClick}
       className={cn(
-        'group flex flex-col justify-between p-5 bg-card border border-border/80 rounded-xl shadow-xs hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer text-left h-full select-none'
+        'group flex flex-col justify-between p-5 bg-card border border-border/80 rounded-lg shadow-xs hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer text-left h-full select-none'
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-4">
         <div
           className={cn(
-            'size-11 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105',
+            'size-10 rounded-md flex items-center justify-center transition-transform group-hover:scale-105',
             iconBgClassName,
             iconColorClassName
           )}

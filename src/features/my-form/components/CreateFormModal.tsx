@@ -83,12 +83,12 @@ export function CreateFormModal({
               <button
                 type="button"
                 onClick={() => setStep('blank_form')}
-                className="flex items-start gap-4 p-4 text-left rounded-xl
+                className="flex items-start gap-4 p-4 text-left rounded-lg
                   border border-border hover:border-muted-foreground/40
                   hover:bg-muted/40 transition-all group cursor-pointer"
               >
                 <div
-                  className="size-10 rounded-lg bg-emerald-50 text-emerald-600
+                  className="size-10 rounded-md bg-muted text-foreground
                   flex items-center justify-center shrink-0
                   group-hover:scale-105 transition-transform"
                 >
@@ -98,7 +98,7 @@ export function CreateFormModal({
                   <div className="flex items-center justify-between">
                     <h4
                       className="font-semibold text-foreground text-sm
-                      group-hover:text-emerald-700 transition-colors"
+                      group-hover:text-primary transition-colors"
                     >
                       Tạo biểu mẫu từ đầu
                     </h4>
@@ -117,12 +117,12 @@ export function CreateFormModal({
               <Link
                 href="/templates"
                 onClick={() => onOpenChange(false)}
-                className="flex items-start gap-4 p-4 text-left rounded-xl
+                className="flex items-start gap-4 p-4 text-left rounded-lg
                   border border-border hover:border-muted-foreground/40
                   hover:bg-muted/40 transition-all group cursor-pointer"
               >
                 <div
-                  className="size-10 rounded-lg bg-blue-50 text-blue-600
+                  className="size-10 rounded-md bg-muted text-foreground
                   flex items-center justify-center shrink-0
                   group-hover:scale-105 transition-transform"
                 >
@@ -132,7 +132,7 @@ export function CreateFormModal({
                   <div className="flex items-center justify-between">
                     <h4
                       className="font-semibold text-foreground text-sm
-                      group-hover:text-blue-700 transition-colors"
+                      group-hover:text-primary transition-colors"
                     >
                       Tạo từ Form mẫu có sẵn
                     </h4>

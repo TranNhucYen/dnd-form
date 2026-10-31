@@ -13,7 +13,7 @@ export function PublicFormUnavailable({
 }: PublicFormUnavailableProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-neutral-50 text-center">
-      <div className="max-w-md bg-white p-8 rounded-2xl shadow-sm border border-neutral-200 flex flex-col items-center gap-4">
+      <div className="max-w-md bg-white p-8 rounded-lg shadow-sm border border-neutral-200 flex flex-col items-center gap-4">
         <div className="size-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
           <AlertCircle className="size-6" />
         </div>

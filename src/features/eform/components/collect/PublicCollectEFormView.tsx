@@ -59,7 +59,7 @@ export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
   if (isSubmitted) {
     return (
       <div className="light flex min-h-screen w-full items-center justify-center bg-neutral-100 p-4 text-neutral-900">
-        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-xs">
+        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-lg border border-neutral-200 bg-white p-8 text-center shadow-xs">
           <div className="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
             <CheckCircle2 className="size-6" />
           </div>
@@ -115,7 +115,7 @@ export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
             onValueChange={handleValueChange}
           />
 
-          <div className="flex items-center justify-end gap-3 rounded-xl border border-neutral-300 bg-white p-4 shadow-xs">
+          <div className="flex items-center justify-end gap-3 rounded-lg border border-neutral-300 bg-white p-4 shadow-xs">
             <Button
               type="submit"
               disabled={isSubmitting}

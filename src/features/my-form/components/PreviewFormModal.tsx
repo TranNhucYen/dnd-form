@@ -62,7 +62,7 @@ export function PreviewFormModal({
 
         {/* Paper Canvas Mockup */}
         <div
-          className="p-6 bg-muted/50 rounded-xl border border-border
+          className="p-6 bg-muted/50 rounded-lg border border-border
           flex justify-center"
         >
           <Card

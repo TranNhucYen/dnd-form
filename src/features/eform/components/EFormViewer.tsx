@@ -10,14 +10,14 @@ interface EFormViewerProps {
 export function EFormViewer({ layout, title, onValueChange }: EFormViewerProps) {
   if (!layout.pages || layout.pages.length === 0) {
     return (
-      <div className="flex min-h-[300px] w-full items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-white p-8 text-center text-sm text-neutral-400">
+      <div className="flex min-h-[300px] w-full items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center text-sm text-neutral-400">
         Biểu mẫu chưa có trường dữ liệu nào để hiển thị E-Form.
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-full overflow-x-hidden flex-col gap-6 md:gap-8 rounded-xl border border-neutral-200/80 bg-white p-4 sm:p-6 md:p-8 shadow-xs">
+    <div className="mx-auto flex w-full min-w-0 max-w-full overflow-x-hidden flex-col gap-6 md:gap-8 rounded-lg border border-neutral-200/80 bg-white p-4 sm:p-6 md:p-8 shadow-xs">
       {/* Tiêu đề biểu mẫu E-Form */}
       {title && (
         <div className="pb-2 md:pb-4 text-center min-w-0">

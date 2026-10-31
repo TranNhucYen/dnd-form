@@ -284,7 +284,7 @@ export function CollectionStatsView() {
 
           {/* Bảng danh sách các bản nộp */}
           {isLoadingSubmissions ? (
-            <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
+            <div className="rounded-lg border border-border bg-card p-4 flex flex-col gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
@@ -317,7 +317,7 @@ export function CollectionStatsView() {
               }
             />
           ) : (
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs">
+            <div className="rounded-lg border border-border bg-card overflow-hidden shadow-2xs">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>

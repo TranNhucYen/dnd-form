@@ -56,37 +56,31 @@ export function UserTable() {
       case UserRole.SUPER_ADMIN:
         return (
           <Badge
-            variant="outline"
-            className="
-              text-xs font-semibold bg-purple-50 text-purple-700
-              border-purple-200 dark:bg-purple-950/40 dark:text-purple-300
-              gap-1 px-2 py-0.5"
+            variant="default"
+            className="text-[11px] font-semibold bg-primary text-primary-foreground gap-1 px-2 py-0.5 shadow-2xs"
           >
             <ShieldAlert className="size-3" />
-            super Admin
+            Super Admin
           </Badge>
         )
       case UserRole.ADMIN:
         return (
           <Badge
             variant="outline"
-            className="
-              text-xs font-semibold bg-blue-50 text-blue-700
-              border-blue-200 dark:bg-blue-950/40 dark:text-blue-300
-              gap-1 px-2 py-0.5"
+            className="text-[11px] font-semibold bg-foreground/5 text-foreground border-foreground/20 gap-1 px-2 py-0.5"
           >
             <Shield className="size-3" />
-            admin
+            Admin
           </Badge>
         )
       case UserRole.USER:
         return (
           <Badge
             variant="secondary"
-            className="text-xs font-medium gap-1 px-2 py-0.5"
+            className="text-[11px] font-medium text-muted-foreground gap-1 px-2 py-0.5"
           >
             <UserIcon className="size-3" />
-            user
+            User
           </Badge>
         )
     }
