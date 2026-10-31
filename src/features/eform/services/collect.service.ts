@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { db } from "@/db";
 import { form, formSubmission, schemaJson, user } from "@/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
 import { hydrateImageUrls } from "@/features/editor/utils/schema-hydrate";
 import { hydrateFormDataIntoSchema } from "../engine/hydrate-submission";
@@ -34,7 +34,51 @@ export interface PublicCollectFormDetail {
   schemaContent: FormSchemaJson;
 }
 
+export interface CollectingFormSummary {
+  id: number;
+  name: string;
+  description: string | null;
+  isCollecting: boolean;
+  collectToken: string | null;
+  submissionsCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const collectService = {
+  /**
+   * Lấy danh sách biểu mẫu của người dùng kèm số lượng phản hồi đã nhận
+   */
+  async getUserCollectingForms(userId: number): Promise<CollectingFormSummary[]> {
+    const rawForms = await db
+      .select({
+        id: form.id,
+        name: form.name,
+        description: form.description,
+        isCollecting: form.isCollecting,
+        collectToken: form.collectToken,
+        submissionsCount: count(formSubmission.id),
+        createdAt: form.createdAt,
+        updatedAt: form.updatedAt,
+      })
+      .from(form)
+      .leftJoin(formSubmission, eq(form.id, formSubmission.formId))
+      .where(eq(form.ownerId, userId))
+      .groupBy(form.id)
+      .orderBy(desc(form.isCollecting), desc(form.updatedAt));
+
+    return rawForms.map((f) => ({
+      id: f.id,
+      name: f.name,
+      description: f.description,
+      isCollecting: Boolean(f.isCollecting),
+      collectToken: f.collectToken,
+      submissionsCount: Number(f.submissionsCount || 0),
+      createdAt: f.createdAt.toISOString(),
+      updatedAt: f.updatedAt.toISOString(),
+    }));
+  },
+
   /**
    * Lấy cấu hình thu thập và danh sách phản hồi của biểu mẫu (dành cho chủ sở hữu)
    */
