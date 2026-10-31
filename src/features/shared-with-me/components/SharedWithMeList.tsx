@@ -64,7 +64,7 @@ export default function SharedWithMeList() {
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <div className="flex-1 min-h-[260px] rounded-xl border border-border bg-card p-4 flex flex-col gap-3 overflow-hidden">
+        <div className="flex-1 min-h-[260px] rounded-lg border border-border bg-card p-4 flex flex-col gap-3 overflow-hidden">
           {Array.from({ length: 5 }).map((_, index) => (
             <div
               key={index}

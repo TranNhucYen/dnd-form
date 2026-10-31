@@ -70,7 +70,7 @@ export function NotificationList() {
       {isLoading ? (
         <div className="flex flex-col gap-3">
           {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="border rounded-xl p-4 flex gap-3 items-start">
+            <div key={n} className="border rounded-lg p-4 flex gap-3 items-start">
               <Skeleton className="size-8 rounded-full" />
               <div className="flex-1 flex flex-col gap-2">
                 <Skeleton className="h-4 w-1/3 rounded" />
@@ -84,7 +84,7 @@ export function NotificationList() {
         <div
           className="
             py-12 text-center flex flex-col items-center justify-center 
-            border border-destructive/30 rounded-xl bg-destructive/5 text-destructive p-6"
+            border border-destructive/30 rounded-lg bg-destructive/5 text-destructive p-6"
         >
           <AlertCircle className="size-8 mb-2" />
           <h3 className="font-semibold text-sm">{error}</h3>
@@ -96,7 +96,7 @@ export function NotificationList() {
         <div
           className="
             py-16 text-center flex flex-col items-center justify-center
-            border border-dashed rounded-xl bg-card"
+            border border-dashed rounded-lg bg-card"
         >
           <div className="size-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground mb-3">
             <Inbox className="size-6" />

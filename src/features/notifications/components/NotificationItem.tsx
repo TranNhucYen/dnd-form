@@ -75,7 +75,7 @@ export function NotificationItem({
     <div
       onClick={handleClick}
       className={cn(
-        'p-4 rounded-xl border border-border/60 bg-card transition-all flex items-start gap-3.5',
+        'p-4 rounded-lg border border-border/60 bg-card transition-all flex items-start gap-3.5',
         notification.actionUrl ? 'cursor-pointer hover:border-primary/50 hover:bg-muted/20' : 'hover:border-border'
       )}
     >

@@ -46,11 +46,11 @@ export function HomeView({ user }: HomeViewProps) {
   return (
     <div className="w-full mx-auto flex flex-col gap-8 pb-12">
       {/* 1. Welcome & Hero Banner */}
-      <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-6 sm:p-8">
+      <section className="relative overflow-hidden rounded-xl border border-border/80 bg-linear-to-br from-muted/60 via-muted/20 to-transparent p-6 sm:p-8">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex flex-col gap-2 max-w-2xl">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="gap-1 px-2.5 py-0.5 text-xs font-semibold bg-primary/15 text-primary border-transparent">
+              <Badge variant="secondary" className="gap-1 px-2 py-0.5 text-[11px] font-semibold bg-primary/10 text-primary border-border/40">
                 <Sparkles className="size-3" />
                 DragForm
               </Badge>
@@ -94,8 +94,8 @@ export function HomeView({ user }: HomeViewProps) {
             title="Tạo biểu mẫu trống"
             description="Bắt đầu từ trang trắng khổ giấy A4 tiêu chuẩn và kéo thả tùy ý."
             icon={FilePlus}
-            iconBgClassName="bg-emerald-500/10"
-            iconColorClassName="text-emerald-600 dark:text-emerald-400"
+            iconBgClassName="bg-muted"
+            iconColorClassName="text-foreground"
             actionLabel="Tạo ngay"
             onClick={() => setCreateModalOpen(true)}
           />
@@ -103,8 +103,8 @@ export function HomeView({ user }: HomeViewProps) {
             title="Sử dụng mẫu sẵn"
             description="Lựa chọn từ các mẫu biểu mẫu thông dụng đã chuẩn hóa quy chuẩn in ấn."
             icon={LayoutTemplate}
-            iconBgClassName="bg-blue-500/10"
-            iconColorClassName="text-blue-600 dark:text-blue-400"
+            iconBgClassName="bg-muted"
+            iconColorClassName="text-foreground"
             actionLabel="Xem kho mẫu"
             href={ROUTES.TEMPLATES}
           />
@@ -112,8 +112,8 @@ export function HomeView({ user }: HomeViewProps) {
             title="Đóng góp cộng đồng"
             description="Chia sẻ các biểu mẫu hữu ích của bạn để mọi người cùng sử dụng."
             icon={Users}
-            iconBgClassName="bg-purple-500/10"
-            iconColorClassName="text-purple-600 dark:text-purple-400"
+            iconBgClassName="bg-muted"
+            iconColorClassName="text-foreground"
             actionLabel="Khám phá"
             href={ROUTES.COMMUNITY}
           />
@@ -147,7 +147,7 @@ export function HomeView({ user }: HomeViewProps) {
             ))}
           </div>
         ) : recentForms.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-8 bg-card border border-dashed border-border rounded-xl text-center gap-3">
+          <div className="flex flex-col items-center justify-center p-8 bg-card border border-dashed border-border rounded-lg text-center gap-3">
             <div className="size-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
               <FileText className="size-6" />
             </div>

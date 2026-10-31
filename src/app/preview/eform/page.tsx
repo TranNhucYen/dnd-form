@@ -92,7 +92,7 @@ function EFormPreviewContent() {
   if (!previewData || !previewData.schema) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-neutral-100 p-4">
-        <div className="flex max-w-md flex-col items-center rounded-xl border border-neutral-200 bg-white p-8 text-center shadow-xs">
+        <div className="flex max-w-md flex-col items-center rounded-lg border border-neutral-200 bg-white p-8 text-center shadow-xs">
           <div className="flex size-12 items-center justify-center rounded-full bg-amber-50 text-amber-600 mb-3">
             <FileQuestion className="size-6" />
           </div>
