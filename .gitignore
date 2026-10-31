@@ -38,3 +38,6 @@ next-env.d.ts
 
 # local storage uploads
 /storage/
+
+# pdf worker (auto-copied via postinstall)
+/public/pdf.worker.min.mjs
