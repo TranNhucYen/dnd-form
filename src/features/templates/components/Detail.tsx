@@ -65,7 +65,7 @@ export function Detail({ id }: DetailProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={refetch}
+              onClick={() => void refetch()}
               className="gap-1.5 cursor-pointer"
             >
               <RefreshCw className="size-3.5" />

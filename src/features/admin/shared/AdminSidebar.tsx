@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Sidebar,
   SidebarContent,
@@ -69,6 +70,7 @@ interface AdminSidebarProps {
 export function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
@@ -81,6 +83,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     setIsLoggingOut(true)
     try {
       await logoutAction()
+      queryClient.clear()
       setLogoutOpen(false)
       router.push(ROUTES.LOGIN)
       router.refresh()

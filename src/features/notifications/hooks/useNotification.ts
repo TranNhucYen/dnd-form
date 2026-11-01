@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { AppNotification } from '../types/notification.type'
 import {
@@ -9,35 +10,44 @@ import {
   clearAllNotificationsAction,
 } from '../actions/notification.action'
 
-export function useNotification() {
-  const [notifications, setNotifications] = useState<AppNotification[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export const NOTIFICATIONS_KEY = ['notifications', 'list'] as const
 
-  const fetchNotifications = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getNotificationsAction()
-      if (res.success) {
-        setNotifications(res.data)
-      } else {
-        setError(res.error)
-        toast.error(res.error)
-      }
-    } catch (err) {
-      console.error(err)
-      const errorMsg = err instanceof Error ? err.message : 'Không thể tải danh sách thông báo.'
-      setError(errorMsg)
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+async function fetchNotifications(): Promise<AppNotification[]> {
+  const res = await getNotificationsAction()
+  if (!res.success) {
+    throw new Error(res.error)
+  }
+  return res.data
+}
+
+export function useNotification() {
+  const queryClient = useQueryClient()
+
+  const notificationsQuery = useQuery({
+    queryKey: NOTIFICATIONS_KEY,
+    queryFn: fetchNotifications,
+    // Thông báo cần luôn mới khi mở trang; dữ liệu cũ chỉ dùng để tránh nháy skeleton.
+    staleTime: 0,
+  })
 
   useEffect(() => {
-    fetchNotifications()
-  }, [fetchNotifications])
+    if (notificationsQuery.error) {
+      toast.error(notificationsQuery.error.message)
+    }
+  }, [notificationsQuery.error])
+
+  const notifications = notificationsQuery.data ?? []
+
+  const setNotifications = (
+    value:
+      | AppNotification[]
+      | ((prev: AppNotification[]) => AppNotification[])
+  ) => {
+    queryClient.setQueryData<AppNotification[]>(NOTIFICATIONS_KEY, (prev) => {
+      const current = prev ?? []
+      return typeof value === 'function' ? value(current) : value
+    })
+  }
 
   const deleteNotification = async (id: string) => {
     const prevNotifications = notifications
@@ -79,10 +89,10 @@ export function useNotification() {
 
   return {
     notifications,
-    isLoading,
-    error,
+    isLoading: notificationsQuery.isLoading,
+    error: notificationsQuery.error?.message ?? null,
     deleteNotification,
     clearAll,
-    refetch: fetchNotifications,
+    refetch: notificationsQuery.refetch,
   }
 }

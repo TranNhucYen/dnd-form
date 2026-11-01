@@ -1,78 +1,46 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getHomeDashboardAction } from '@/features/home/actions/home.action'
-import type { MyForm } from '@/features/my-form/types/my-form.type'
-import type { Template } from '@/features/templates/types/template.type'
+import type { HomeDashboardData } from '@/features/home/types/home.type'
+
+export const HOME_DASHBOARD_KEY = ['home', 'dashboard'] as const
+
+const EMPTY_HOME_DATA: HomeDashboardData = {
+  recentForms: [],
+  featuredTemplates: [],
+  totalFormsCount: 0,
+}
+
+async function fetchHomeData(): Promise<HomeDashboardData> {
+  const res = await getHomeDashboardAction()
+  if (!res.success) {
+    throw new Error(res.error || 'Đã xảy ra lỗi khi tải dữ liệu trang chủ.')
+  }
+  return res.data
+}
 
 export function useHomeData() {
-  const [recentForms, setRecentForms] = useState<MyForm[]>([])
-  const [featuredTemplates, setFeaturedTemplates] = useState<Template[]>([])
-  const [totalFormsCount, setTotalFormsCount] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchData = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getHomeDashboardAction()
-
-      if (res.success) {
-        setRecentForms(res.data.recentForms)
-        setFeaturedTemplates(res.data.featuredTemplates)
-        setTotalFormsCount(res.data.totalFormsCount)
-      } else {
-        setError(res.error)
-      }
-    } catch (err) {
-      console.error('Lỗi khi nạp dữ liệu trang chủ:', err)
-      setError('Đã xảy ra lỗi khi tải dữ liệu trang chủ.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const homeQuery = useQuery({
+    queryKey: HOME_DASHBOARD_KEY,
+    queryFn: fetchHomeData,
+  })
 
   useEffect(() => {
-    let ignore = false
-
-    const loadInitialData = async () => {
-      try {
-        const res = await getHomeDashboardAction()
-        if (ignore) return
-
-        if (res.success) {
-          setRecentForms(res.data.recentForms)
-          setFeaturedTemplates(res.data.featuredTemplates)
-          setTotalFormsCount(res.data.totalFormsCount)
-        } else {
-          setError(res.error)
-        }
-      } catch (err) {
-        if (!ignore) {
-          console.error('Lỗi khi nạp dữ liệu trang chủ:', err)
-          setError('Đã xảy ra lỗi khi tải dữ liệu trang chủ.')
-        }
-      } finally {
-        if (!ignore) {
-          setIsLoading(false)
-        }
-      }
+    if (homeQuery.error) {
+      console.error('Lỗi khi nạp dữ liệu trang chủ:', homeQuery.error)
     }
+  }, [homeQuery.error])
 
-    loadInitialData()
-
-    return () => {
-      ignore = true
-    }
-  }, [])
+  const data = useMemo(() => homeQuery.data ?? EMPTY_HOME_DATA, [homeQuery.data])
 
   return {
-    recentForms,
-    featuredTemplates,
-    totalFormsCount,
-    isLoading,
-    error,
-    refetch: fetchData,
+    recentForms: data.recentForms,
+    featuredTemplates: data.featuredTemplates,
+    totalFormsCount: data.totalFormsCount,
+    isLoading: homeQuery.isLoading,
+    error: homeQuery.error?.message ?? null,
+    refetch: homeQuery.refetch,
   }
 }

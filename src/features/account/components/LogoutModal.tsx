@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,12 +25,14 @@ interface LogoutModalProps {
 
 export function LogoutModal({ open, onOpenChange }: LogoutModalProps) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleConfirmLogout = async () => {
     setIsLoggingOut(true)
     try {
       await logoutAction()
+      queryClient.clear()
       onOpenChange(false)
       router.push(ROUTES.LOGIN)
       router.refresh()

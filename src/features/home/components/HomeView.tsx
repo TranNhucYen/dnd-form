@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Plus,
   FilePlus,
@@ -31,6 +32,7 @@ interface HomeViewProps {
 
 export function HomeView({ user }: HomeViewProps) {
   const { recentForms, featuredTemplates, totalFormsCount, isLoading } = useHomeData()
+  const queryClient = useQueryClient()
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const displayName = user?.fullName || 'bạn'
@@ -40,6 +42,9 @@ export function HomeView({ user }: HomeViewProps) {
     if (!res.success) {
       throw new Error(res.error)
     }
+    // Invalidate cache my-form và home để reflect form mới
+    void queryClient.invalidateQueries({ queryKey: ['my-form'] })
+    void queryClient.invalidateQueries({ queryKey: ['home'] })
     return res.data
   }
 

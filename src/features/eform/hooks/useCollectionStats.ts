@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   deleteFormSubmissionAction,
@@ -15,130 +16,107 @@ import type {
   FormSubmissionItem,
 } from "../services/collect.service";
 
+const FORMS_KEY = ["collection-stats", "forms"] as const;
+
+function configKey(formId: number) {
+  return ["collection-stats", "config", formId] as const;
+}
+
 export function useCollectionStats() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const initialFormIdParam = searchParams.get("formId");
 
-  const [forms, setForms] = useState<CollectingFormSummary[]>([]);
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(
+  const [selectedFormIdState, setSelectedFormId] = useState<number | null>(
     initialFormIdParam ? Number(initialFormIdParam) : null,
   );
-  const [config, setConfig] = useState<FormCollectionConfig | null>(null);
-
-  const [isLoadingForms, setIsLoadingForms] = useState(true);
-  const [isManualLoadingSubmissions, setIsManualLoadingSubmissions] = useState(false);
+  const [isManualLoadingSubmissions, setIsManualLoadingSubmissions] =
+    useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [submissionSearch, setSubmissionSearch] = useState("");
 
-  // Tải danh sách các form khi mount
+  const formsQuery = useQuery({
+    queryKey: FORMS_KEY,
+    queryFn: async (): Promise<CollectingFormSummary[]> => {
+      const res = await getUserCollectingFormsAction();
+      if (!res.success || !res.data) {
+        throw new Error(res.error || "Không thể tải danh sách biểu mẫu.");
+      }
+      return res.data;
+    },
+    // Số phản hồi thay đổi liên tục: luôn fetch mới, giữ data cũ để tránh nháy skeleton.
+    staleTime: 0,
+  });
+
   useEffect(() => {
-    let ignore = false;
+    if (formsQuery.error) {
+      toast.error(formsQuery.error.message);
+    }
+  }, [formsQuery.error]);
 
-    getUserCollectingFormsAction()
-      .then((res) => {
-        if (ignore) return;
-        if (!res.success || !res.data) {
-          toast.error(res.error || "Không thể tải danh sách biểu mẫu.");
-          return;
-        }
-        setForms(res.data);
+  const forms = useMemo(() => formsQuery.data ?? [], [formsQuery.data]);
 
-        // Tự động chọn form đầu tiên nếu chưa có form nào được chọn
-        setSelectedFormId((prev) => {
-          if (prev && res.data.some((f) => f.id === prev)) {
-            return prev;
-          }
-          const firstActive = res.data.find((f) => f.isCollecting);
-          if (firstActive) {
-            return firstActive.id;
-          }
-          return res.data[0]?.id ?? null;
-        });
-      })
-      .catch(() => {
-        if (!ignore) {
-          toast.error("Lỗi khi tải danh sách biểu mẫu.");
-        }
-      })
-      .finally(() => {
-        if (!ignore) {
-          setIsLoadingForms(false);
-        }
-      });
+  // Giữ lựa chọn hiện tại nếu còn trong danh sách; fallback: form đang thu thập, rồi form đầu tiên.
+  const selectedFormId = useMemo<number | null>(() => {
+    if (selectedFormIdState && forms.some((f) => f.id === selectedFormIdState)) {
+      return selectedFormIdState;
+    }
+    if (forms.length === 0) return selectedFormIdState;
 
-    return () => {
-      ignore = true;
-    };
-  }, []);
+    const firstActive = forms.find((f) => f.isCollecting);
+    return firstActive?.id ?? forms[0]?.id ?? null;
+  }, [selectedFormIdState, forms]);
 
-  // Tải phản hồi khi selectedFormId thay đổi
+  const configQuery = useQuery({
+    queryKey: selectedFormId
+      ? configKey(selectedFormId)
+      : (["collection-stats", "config", "none"] as const),
+    queryFn: async (): Promise<FormCollectionConfig> => {
+      if (!selectedFormId) {
+        throw new Error("Chưa chọn biểu mẫu.");
+      }
+
+      const res = await getFormCollectionConfigAction(selectedFormId);
+      if (!res.success || !res.data) {
+        throw new Error(res.error || "Không thể tải danh sách phản hồi.");
+      }
+      return res.data;
+    },
+    enabled: Boolean(selectedFormId),
+    // Phản hồi gửi bất cứ lúc nào, luôn fetch mới khi mở lại.
+    staleTime: 0,
+  });
+
   useEffect(() => {
-    if (!selectedFormId) return;
+    if (configQuery.error) {
+      toast.error(configQuery.error.message);
+    }
+  }, [configQuery.error]);
 
-    let ignore = false;
+  const config = configQuery.data ?? null;
+  const isLoadingForms = formsQuery.isLoading;
 
-    getFormCollectionConfigAction(selectedFormId)
-      .then((res) => {
-        if (ignore) return;
-        if (!res.success || !res.data) {
-          toast.error(res.error || "Không thể tải danh sách phản hồi.");
-          setConfig(null);
-          return;
-        }
-        setConfig(res.data);
-      })
-      .catch(() => {
-        if (!ignore) {
-          toast.error("Lỗi khi tải phản hồi của biểu mẫu.");
-        }
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, [selectedFormId]);
-
-  // Trạng thái đang tải bản nộp
+  // Đang tải bản nộp
   const isLoadingSubmissions =
-    Boolean(selectedFormId && config?.formId !== selectedFormId) ||
+    Boolean(selectedFormId && configQuery.isPending) ||
     isManualLoadingSubmissions;
 
-  // Hàm thủ công để tải lại phản hồi của form đã chọn
-  const loadSubmissions = useCallback(async (formId: number) => {
+  const { refetch: refetchConfig } = configQuery
+
+  // Tải lại phản hồi của form đang chọn
+  const loadSubmissions = useCallback(async () => {
+    if (!selectedFormId) return;
+
     setIsManualLoadingSubmissions(true);
     try {
-      const res = await getFormCollectionConfigAction(formId);
-      if (!res.success || !res.data) {
-        toast.error(res.error || "Không thể tải danh sách phản hồi.");
-        return;
-      }
-      setConfig(res.data);
-    } catch {
-      toast.error("Lỗi khi tải phản hồi của biểu mẫu.");
+      await refetchConfig();
     } finally {
       setIsManualLoadingSubmissions(false);
     }
-  }, []);
-
-  // Hàm thủ công tải lại danh sách forms
-  const loadForms = useCallback(async () => {
-    setIsLoadingForms(true);
-    try {
-      const res = await getUserCollectingFormsAction();
-      if (!res.success || !res.data) {
-        toast.error(res.error || "Không thể tải danh sách biểu mẫu.");
-        return;
-      }
-      setForms(res.data);
-    } catch {
-      toast.error("Lỗi khi tải danh sách biểu mẫu.");
-    } finally {
-      setIsLoadingForms(false);
-    }
-  }, []);
+  }, [selectedFormId, refetchConfig]);
 
   // Đổi form đã chọn
   const handleSelectForm = useCallback(
@@ -163,19 +141,22 @@ export function useCollectionStats() {
         return;
       }
 
-      setConfig((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          isCollecting: res.data.isCollecting,
-          collectToken: res.data.collectToken,
-          collectUrl: res.data.collectUrl,
-        };
-      });
+      queryClient.setQueryData<FormCollectionConfig>(
+        configKey(selectedFormId),
+        (prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            isCollecting: res.data.isCollecting,
+            collectToken: res.data.collectToken,
+            collectUrl: res.data.collectUrl,
+          };
+        },
+      );
 
       // Cập nhật lại list forms
-      setForms((prev) =>
-        prev.map((f) => {
+      queryClient.setQueryData<CollectingFormSummary[]>(FORMS_KEY, (prev) =>
+        (prev ?? []).map((f) => {
           if (f.id === selectedFormId) {
             return {
               ...f,
@@ -197,7 +178,7 @@ export function useCollectionStats() {
     } finally {
       setIsToggling(false);
     }
-  }, [selectedFormId, config, isToggling]);
+  }, [selectedFormId, config, isToggling, queryClient]);
 
   // Xóa một bản ghi nộp
   const handleDeleteSubmission = useCallback(
@@ -214,18 +195,21 @@ export function useCollectionStats() {
           return;
         }
 
-        setConfig((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            submissions: prev.submissions.filter(
-              (s) => s.id !== submissionId,
-            ),
-          };
-        });
+        queryClient.setQueryData<FormCollectionConfig>(
+          configKey(selectedFormId),
+          (prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              submissions: prev.submissions.filter(
+                (s) => s.id !== submissionId,
+              ),
+            };
+          },
+        );
 
-        setForms((prev) =>
-          prev.map((f) => {
+        queryClient.setQueryData<CollectingFormSummary[]>(FORMS_KEY, (prev) =>
+          (prev ?? []).map((f) => {
             if (f.id === selectedFormId) {
               return {
                 ...f,
@@ -243,7 +227,7 @@ export function useCollectionStats() {
         setDeletingId(null);
       }
     },
-    [selectedFormId, deletingId],
+    [selectedFormId, deletingId, queryClient],
   );
 
   // Lọc phản hồi theo từ khóa tìm kiếm
@@ -294,10 +278,10 @@ export function useCollectionStats() {
     handleDeleteSubmission,
     refetchSubmissions: () => {
       if (selectedFormId) {
-        return loadSubmissions(selectedFormId);
+        return loadSubmissions();
       }
       return Promise.resolve();
     },
-    refetchForms: loadForms,
+    refetchForms: formsQuery.refetch,
   };
 }

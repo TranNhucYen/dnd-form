@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { MyForm, CreateBlankFormInput } from '../types/my-form.type'
 import {
@@ -10,73 +11,54 @@ import {
   deleteFormAction,
 } from '../actions/my-form.action'
 
+export const MY_FORM_LIST_KEY = ['my-form', 'list'] as const
+
+async function fetchMyForms(): Promise<MyForm[]> {
+  const res = await getMyFormsAction()
+  if (!res.success || !res.data) {
+    throw new Error(res.error || 'Không thể tải danh sách biểu mẫu')
+  }
+  return res.data
+}
+
 export function useMyFormList() {
-  const [data, setData] = useState<MyForm[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [searchTerm, setSearchTermState] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  // Tải danh sách biểu mẫu khi component mount
+  const myFormsQuery = useQuery({
+    queryKey: MY_FORM_LIST_KEY,
+    queryFn: fetchMyForms,
+  })
+
   useEffect(() => {
-    let ignore = false
-
-    getMyFormsAction()
-      .then((res) => {
-        if (ignore) return
-        if (res.success && res.data) {
-          setData(res.data)
-        } else {
-          const errorMsg = res.error || 'Không thể tải danh sách biểu mẫu'
-          setError(errorMsg)
-          toast.error(errorMsg)
-        }
-      })
-      .catch((err) => {
-        if (ignore) return
-        const errorMsg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra'
-        setError(errorMsg)
-        toast.error(errorMsg)
-      })
-      .finally(() => {
-        if (!ignore) {
-          setIsLoading(false)
-        }
-      })
-
-    return () => {
-      ignore = true
+    if (myFormsQuery.error) {
+      toast.error(myFormsQuery.error.message)
     }
-  }, [])
+  }, [myFormsQuery.error])
 
-  // Hàm làm mới danh sách chủ động
-  const fetchForms = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getMyFormsAction()
-      if (res.success && res.data) {
-        setData(res.data)
-      } else {
-        const errorMsg = res.error || 'Không thể tải danh sách biểu mẫu'
-        setError(errorMsg)
-        toast.error(errorMsg)
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra'
-      setError(errorMsg)
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const updateLocalList = useCallback(
+    (updater: (prev: MyForm[]) => MyForm[]) => {
+      queryClient.setQueryData<MyForm[]>(MY_FORM_LIST_KEY, (prev) =>
+        updater(prev ?? [])
+      )
+    },
+    [queryClient]
+  )
+
+  // Trang chủ hiển thị số lượng và biểu mẫu gần đây nên cần làm mới sau khi thay đổi.
+  const invalidateHome = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: ['home'] })
+  }, [queryClient])
 
   // Đổi từ khóa tìm kiếm và tự động reset về trang 1 trong event handler
   const setSearchTerm = useCallback((term: string) => {
     setSearchTermState(term)
     setCurrentPage(1)
   }, [])
+
+  const data = useMemo(() => myFormsQuery.data ?? [], [myFormsQuery.data])
 
   const filteredForms = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
@@ -107,7 +89,8 @@ export function useMyFormList() {
       if (!res.success || !res.data) {
         throw new Error(res.error || 'Không thể tạo biểu mẫu')
       }
-      setData((prev) => [res.data!, ...prev])
+      updateLocalList((prev) => [res.data!, ...prev])
+      invalidateHome()
       toast.success('Tạo biểu mẫu mới thành công')
       return res.data
     } catch (err) {
@@ -120,7 +103,8 @@ export function useMyFormList() {
     try {
       const res = await duplicateFormAction(id, customName)
       if (res.success && res.data) {
-        setData((prev) => [res.data!, ...prev])
+        updateLocalList((prev) => [res.data!, ...prev])
+        invalidateHome()
         toast.success('Nhân bản biểu mẫu thành công')
         return res.data
       } else {
@@ -137,7 +121,8 @@ export function useMyFormList() {
     try {
       const res = await deleteFormAction(id)
       if (res.success) {
-        setData((prev) => prev.filter((f) => f.id !== id))
+        updateLocalList((prev) => prev.filter((f) => f.id !== id))
+        invalidateHome()
         toast.success('Xóa biểu mẫu thành công')
         return true
       } else {
@@ -154,8 +139,8 @@ export function useMyFormList() {
     forms: paginatedForms,
     allFilteredForms: filteredForms,
     rawForms: data,
-    isLoading,
-    error,
+    isLoading: myFormsQuery.isLoading,
+    error: myFormsQuery.error?.message ?? null,
     searchTerm,
     setSearchTerm,
     currentPage,
@@ -167,6 +152,6 @@ export function useMyFormList() {
     createBlankForm,
     duplicateForm,
     deleteForm,
-    refetch: fetchForms,
+    refetch: myFormsQuery.refetch,
   }
 }

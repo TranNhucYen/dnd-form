@@ -1,43 +1,36 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { getDashboardStatsAction } from '../actions/dashboard.action'
 import type { AdminDashboardStats } from '../types/dashboard.type'
 
-export function useDashboardStats() {
-  const [stats, setStats] = useState<AdminDashboardStats | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export const ADMIN_DASHBOARD_STATS_KEY = ['admin', 'dashboard-stats'] as const
 
-  const fetchStats = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
+export function useDashboardStats() {
+  const statsQuery = useQuery({
+    queryKey: ADMIN_DASHBOARD_STATS_KEY,
+    queryFn: async (): Promise<AdminDashboardStats> => {
       const res = await getDashboardStatsAction()
-      if (res.success) {
-        setStats(res.data)
-      } else {
-        setError(res.error)
-        toast.error(res.error)
+      if (!res.success) {
+        throw new Error(res.error || 'Không thể tải số liệu thống kê.')
       }
-    } catch {
-      const errorMsg = 'Không thể tải số liệu thống kê.'
-      setError(errorMsg)
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+      return res.data
+    },
+    staleTime: 0,
+  })
 
   useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
+    if (statsQuery.error) {
+      toast.error(statsQuery.error.message)
+    }
+  }, [statsQuery.error])
 
   return {
-    stats,
-    isLoading,
-    error,
-    refetch: fetchStats,
+    stats: statsQuery.data ?? null,
+    isLoading: statsQuery.isLoading,
+    error: statsQuery.error?.message ?? null,
+    refetch: statsQuery.refetch,
   }
 }

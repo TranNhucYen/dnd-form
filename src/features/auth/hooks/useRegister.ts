@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { registerAction } from '../actions/auth.action'
 import { AuthUser, UserRegister } from '../types/auth.type'
 
 export function useRegister() {
+  const queryClient = useQueryClient()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,6 +22,8 @@ export function useRegister() {
         return null
       }
 
+      // Xóa dữ liệu của phiên trước 
+      queryClient.clear()
       return response.data ?? null
     } catch {
       setError('Không thể kết nối đến máy chủ')

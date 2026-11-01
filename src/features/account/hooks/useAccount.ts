@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type {
   UserProfile,
@@ -14,41 +15,31 @@ import {
   changePasswordAction,
 } from '../actions/account.action'
 
+export const ACCOUNT_PROFILE_KEY = ['account', 'profile'] as const
+
 export function useAccount() {
   const router = useRouter()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
-  const fetchProfile = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
+  const profileQuery = useQuery({
+    queryKey: ACCOUNT_PROFILE_KEY,
+    queryFn: async (): Promise<UserProfile | null> => {
       const res = await getProfileAction()
-      if (res.success) {
-        setProfile(res.data)
-      } else {
+      if (!res.success) {
         if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
           router.push('/login')
-          return
         }
-        const errorMsg = res.error
-        setError(errorMsg)
-        toast.error(errorMsg)
+        throw new Error(res.error)
       }
-    } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : 'Không thể tải thông tin tài khoản'
-      setError(errorMsg)
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [router])
+      return res.data
+    },
+  })
 
   useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+    if (profileQuery.error) {
+      toast.error(profileQuery.error.message)
+    }
+  }, [profileQuery.error])
 
   const updateProfile = async (data: UpdateProfileInput): Promise<void> => {
     const res = await updateProfileAction(data)
@@ -60,7 +51,7 @@ export function useAccount() {
       toast.error(errorMsg)
       throw new Error(errorMsg)
     }
-    setProfile(res.data)
+    queryClient.setQueryData<UserProfile | null>(ACCOUNT_PROFILE_KEY, res.data)
     toast.success('Cập nhật hồ sơ thành công!')
     router.refresh()
   }
@@ -77,10 +68,10 @@ export function useAccount() {
   }
 
   return {
-    profile,
-    isLoading,
-    error,
-    refetch: fetchProfile,
+    profile: profileQuery.data ?? null,
+    isLoading: profileQuery.isLoading,
+    error: profileQuery.error?.message ?? null,
+    refetch: profileQuery.refetch,
     updateProfile,
     changePassword,
   }
