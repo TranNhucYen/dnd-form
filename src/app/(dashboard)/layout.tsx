@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AuthUser } from "@/features/auth/types/auth.type";
+
 import { AppSidebar } from "@/features/dashboard"
 import { verifyJwtToken } from "@/lib/jwt";
 import { ROUTES } from "@/shared/constants/routes";

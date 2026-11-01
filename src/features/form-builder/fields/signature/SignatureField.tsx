@@ -8,7 +8,7 @@ import { PenLine, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { getFieldPartStyle } from "../shared/fieldStyle.utils";
-import { DEFAULT_FIELD_DATA } from "../../constants";
+
 
 export function SignatureField({
   id,

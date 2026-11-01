@@ -3,7 +3,7 @@ import { ICategoryRepository } from './category.repository'
 import { slugify } from '../utils/slugify'
 import { formatDate } from '@/shared/utils'
 
-export let mockCategories: Category[] = [
+export const mockCategories: Category[] = [
   { id: 1, name: 'Khảo sát', slug: 'khao-sat', createdAt: '01/01/2026' },
   { id: 2, name: 'Đăng ký', slug: 'dang-ky', createdAt: '01/01/2026' },
   { id: 3, name: 'Đơn từ', slug: 'don-tu', createdAt: '01/01/2026' },

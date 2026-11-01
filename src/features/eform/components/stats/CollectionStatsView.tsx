@@ -95,7 +95,7 @@ export function CollectionStatsView() {
 
   // Hook quản lý trạng thái và thuật toán sắp xếp (STT, thời gian, trường tùy chọn)
   const {
-    sortState,
+
     sortedSubmissions,
     handleToggleSort,
     renderSortIcon,

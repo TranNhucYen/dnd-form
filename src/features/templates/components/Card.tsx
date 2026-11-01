@@ -4,7 +4,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Download, Pencil, FileText } from "lucide-react"
 import Link from "next/link"
-import { toast } from "sonner"
+
 import { formatNumber } from "@/shared/utils"
 import { Template, TemplatePricingType } from "../types/template.type"
 

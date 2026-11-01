@@ -1,6 +1,6 @@
 import {
   AdminTemplate,
-  TemplateStatus,
+
   UpdateTemplateInput,
   TemplatePaginationParams,
   TemplatePaginatedResult,

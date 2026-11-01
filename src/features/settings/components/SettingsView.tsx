@@ -1,8 +1,8 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Settings, Save, Check, Loader2, RefreshCw } from 'lucide-react'
+import { Settings, Save, Check, Loader2 } from 'lucide-react'
 import { AppSettings } from '../types/settings.type'
 import { AppearanceSettings } from './AppearanceSettings'
 import { LocalizationSettings } from './LocalizationSettings'

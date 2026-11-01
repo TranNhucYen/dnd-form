@@ -3,7 +3,7 @@ import type {
   FieldResizeChange,
   MarginBounds,
 } from "../types/canvas.types";
-import { FIELD_DEFINITIONS_MAP } from "../../constants/fields.config";
+
 import { SNAP_THRESHOLD } from "../../constants/form.constants";
 import { MIN_FIELD_SIZE, type ResizeHandle } from "../../domain/geometry";
 

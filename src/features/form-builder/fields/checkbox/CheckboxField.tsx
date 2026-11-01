@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import type { FieldProps, CheckboxFieldData } from "../types/field.types";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
-import { DEFAULT_FIELD_DATA } from "../../constants";
+
 
 export function CheckboxField({
   data,

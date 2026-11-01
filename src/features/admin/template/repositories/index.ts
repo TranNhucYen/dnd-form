@@ -1,4 +1,4 @@
-import { ITemplateRepository, drizzleTemplateRepository } from './template.repository'
+import { drizzleTemplateRepository } from './template.repository'
 import { templateMockRepository } from './template.mock.repository'
 import { isMockMode } from '@/lib/config'
 

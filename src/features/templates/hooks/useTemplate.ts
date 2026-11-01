@@ -13,7 +13,7 @@ import {
   getTemplatesAction,
   getTemplateCategoriesAction,
   getTemplateByIdAction,
-  useTemplateAction,
+  useTemplateAction as applyTemplateAction,
 } from '../actions/template.action'
 import { useDebounce } from '@/shared/hooks'
 
@@ -144,7 +144,7 @@ export function useTemplateDetail(id: number) {
     if (!templateQuery.data || isCopying) return
     setIsCopying(true)
     try {
-      const res = await useTemplateAction(templateQuery.data.id)
+      const res = await applyTemplateAction(templateQuery.data.id)
       if (res.success) {
         // Dùng mẫu tạo ra biểu mẫu mới trong "Biểu mẫu của tôi"
         void queryClient.invalidateQueries({ queryKey: ['my-form'] })

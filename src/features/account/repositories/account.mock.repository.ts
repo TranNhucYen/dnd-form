@@ -1,7 +1,7 @@
 import { IAccountRepository } from './account.repository'
 import { UserProfile, UpdateProfileInput } from '../types/account.type'
 
-let mockProfile: UserProfile = {
+const mockProfile: UserProfile = {
   id: 101,
   name: 'Trần Nhực Yên',
   email: 'yen.tran@dragform.io',

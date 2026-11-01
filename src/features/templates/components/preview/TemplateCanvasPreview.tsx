@@ -53,7 +53,7 @@ export function TemplateCanvasPreview({
           URL.revokeObjectURL(blobUrl)
         }
       })
-      .catch((err) => {
+      .catch(() => {
         console.warn('Không thể render trang 1 của PDF')
       })
       .finally(() => {
@@ -95,7 +95,7 @@ export function TemplateCanvasPreview({
   const canvasFields = useMemo<CanvasField[]>(() => {
     if (!firstPage?.fields || !Array.isArray(firstPage.fields)) return []
     return firstPage.fields.map(importSchemaFieldToCanvasField)
-  }, [firstPage?.fields])
+  }, [firstPage])
 
   const hasFields = canvasFields.length > 0
 

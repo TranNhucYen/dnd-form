@@ -1,5 +1,5 @@
 import { useEditorState } from "@tiptap/react";
-import type { FieldPartStyle, FieldStyle } from "../../types/formBuilder.types";
+import type { FieldPartStyle } from "../../types/formBuilder.types";
 import { useEditorStore } from "../../store/useEditorStore";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 
