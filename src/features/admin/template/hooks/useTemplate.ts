@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   AdminTemplate,
   TemplateStatus,
+  TemplateCounts,
   UpdateTemplateInput,
 } from '../types/template.type'
 import { Category } from '../../category/types/category.type'
@@ -15,18 +17,26 @@ import {
 } from '../actions/template.action'
 import { useDebounce } from '@/features/admin/shared'
 
+interface AdminTemplatePage {
+  items: AdminTemplate[]
+  totalItems: number
+  totalPages: number
+  counts: TemplateCounts
+}
+
+const EMPTY_TEMPLATE_PAGE: AdminTemplatePage = {
+  items: [],
+  totalItems: 0,
+  totalPages: 1,
+  counts: { all: 0, pending: 0, approved: 0, rejected: 0 },
+}
+
 export function useTemplate(initialPageSize = 8) {
-  const [templates, setTemplates] = useState<AdminTemplate[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | TemplateStatus>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
-  const [totalItems, setTotalItems] = useState(0)
-  const [totalPages, setTotalPages] = useState(1)
-  const [counts, setCounts] = useState({ all: 0, pending: 0, approved: 0, rejected: 0 })
 
   const debouncedSearch = useDebounce(searchQuery, 400)
 
@@ -35,25 +45,35 @@ export function useTemplate(initialPageSize = 8) {
     setCurrentPage(1)
   }, [debouncedSearch, statusFilter])
 
-  const fetchCategories = useCallback(async () => {
-    try {
+  // Dùng chung key với useCategory để không gọi lại API danh mục
+  const categoriesQuery = useQuery({
+    queryKey: ['admin', 'categories'] as const,
+    queryFn: async (): Promise<Category[]> => {
       const res = await getCategoriesAction()
-      if (res.success && res.data) {
-        setCategories(res.data)
+      if (!res.success || !res.data) {
+        throw new Error(res.error || 'Không thể tải danh mục biểu mẫu.')
       }
-    } catch {
-      // Bỏ qua lỗi danh mục nếu đã tải trước đó
-    }
-  }, [])
+      return res.data
+    },
+  })
 
-  useEffect(() => {
-    fetchCategories()
-  }, [fetchCategories])
+  const categories = useMemo(
+    () => categoriesQuery.data ?? [],
+    [categoriesQuery.data]
+  )
 
-  const fetchTemplates = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
+  const templatesQuery = useQuery({
+    queryKey: [
+      'admin',
+      'templates',
+      {
+        page: currentPage,
+        pageSize,
+        search: debouncedSearch,
+        status: statusFilter,
+      },
+    ] as const,
+    queryFn: async (): Promise<AdminTemplatePage> => {
       const res = await getTemplatesAction({
         page: currentPage,
         pageSize,
@@ -61,32 +81,52 @@ export function useTemplate(initialPageSize = 8) {
         status: statusFilter,
       })
 
-      if (res.success && res.data) {
-        setTemplates(res.data.items)
-        setTotalItems(res.data.totalItems)
-        setTotalPages(res.data.totalPages)
-        setCounts(res.data.counts)
-      } else {
-        setError(res.error)
-        toast.error(res.error)
+      if (!res.success || !res.data) {
+        throw new Error(res.error || 'Không thể tải danh sách biểu mẫu mẫu.')
       }
-    } catch {
-      const errorMsg = 'Không thể tải danh sách biểu mẫu mẫu.'
-      setError(errorMsg)
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentPage, pageSize, debouncedSearch, statusFilter])
+
+      return {
+        items: res.data.items,
+        totalItems: res.data.totalItems,
+        totalPages: res.data.totalPages,
+        counts: res.data.counts,
+      }
+    },
+  })
 
   useEffect(() => {
-    fetchTemplates()
-  }, [fetchTemplates])
+    if (templatesQuery.error) {
+      toast.error(templatesQuery.error.message)
+    }
+  }, [templatesQuery.error])
+
+  const templatePage = templatesQuery.data ?? EMPTY_TEMPLATE_PAGE
+  const fetchTemplates = templatesQuery.refetch
+
+  const setTemplatePage = useCallback(
+    (updater: (prev: AdminTemplatePage) => AdminTemplatePage) => {
+      queryClient.setQueryData<AdminTemplatePage>(
+        [
+          'admin',
+          'templates',
+          {
+            page: currentPage,
+            pageSize,
+            search: debouncedSearch,
+            status: statusFilter,
+          },
+        ],
+        (prev) => updater(prev ?? EMPTY_TEMPLATE_PAGE)
+      )
+    },
+    [queryClient, currentPage, pageSize, debouncedSearch, statusFilter]
+  )
 
   const updateTemplate = async (id: number, data: UpdateTemplateInput) => {
     // Cập nhật giao diện trước khi gọi API (Optimistic update)
-    setTemplates((prev) =>
-      prev.map((t) => {
+    setTemplatePage((prev) => ({
+      ...prev,
+      items: prev.items.map((t) => {
         if (t.id !== id) return t
         let updatedCategory = data.category
         if (data.categoryId && !updatedCategory) {
@@ -95,43 +135,45 @@ export function useTemplate(initialPageSize = 8) {
         return {
           ...t,
           ...data,
-          ...(updatedCategory ? { category: updatedCategory, categoryId: updatedCategory.id } : {}),
+          ...(updatedCategory
+            ? { category: updatedCategory, categoryId: updatedCategory.id }
+            : {}),
         }
-      })
-    )
+      }),
+    }))
 
     try {
       const res = await updateTemplateAction(id, data)
       if (!res.success) {
         toast.error(res.error)
-        fetchTemplates()
+        await fetchTemplates()
       } else if (res.data) {
         await fetchTemplates()
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Lỗi khi cập nhật biểu mẫu mẫu.')
-      fetchTemplates()
+      await fetchTemplates()
     }
   }
 
   return {
-    templates,
+    templates: templatePage.items,
     categories,
-    filteredTemplates: templates,
-    paginatedTemplates: templates,
-    isLoading,
-    error,
+    filteredTemplates: templatePage.items,
+    paginatedTemplates: templatePage.items,
+    isLoading: templatesQuery.isLoading,
+    error: templatesQuery.error?.message ?? null,
     searchQuery,
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    counts,
+    counts: templatePage.counts,
     currentPage,
     setCurrentPage,
     pageSize,
     setPageSize,
-    totalPages,
-    totalItems,
+    totalPages: templatePage.totalPages,
+    totalItems: templatePage.totalItems,
     updateTemplate,
     refetch: fetchTemplates,
   }

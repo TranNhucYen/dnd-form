@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { saveFormAction } from "../actions/editor.action";
 import { useFormBuilderStore } from "@/features/form-builder/store/useFormBuilderStore";
@@ -21,6 +22,7 @@ export function useEditorSave(
   const [formId, setFormId] = useState<number | null>(initialFormId ?? null);
   const [title, setTitle] = useState<string>("Biểu mẫu chưa đặt tên");
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const setOnSave = useFormBuilderStore((state) => state.setOnSave);
   const setIsDirty = useFormBuilderStore((state) => state.setIsDirty);
@@ -53,6 +55,10 @@ export function useEditorSave(
 
         toast.success("Đã lưu biểu mẫu thành công", { id: toastId });
 
+        // Danh sách biểu mẫu/trang chủ đã thay đổi nên cần nạp lại ở lần mở kế tiếp
+        void queryClient.invalidateQueries({ queryKey: ["my-form"] });
+        void queryClient.invalidateQueries({ queryKey: ["home"] });
+
         // Đồng bộ tiêu đề chính thức trả về từ server
         const savedTitle = res.data.title || finalTitle;
         if (res.data.title) {
@@ -82,7 +88,7 @@ export function useEditorSave(
         toast.error(error instanceof Error ? error.message : "Đã xảy ra lỗi khi lưu", { id: toastId });
       }
     },
-    [formId, title, setIsDirty],
+    [formId, title, setIsDirty, queryClient],
   );
 
   // Ref trampoline: giữ tham chiếu mới nhất, tránh vòng lặp re-render

@@ -43,7 +43,7 @@ export function NotificationList() {
           <Button
             variant="outline"
             size="sm"
-            onClick={refetch}
+            onClick={() => refetch()}
             disabled={isLoading}
             className="text-xs h-8 gap-1.5"
             title="Tải lại thông báo"
@@ -88,7 +88,7 @@ export function NotificationList() {
         >
           <AlertCircle className="size-8 mb-2" />
           <h3 className="font-semibold text-sm">{error}</h3>
-          <Button size="sm" variant="outline" onClick={refetch} className="mt-4 text-xs">
+          <Button size="sm" variant="outline" onClick={() => refetch()} className="mt-4 text-xs">
             Thử lại
           </Button>
         </div>

@@ -48,7 +48,7 @@ export function CommunityList() {
           <Button
             variant="outline"
             size="sm"
-            onClick={refetch}
+            onClick={() => refetch()}
             disabled={isLoading}
             className="text-xs h-9 gap-1.5"
             title="Làm mới dữ liệu"

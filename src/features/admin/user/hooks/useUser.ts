@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { User, CreateUserInput, UserRole, UserStatus } from '../types/user.type'
 import {
   getUsersAction,
@@ -9,15 +11,26 @@ import {
 } from '../actions/user.action'
 import { useDebounce } from '@/features/admin/shared'
 
+interface AdminUserPage {
+  items: User[]
+  totalItems: number
+  totalPages: number
+}
+
+const EMPTY_USER_PAGE: AdminUserPage = {
+  items: [],
+  totalItems: 0,
+  totalPages: 1,
+}
+
+export const adminUsersKey = (page: number, pageSize: number, search: string) =>
+  ['admin', 'users', { page, pageSize, search }] as const
+
 export function useUser(initialPageSize = 8) {
-  const [users, setUsers] = useState<User[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
-  const [totalItems, setTotalItems] = useState(0)
-  const [totalPages, setTotalPages] = useState(1)
 
   const debouncedSearch = useDebounce(searchQuery, 400)
 
@@ -26,37 +39,49 @@ export function useUser(initialPageSize = 8) {
     setCurrentPage(1)
   }, [debouncedSearch])
 
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
+  const usersQuery = useQuery({
+    queryKey: adminUsersKey(currentPage, pageSize, debouncedSearch),
+    queryFn: async (): Promise<AdminUserPage> => {
       const res = await getUsersAction({
         page: currentPage,
         pageSize,
         search: debouncedSearch,
       })
-      if (res.success && res.data) {
-        setUsers(res.data.items)
-        setTotalItems(res.data.totalItems)
-        setTotalPages(res.data.totalPages)
-      } else {
-        setError(res.error)
+      if (!res.success || !res.data) {
+        throw new Error(res.error || 'Không thể tải danh sách người dùng')
       }
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách người dùng')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentPage, pageSize, debouncedSearch])
+      return {
+        items: res.data.items,
+        totalItems: res.data.totalItems,
+        totalPages: res.data.totalPages,
+      }
+    },
+  })
 
   useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
+    if (usersQuery.error) {
+      toast.error(usersQuery.error.message)
+    }
+  }, [usersQuery.error])
+
+  const data = usersQuery.data ?? EMPTY_USER_PAGE
+  const refetch = usersQuery.refetch
+
+  const setData = useCallback(
+    (updater: (prev: AdminUserPage) => AdminUserPage) => {
+      queryClient.setQueryData<AdminUserPage>(
+        adminUsersKey(currentPage, pageSize, debouncedSearch),
+        (prev) => updater(prev ?? EMPTY_USER_PAGE)
+      )
+    },
+    [queryClient, currentPage, pageSize, debouncedSearch]
+  )
 
   const handleStatusChange = async (id: number, newStatus: UserStatus) => {
     // Optimistic update
-    setUsers((prev) =>
-      prev.map((user) => {
+    setData((prev) => ({
+      ...prev,
+      items: prev.items.map((user) => {
         if (user.id !== id) return user
         if (
           user.role === UserRole.SUPER_ADMIN &&
@@ -65,50 +90,44 @@ export function useUser(initialPageSize = 8) {
           return user
         }
         return { ...user, status: newStatus }
-      })
-    )
+      }),
+    }))
 
     try {
       const res = await updateUserStatusAction(id, newStatus)
       if (!res.success) {
-        setError(res.error)
-        fetchUsers()
+        void refetch()
       }
-    } catch (err: any) {
-      setError(err?.message || 'Không thể cập nhật trạng thái')
-      fetchUsers()
+    } catch {
+      void refetch()
     }
   }
 
   const addUser = async (input: CreateUserInput) => {
-    try {
-      const res = await createUserAction(input)
-      if (!res.success) {
-        throw new Error(res.error)
-      }
-      await fetchUsers()
-      return res.data
-    } catch (err) {
-      throw err
+    const res = await createUserAction(input)
+    if (!res.success) {
+      throw new Error(res.error)
     }
+    await refetch()
+    return res.data
   }
 
   return {
-    users,
-    filteredUsers: users,
-    paginatedUsers: users,
-    isLoading,
-    error,
+    users: data.items,
+    filteredUsers: data.items,
+    paginatedUsers: data.items,
+    isLoading: usersQuery.isLoading,
+    error: usersQuery.error?.message ?? null,
     searchQuery,
     setSearchQuery,
     currentPage,
     setCurrentPage,
     pageSize,
     setPageSize,
-    totalPages,
-    totalItems,
+    totalPages: data.totalPages,
+    totalItems: data.totalItems,
     handleStatusChange,
     addUser,
-    refetch: fetchUsers,
+    refetch,
   }
 }

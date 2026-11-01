@@ -1,71 +1,38 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { SharedWithMeItem } from '../types/shared-with-me.type'
 import { getSharedWithMeAction } from '../actions/shared-with-me.action'
 
+async function fetchSharedForms(): Promise<SharedWithMeItem[]> {
+  const res = await getSharedWithMeAction()
+  if (!res.success || !res.data) {
+    throw new Error(
+      res.error || 'Không thể tải danh sách biểu mẫu được chia sẻ'
+    )
+  }
+  return res.data
+}
+
 export function useSharedWithMe() {
-  const [data, setData] = useState<SharedWithMeItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTermState] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  // Tải danh sách khi component mount
+  const sharedFormsQuery = useQuery({
+    queryKey: ['shared-with-me', 'list'] as const,
+    queryFn: fetchSharedForms,
+  })
+
   useEffect(() => {
-    let ignore = false
-
-    getSharedWithMeAction()
-      .then((res) => {
-        if (ignore) return
-        if (res.success && res.data) {
-          setData(res.data)
-        } else {
-          const errorMsg = res.error || 'Không thể tải danh sách biểu mẫu được chia sẻ'
-          setError(errorMsg)
-          toast.error(errorMsg)
-        }
-      })
-      .catch((err) => {
-        if (ignore) return
-        const errorMsg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra'
-        setError(errorMsg)
-        toast.error(errorMsg)
-      })
-      .finally(() => {
-        if (!ignore) {
-          setIsLoading(false)
-        }
-      })
-
-    return () => {
-      ignore = true
+    if (sharedFormsQuery.error) {
+      toast.error(sharedFormsQuery.error.message)
     }
-  }, [])
+  }, [sharedFormsQuery.error])
 
-  // Hàm làm mới danh sách chủ động
-  const fetchSharedForms = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getSharedWithMeAction()
-      if (res.success && res.data) {
-        setData(res.data)
-      } else {
-        const errorMsg = res.error || 'Không thể tải danh sách biểu mẫu được chia sẻ'
-        setError(errorMsg)
-        toast.error(errorMsg)
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra'
-      setError(errorMsg)
-      toast.error(errorMsg)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const data = useMemo(() => sharedFormsQuery.data ?? [], [sharedFormsQuery.data])
 
   // Thay đổi từ khóa tìm kiếm và tự động reset về trang 1
   const setSearchTerm = useCallback((term: string) => {
@@ -102,8 +69,8 @@ export function useSharedWithMe() {
     forms: paginatedForms,
     allFilteredForms: filteredForms,
     rawForms: data,
-    isLoading,
-    error,
+    isLoading: sharedFormsQuery.isLoading,
+    error: sharedFormsQuery.error?.message ?? null,
     searchTerm,
     setSearchTerm,
     currentPage,
@@ -112,6 +79,6 @@ export function useSharedWithMe() {
     setPageSize,
     totalPages,
     totalItems,
-    refetch: fetchSharedForms,
+    refetch: sharedFormsQuery.refetch,
   }
 }

@@ -1,7 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Template } from '../types/template.type'
 import {
@@ -14,168 +19,136 @@ import { useDebounce } from '@/shared/hooks'
 
 const PAGE_SIZE = 25
 
+interface TemplatePage {
+  items: Template[]
+  hasMore: boolean
+  page: number
+}
+
 export function useTemplateList() {
-  const [templates, setTemplates] = useState<Template[]>([])
-  const [categories, setCategories] = useState<string[]>(['all'])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isFetchingMore, setIsFetchingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
-  const [page, setPage] = useState(1)
-  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
-  // Chặn gọi trùng request khi cuộn nhanh (tránh lặp dữ liệu/trùng key)
-  const isFetchingRef = useRef(false)
-  // Theo dõi số trang tức thì để fetch trang tiếp theo mà không chờ React re-render
-  const pageRef = useRef(1)
-  // Kiểm tra còn còn dữ liệu để fetch không
-  const hasMoreRef = useRef(false)
-
   const debouncedSearch = useDebounce(searchTerm, 400)
 
-  // Tải danh mục mẫu một lần
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const res = await getTemplateCategoriesAction()
-        if (res.success) {
-          setCategories(['all', ...res.data])
-        }
-      } catch (err) {
-        console.error('Lỗi khi tải danh mục mẫu:', err)
+  const categoriesQuery = useQuery({
+    queryKey: ['templates', 'categories'] as const,
+    queryFn: async (): Promise<string[]> => {
+      const res = await getTemplateCategoriesAction()
+      if (!res.success) {
+        throw new Error(res.error || 'Không thể tải danh mục mẫu')
       }
-    }
-    fetchCategories()
-  }, [])
+      return ['all', ...res.data]
+    },
+    // Danh mục hiếm thay đổi, giữ cache 5 phút.
+    staleTime: 5 * 60_000,
+  })
 
-  // Tải trang 1 khi tìm kiếm hoặc đổi danh mục
-  const fetchInitialTemplates = useCallback(async () => {
-    isFetchingRef.current = true
-    setIsLoading(true)
-    setError(null)
-    pageRef.current = 1
-    setPage(1)
-    try {
+  useEffect(() => {
+    if (categoriesQuery.error) {
+      console.error('Lỗi khi tải danh mục mẫu:', categoriesQuery.error)
+    }
+  }, [categoriesQuery.error])
+
+  const templatesQuery = useInfiniteQuery({
+    queryKey: [
+      'templates',
+      'list',
+      selectedCategory,
+      debouncedSearch,
+    ] as const,
+    queryFn: async ({ pageParam }): Promise<TemplatePage> => {
       const res = await getTemplatesAction({
-        page: 1,
+        page: pageParam,
         pageSize: PAGE_SIZE,
         search: debouncedSearch,
         categoryName: selectedCategory,
       })
-      if (res.success) {
-        setTemplates(res.data.items)
-        setHasMore(res.data.hasMore)
-        hasMoreRef.current = res.data.hasMore
-      } else {
-        setError(res.error)
+      if (!res.success) {
+        throw new Error(res.error)
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
-    } finally {
-      setIsLoading(false)
-      isFetchingRef.current = false
-    }
-  }, [debouncedSearch, selectedCategory])
+      return { items: res.data.items, hasMore: res.data.hasMore, page: pageParam }
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.page + 1 : undefined,
+  })
 
   useEffect(() => {
-    fetchInitialTemplates()
-  }, [fetchInitialTemplates])
-
-  // Tải thêm trang tiếp theo khi người dùng cuộn đến cuối danh sách (mỗi lần 25 dòng)
-  const loadMore = useCallback(async () => {
-    if (isLoading || isFetchingRef.current || !hasMoreRef.current) return
-
-    isFetchingRef.current = true
-    setIsFetchingMore(true)
-    const nextPage = pageRef.current + 1
-
-    try {
-      const res = await getTemplatesAction({
-        page: nextPage,
-        pageSize: PAGE_SIZE,
-        search: debouncedSearch,
-        categoryName: selectedCategory,
-      })
-      if (res.success) {
-        pageRef.current = nextPage
-        setPage(nextPage)
-        setHasMore(res.data.hasMore)
-        hasMoreRef.current = res.data.hasMore
-
-        // Lọc loại bỏ các phần tử trùng lặp khóa id nếu có
-        setTemplates((prev) => {
-          const existingIds = new Set(prev.map((item) => item.id))
-          const uniqueNewItems = res.data.items.filter((item) => !existingIds.has(item.id))
-          return [...prev, ...uniqueNewItems]
-        })
-      } else {
-        toast.error(res.error)
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Lỗi khi tải thêm biểu mẫu')
-    } finally {
-      isFetchingRef.current = false
-      setIsFetchingMore(false)
+    if (templatesQuery.error) {
+      console.error('Lỗi khi tải danh sách mẫu:', templatesQuery.error)
     }
-  }, [isLoading, debouncedSearch, selectedCategory])
+  }, [templatesQuery.error])
+
+  const templates = useMemo(
+    () => templatesQuery.data?.pages.flatMap((page) => page.items) ?? [],
+    [templatesQuery.data]
+  )
+
+  const {
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = templatesQuery
+
+  // Tải thêm trang khi cuộn đến cuối danh sách
+  const loadMore = useCallback(() => {
+    if (!hasNextPage || isFetchingNextPage) return
+    void fetchNextPage()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const categories = useMemo(
+    () => categoriesQuery.data ?? ['all'],
+    [categoriesQuery.data]
+  )
 
   return {
     templates,
     categories,
-    isLoading,
-    isFetchingMore,
-    hasMore,
-    error,
+    isLoading: templatesQuery.isLoading,
+    isFetchingMore: isFetchingNextPage,
+    hasMore: hasNextPage ?? false,
+    error: templatesQuery.error?.message ?? null,
     searchTerm,
     setSearchTerm,
     selectedCategory,
     setSelectedCategory,
     loadMore,
-    refetch: fetchInitialTemplates,
+    refetch: templatesQuery.refetch,
   }
 }
 
 export function useTemplateDetail(id: number) {
-  const [template, setTemplate] = useState<Template | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [isCopying, setIsCopying] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const fetchTemplate = useCallback(async () => {
-    if (!id || isNaN(id)) {
-      setIsLoading(false)
-      setError('Mã biểu mẫu không hợp lệ')
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-    try {
+  const templateQuery = useQuery({
+    queryKey: ['templates', 'detail', id] as const,
+    queryFn: async (): Promise<Template> => {
+      if (!id || isNaN(id)) throw new Error('Mã biểu mẫu không hợp lệ')
       const res = await getTemplateByIdAction(id)
-      if (res.success) {
-        setTemplate(res.data)
-      } else {
-        setError(res.error)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [id])
+      if (!res.success) throw new Error(res.error)
+      return res.data
+    },
+    enabled: Boolean(id) && !isNaN(id),
+  })
 
   useEffect(() => {
-    fetchTemplate()
-  }, [fetchTemplate])
+    if (templateQuery.error) {
+      console.error('Lỗi khi tải chi tiết mẫu:', templateQuery.error)
+    }
+  }, [templateQuery.error])
 
   const createFormCopy = async () => {
-    if (!template || isCopying) return
+    if (!templateQuery.data || isCopying) return
     setIsCopying(true)
     try {
-      const res = await useTemplateAction(template.id)
+      const res = await useTemplateAction(templateQuery.data.id)
       if (res.success) {
+        // Dùng mẫu tạo ra biểu mẫu mới trong "Biểu mẫu của tôi"
+        void queryClient.invalidateQueries({ queryKey: ['my-form'] })
+        void queryClient.invalidateQueries({ queryKey: ['home'] })
         toast.success('Tạo bản sao biểu mẫu thành công')
         router.push(`/editor?formId=${res.data.formId}`)
       } else {
@@ -192,11 +165,11 @@ export function useTemplateDetail(id: number) {
   }
 
   return {
-    template,
-    isLoading,
+    template: templateQuery.data ?? null,
+    isLoading: templateQuery.isLoading,
     isCopying,
-    error,
+    error: templateQuery.error?.message ?? null,
     createFormCopy,
-    refetch: fetchTemplate,
+    refetch: templateQuery.refetch,
   }
 }

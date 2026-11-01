@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Category } from '../types/category.type'
 import {
   getCategoriesAction,
@@ -9,35 +10,41 @@ import {
   deleteCategoryAction,
 } from '../actions/category.action'
 
+export const ADMIN_CATEGORIES_KEY = ['admin', 'categories'] as const
+
 export function useCategory(initialPageSize = 5) {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
 
   // Tải danh sách loại biểu mẫu từ Server Action
-  const fetchCategories = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
+  const categoriesQuery = useQuery({
+    queryKey: ADMIN_CATEGORIES_KEY,
+    queryFn: async (): Promise<Category[]> => {
       const res = await getCategoriesAction()
-      if (res.success) {
-        setCategories(res.data)
-      } else {
-        setError(res.error)
+      if (!res.success || !res.data) {
+        throw new Error(res.error || 'Không thể tải danh sách loại biểu mẫu.')
       }
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách loại biểu mẫu.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+      return res.data
+    },
+  })
 
-  useEffect(() => {
-    fetchCategories()
-  }, [fetchCategories])
+  const categories = useMemo(
+    () => categoriesQuery.data ?? [],
+    [categoriesQuery.data]
+  )
+
+  const fetchCategories = categoriesQuery.refetch
+
+  const setCategories = useCallback(
+    (updater: (prev: Category[]) => Category[]) => {
+      queryClient.setQueryData<Category[]>(ADMIN_CATEGORIES_KEY, (prev) =>
+        updater(prev ?? [])
+      )
+    },
+    [queryClient]
+  )
 
   // Lọc danh sách theo từ khóa tìm kiếm (tên hoặc slug)
   const filteredCategories = useMemo(() => {
@@ -132,8 +139,8 @@ export function useCategory(initialPageSize = 5) {
     categories,
     filteredCategories,
     paginatedCategories,
-    isLoading,
-    error,
+    isLoading: categoriesQuery.isLoading,
+    error: categoriesQuery.error?.message ?? null,
     searchQuery,
     setSearchQuery,
     currentPage,
