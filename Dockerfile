@@ -29,6 +29,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY --from=deps /app/public/pdf.worker.min.mjs ./public/pdf.worker.min.mjs
 
 ENV NEXT_TELEMETRY_DISABLED=1 \
     NODE_ENV=production
