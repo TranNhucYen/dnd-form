@@ -4,7 +4,7 @@ import { getFieldPartStyle } from "../shared/fieldStyle.utils";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
 import type { FieldProps, DateFieldData } from "../types/field.types";
-import { DEFAULT_FIELD_DATA } from "../../constants";
+
 import { DateSlotsLayout } from "./DateSlotsLayout";
 
 /**

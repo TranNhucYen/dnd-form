@@ -1,4 +1,4 @@
-import { ICommunityRepository, drizzleCommunityRepository } from './community.repository'
+import { drizzleCommunityRepository } from './community.repository'
 import { communityMockRepository } from './community.mock.repository'
 import { isMockMode } from '@/lib/config'
 

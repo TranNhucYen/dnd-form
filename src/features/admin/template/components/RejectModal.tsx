@@ -70,7 +70,7 @@ export function RejectModal({ template, open, onOpenChange, onConfirm }: RejectM
             <DialogDescription className="text-xs text-muted-foreground">
               Vui lòng nhập lý do từ chối để phản hồi cho người tạo biểu mẫu{' '}
               <strong className="font-semibold text-foreground">
-                "{template.title}"
+                &quot;{template.title}&quot;
               </strong>
               .
             </DialogDescription>

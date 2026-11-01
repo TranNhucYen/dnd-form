@@ -62,8 +62,8 @@ export function AddUserModal({
         status: UserStatus.ACTIVE,
       })
       handleClose()
-    } catch (err: any) {
-      setErrorMessage(err?.message || 'Đã có lỗi xảy ra khi thêm người dùng')
+    } catch (err: unknown) {
+      setErrorMessage((err as Error)?.message || 'Đã có lỗi xảy ra khi thêm người dùng')
     } finally {
       setIsSubmitting(false)
     }

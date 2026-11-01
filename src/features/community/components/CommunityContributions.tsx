@@ -23,9 +23,9 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  AlertTriangle,
+
   FolderPlus,
-  ArrowUpRight,
+
   MessageSquare,
 } from 'lucide-react'
 import { ContributionItem, ContributionStatus } from '../types/community.type'

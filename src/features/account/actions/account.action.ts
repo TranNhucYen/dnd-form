@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { verifyJwtToken, signJwtToken } from '@/lib/jwt'
+import { verifyJwtToken, signJwtToken, type JwtPayload } from '@/lib/jwt'
 import { handleActionError } from '@/shared/utils/action.util'
 import { accountService } from '../services/account.service'
 import {
@@ -12,7 +12,7 @@ import {
 } from '../types/account.type'
 
 async function getAuthenticatedUser(): Promise<
-  { userId: number; authUser: any } | { error: string; code: string }
+  { userId: number; authUser: JwtPayload } | { error: string; code: string }
 > {
   const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value

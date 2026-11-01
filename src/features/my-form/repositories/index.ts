@@ -1,5 +1,5 @@
 import { isMockMode } from '@/lib/config'
-import { type IMyFormRepository, drizzleMyFormRepository } from './my-form.repository'
+import { drizzleMyFormRepository } from './my-form.repository'
 import { myFormMockRepository } from './my-form.mock.repository'
 
 export * from './my-form.repository'

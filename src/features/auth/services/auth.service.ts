@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { authRepository } from "../repositories";
 import { AuthUser, UserLogin, UserRegister } from "../types/auth.type";
-import { UserRole, UserStatus } from "@/shared/types/user.type";
+import { UserStatus } from "@/shared/types/user.type";
 import { loginValidation, registerValidation } from "../validation/auth.validation";
 import {
   ValidationError,

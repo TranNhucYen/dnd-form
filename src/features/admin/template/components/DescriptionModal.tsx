@@ -56,7 +56,7 @@ export function DescriptionModal({ template, open, onOpenChange, onSave }: Descr
             <DialogDescription className="text-xs text-muted-foreground">
               Xem và chỉnh sửa mô tả chi tiết cho biểu mẫu{' '}
               <strong className="font-semibold text-foreground">
-                "{template.title}"
+                &quot;{template.title}&quot;
               </strong>
               .
             </DialogDescription>

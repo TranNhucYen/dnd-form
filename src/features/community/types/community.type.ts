@@ -1,6 +1,6 @@
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
 import { TemplateReviewStatus } from '@/shared/types/template.type'
-import type { Category } from '@/shared/types/category.type'
+
 import type { SchemaMediaItem } from '@/shared/types/media.type'
 
 export { TemplateReviewStatus as ContributionStatus } from '@/shared/types/template.type'

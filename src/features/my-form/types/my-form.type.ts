@@ -2,6 +2,7 @@ export { ShareRole, type SharedUser } from '@/shared/types/share.type'
 export type { ActionResponse } from '@/shared/types/action.type'
 
 import { ShareRole, SharedUser } from '@/shared/types/share.type'
+import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
 
 export interface MyForm {
   id: number
@@ -53,5 +54,5 @@ export interface PublicFormDetail {
   id: number
   name: string
   description: string | null
-  schemaContent: any
+  schemaContent: FormSchemaJson | null
 }

@@ -64,9 +64,9 @@ export function Modal({
         await onSave(trimmed)
       }
       handleClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setErrorMessage(
-        err?.message ||
+        (err as Error)?.message ||
           (isEditMode
             ? 'Có lỗi xảy ra khi cập nhật tên loại biểu mẫu'
             : 'Có lỗi xảy ra khi tạo loại biểu mẫu')
@@ -105,7 +105,7 @@ export function Modal({
                 <>
                   Cập nhật tên mới cho loại biểu mẫu{' '}
                   <strong className="font-semibold text-foreground">
-                    "#{category.id} - {category.name}"
+                    &quot;#{category.id} - {category.name}&quot;
                   </strong>
                   .
                 </>

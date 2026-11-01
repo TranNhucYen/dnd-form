@@ -80,7 +80,7 @@ export function GuidelineModal({ template, open, onOpenChange, onSave }: Guideli
             <DialogDescription className="text-xs text-muted-foreground">
               Thiết lập các bước chỉ dẫn để người dùng điền đúng dữ liệu cho{' '}
               <strong className="font-semibold text-foreground">
-                "{template.title}"
+                &quot;{template.title}&quot;
               </strong>
               .
             </DialogDescription>

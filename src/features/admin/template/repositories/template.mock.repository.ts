@@ -10,7 +10,7 @@ import { Category } from '../../category/types/category.type'
 import { mockCategories } from '../../category/repositories/category.mock.repository'
 export { mockCategories }
 
-export let mockAdminTemplates: AdminTemplate[] = [
+export const mockAdminTemplates: AdminTemplate[] = [
   {
     id: 1,
     title: 'Đơn xin nghỉ phép trực tuyến',
@@ -289,7 +289,7 @@ export const templateMockRepository: ITemplateRepository = {
     return found ? { ...found } : null
   },
 
-  async updateTemplate(id: number, data: UpdateTemplateInput, _adminUserId?: number): Promise<AdminTemplate | null> {
+  async updateTemplate(id: number, data: UpdateTemplateInput): Promise<AdminTemplate | null> {
     const index = mockAdminTemplates.findIndex((t) => t.id === id)
     if (index === -1) return null
 

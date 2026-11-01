@@ -45,7 +45,7 @@ export function ApproveModal({ template, open, onOpenChange, onConfirm }: Approv
           <DialogDescription className="text-xs text-muted-foreground pt-1">
             Bạn có chắc chắn muốn chấp nhận biểu mẫu{' '}
             <strong className="font-semibold text-foreground">
-              "{template.title}"
+              &quot;{template.title}&quot;
             </strong>{' '}
             không? Biểu mẫu này sẽ được xuất bản công khai lên thư viện dùng chung.
           </DialogDescription>

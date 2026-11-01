@@ -64,7 +64,7 @@ export function EFormSignatureField({ data, style, onChange }: EFormSignatureFie
     const observer = new ResizeObserver(syncSize);
     observer.observe(canvas);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Toạ độ chuẩn hoá (0..1) theo kích thước hiển thị của canvas

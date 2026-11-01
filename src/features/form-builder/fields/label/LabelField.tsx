@@ -1,7 +1,7 @@
 import type { FieldProps, LabelFieldData } from "../types/field.types";
 import { TextareaOverlay } from "../shared/TextareaOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
-import { DEFAULT_FIELD_DATA } from "../../constants";
+
 
 export function LabelField({
   data,

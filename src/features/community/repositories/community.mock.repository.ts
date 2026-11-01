@@ -7,7 +7,7 @@ import { toInternalUnit } from '@/features/form-builder/domain/units'
 import {
   ContributionItem,
   ContributionStatus,
-  ContributeFormInput,
+
   CommunityCategory,
   UserFormOption,
 } from '../types/community.type'

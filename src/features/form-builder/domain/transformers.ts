@@ -7,7 +7,7 @@ import type {
   FormPageSchema,
   FormSchemaJson,
   Orientation,
-  PageMargins,
+
   PagePresetKey,
   PageSize,
   SchemaField,

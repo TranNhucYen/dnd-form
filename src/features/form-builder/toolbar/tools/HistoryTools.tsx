@@ -8,7 +8,7 @@ import { useEditorStore } from "../../store/useEditorStore";
 
 export function HistoryTools() {
   const editor = useEditorStore((state) => state.editor);
-  const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
+
   const selectedField = useFormBuilderStore((state) =>
     state.fields.find((f) => f.id === state.selectedFieldId),
   );

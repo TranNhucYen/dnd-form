@@ -1,6 +1,6 @@
 import type { FieldProps, SelectFieldData } from "../types/field.types";
 import { DottedFieldLine } from "../shared/DottedFieldLine";
-import { DEFAULT_FIELD_DATA } from "../../constants";
+
 
 export function SelectField({
   id,

@@ -15,6 +15,7 @@ import { DatatableField } from "./datatable/DatatableField";
 
 export type { FieldProps };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fieldRegistry: Record<FieldType, FieldComponent<any>> = {
   label: LabelField,
   text: TextField,

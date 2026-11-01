@@ -146,7 +146,7 @@ export const myFormMockRepository: IMyFormRepository = {
       id: found.id,
       name: found.name,
       description: found.description ?? null,
-      schemaContent: { fields: [] },
+      schemaContent: { pages: [] },
     }
   },
 }
