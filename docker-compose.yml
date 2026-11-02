@@ -15,6 +15,16 @@ services:
     volumes:
       - app-uploads:/app/storage/uploads
 
+  migrate:
+    image: ${IMAGE_NAME}:migrator-${IMAGE_TAG}
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    command: ["sh", "-c", "pnpm db:migrate && pnpm db:seed"]
+    profiles:
+      - tools
+
 volumes:
   app-uploads:
     driver: local
