@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "----------------------------------------------------------------------------------"
+  echo "husky - pnpm not found in PATH."
+  echo "husky - Run git push from a terminal where Node/pnpm is available, then try again."
+  echo "----------------------------------------------------------------------------------"
+  exit 1
+fi
+
+pnpm db:generate
+
+if [ -n "$(git status --porcelain -- drizzle)" ]; then
+  echo "--------------------------------------------------------"
+  echo "Schema changed but migration is not committed."
+  echo "Review drizzle/, then run: git add drizzle && git commit"
+  echo "Then push again."
+  echo "--------------------------------------------------------"
+  exit 1
+fi
