@@ -5,9 +5,8 @@
 # PHẦN 1: GIỚI THIỆU VÀ CÁC CHỨC NĂNG CHÍNH
 
 ## 1. Giới thiệu chung
-- Dnd-form là ứng dụng hỗ trợ tạo, quản lý và in ấn các loại biểu mẫu, đơn từ hoặc phiếu khảo sát trên trình duyệt web. 
-
-- Người dùng thao tác trực tiếp trên giao diện trang giấy: chọn các thành phần cần thiết và đặt vào vị trí tương ứng thay vì phải tự căn chỉnh bố cục thủ công.
+- **Dnd-form** là ứng dụng hỗ trợ tạo, quản lý, thu thập dữ liệu và in ấn các loại biểu mẫu, đơn từ hoặc phiếu khảo sát trên trình duyệt web.
+- Người dùng thao tác trực tiếp trên giao diện trang giấy: chọn các thành phần cần thiết và đặt vào vị trí tương ứng.
 
 ---
 
@@ -15,62 +14,82 @@
 
 ### 1. Tạo biểu mẫu bằng thao tác kéo thả
 * **Giao diện trang giấy**: Hiển thị tương tự trang giấy in thực tế. Hỗ trợ các khổ giấy thông dụng (A4, A3, A5) theo hướng dọc hoặc ngang và cho phép tùy chỉnh khoảng cách lề.
+* **File PDF nền**: Hỗ trợ tải file PDF làm nền trang giấy, thay đổi file nền và điều chỉnh độ mờ.
 * **Các thành phần cơ bản**:
-  * Tiêu đề, đoạn chữ hướng dẫn.
-  * Các ô điền thông tin (chữ, số, ngày tháng).
-  * Danh sách chọn (menu thả xuống), ô đánh dấu (checkbox).
+  * Tiêu đề, đoạn chữ hướng dẫn, nhãn văn bản.
+  * Các ô điền thông tin (chữ, văn bản dài, số, ngày tháng).
+  * Mục ngày tháng: hỗ trợ thanh trượt vị trí địa danh, ngày, tháng, năm.
+  * Danh sách chọn (menu thả xuống), ô đánh dấu (checkbox dạng vuông).
+  * Đường kẻ (hỗ trợ bật tắt nét đứt).
   * Bảng dữ liệu.
   * Hình ảnh, mã QR.
-  * Khung ký tên.
+  * Khung ký tên (tùy chỉnh tên người ký, nhãn ký).
+* **Định dạng theo từng phần**: Cho phép chỉnh phông chữ, cỡ chữ, màu sắc riêng cho từng phần trong một trường (tiêu đề, giá trị, chú thích).
 * **Hỗ trợ căn hàng**: Khi di chuyển các phần tử, hệ thống hiển thị đường gióng để giúp các mục thẳng hàng với nhau.
 
 ### 2. Soạn thảo biểu mẫu nhiều trang
 * Hỗ trợ tạo biểu mẫu gồm một hoặc nhiều trang.
+* Thanh chọn trang cuộn hỗ trợ chuyển đổi nhanh giữa các trang.
 * Cho phép chuyển đổi qua lại giữa các trang trong lúc làm việc, thêm trang mới hoặc xóa bớt trang khi cần.
 * Khi in hoặc xuất file, các trang được sắp xếp lần lượt theo đúng thứ tự.
 
-### 3. Thư viện biểu mẫu mẫu
+### 3. Thu thập dữ liệu trực tuyến (E-Form)
+* Tự động chuyển đổi biểu mẫu in ấn sang dạng biểu mẫu web để điền thông tin trên máy tính hoặc điện thoại.
+* Tạo link công khai để người khác điền biểu mẫu mà không cần đăng nhập.
+* Cài đặt thời hạn nhận phản hồi và giới hạn số lượt nộp.
+* Cho phép ký tên trực tiếp, điền bảng dữ liệu và xem trước giao diện trước khi gửi link thu thập.
+
+### 4. Quản lý kết quả thu thập
+* Thống kê số lượt nộp và tỷ lệ hoàn thành.
+* Bảng danh sách kết quả cho phép tùy chỉnh cột hiển thị, tìm kiếm, lọc và sắp xếp theo ngày nộp.
+* Xem chi tiết từng form nộp, xóa khi cần.
+* Tải dữ liệu thu thập về máy và xuất từng form nộp thành file PDF.
+
+### 5. Thư viện biểu mẫu mẫu
 * Cung cấp một số mẫu có sẵn như đơn xin nghỉ phép, phiếu khảo sát, thỏa thuận cơ bản.
 * Người dùng có thể xem trước nội dung mẫu, sau đó tạo một bản sao về tài khoản của mình để chỉnh sửa lại.
 
-### 4. Quản lý biểu mẫu cá nhân
+### 6. Quản lý biểu mẫu cá nhân
 * Danh sách lưu các biểu mẫu người dùng đã tạo.
 * Cho phép tìm kiếm theo tên, mở lại để sửa đổi, nhân bản thành biểu mẫu mới hoặc xóa khi không còn nhu cầu sử dụng.
 
-### 5. Chia sẻ và cộng tác
+### 7. Chia sẻ và cộng tác
 * **Liên kết xem trực tuyến**: Có thể tạo đường link để người khác xem và in biểu mẫu trên trình duyệt mà không bắt buộc phải đăng nhập.
 * **Mời qua email**: Chia sẻ quyền xem hoặc quyền chỉnh sửa biểu mẫu với tài khoản khác.
 
-### 6. In ấn và xuất file PDF
+### 8. In ấn và xuất file PDF
 * Cho phép xem lại trang trước khi in.
 * Hỗ trợ in trực tiếp từ trình duyệt hoặc tải về dưới dạng tệp PDF theo kích thước khổ giấy đã chọn.
 
-### 7. Gửi biểu mẫu lên cộng đồng
+### 9. Gửi biểu mẫu lên cộng đồng
 * Người dùng có thể gửi biểu mẫu do mình thiết kế để ban quản trị xem xét.
 * Biểu mẫu sau khi được duyệt sẽ hiển thị trên thư viện chung để người dùng khác có thể tham khảo.
 
 ---
 
-# PHẦN 2: CÔNG NGHỆ VÀ HƯỚNG HƯỚNG DẪN CÀI ĐẶT
+# PHẦN 2: CÔNG NGHỆ VÀ HƯỚNG DẪN CÀI ĐẶT
 
 ## 1. Các Công nghệ (Tech Stack)
 
-* **Framework**: [Next.js](https://nextjs.org/) (App Router, React 19).
+* **Framework**: [Next.js](https://nextjs.org/) 16 (App Router, React 19).
 * **Ngôn ngữ**: TypeScript.
-* **Giao diện**: Tailwind CSS, Radix UI, Lucide React, Sonner.
+* **Giao diện**: Tailwind CSS v4, Radix UI, Lucide React, Sonner.
 * **Kéo thả**: `@dnd-kit/react`.
 * **Trình soạn thảo văn bản / bảng**: TipTap Editor (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-table`).
-* **Quản lý trạng thái client**: Zustand (cho vùng làm việc Form Builder).
-* **Cơ sở dữ liệu & ORM**: MySQL 8.x, [Drizzle ORM](https://orm.drizzle.team/).
-* **Xác thực**: JWT (Jose) lưu trong HttpOnly Cookie.
+* **Quản lý trạng thái client**: Zustand (Form Builder workspace), TanStack React Query (cache dữ liệu).
+* **Cơ sở dữ liệu & ORM**: MySQL 8.x hoặc CSDL tương thích MySQL, [Drizzle ORM](https://orm.drizzle.team/).
+* **Xác thực**: JWT (jose) lưu trong HttpOnly Cookie.
 * **Xuất file PDF**: Headless Chromium thông qua [Puppeteer](https://pptr.dev/).
+* **Xử lý PDF nền**: `pdf-lib`, `pdfjs-dist`.
 * **Lưu trữ tệp tin**: Hỗ trợ ổ đĩa cục bộ (`local`) hoặc lưu trữ tương thích S3 (`s3`).
+* **Kiểm tra mã nguồn**: ESLint, Prettier, Husky.
+* **Kiểm thử E2E**: Playwright.
 
 ---
 
 ## 2. Kiến trúc Hệ thống
 
-### 2.1. Phân tầng kiến trúc (4 Layers)
+### 3.1. Phân tầng kiến trúc (4 Layers)
 
 Mã nguồn được tổ chức theo 4 tầng phân tách trách nhiệm:
 
@@ -84,7 +103,7 @@ Mã nguồn được tổ chức theo 4 tầng phân tách trách nhiệm:
 ╰───────────────────────╯      ╰───────────────────────╯      ╰───────────────────────╯      ╰───────────────────────╯
 ```
 
-### 2.2. Đơn vị đo lường nội bộ (Internal Units)
+### 3.2. Đơn vị đo lường nội bộ (Internal Units)
 
 Để giảm thiểu sai số làm tròn điểm ảnh giữa màn hình hiển thị và trang in thực tế:
 * **Quy ước**:
@@ -116,16 +135,38 @@ export interface SchemaPageSettings {
   };
 }
 
+// Định dạng theo từng phần trong trường
+export interface FieldPartStyle {
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline";
+  color?: string;
+  fontSize?: string;
+  fontFamily?: string;
+}
+
+export interface FieldStyle {
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline";
+  textAlign?: "left" | "center" | "right" | "justify";
+  color?: string;
+  backgroundColor?: string;
+  parts?: Partial<Record<"label" | "value" | "subTitle" | string, FieldPartStyle>>;
+}
+
 // Cấu trúc một trường dữ liệu
 export interface BaseSchemaField<T extends FieldType> {
   id: string;
   type: T;
   x: InternalUnit;
   y: InternalUnit;
-  width?: InternalUnit;
-  height?: InternalUnit;
-  style?: FieldStyle;
-  data?: FieldDataMap[T];
+  width: InternalUnit;
+  height: InternalUnit;
+  style: FieldStyle;
+  data: FieldDataMap[T];
 }
 
 // Đại diện cho một trang độc lập
@@ -135,11 +176,23 @@ export interface FormPageSchema {
   name?: string;
   page: SchemaPageSettings;
   fields: SchemaField[];
+  pdfPageNumber?: number; // Số trang PDF gốc để hiển thị nền (1-based index)
+}
+
+// Thông tin file PDF nền
+export interface BackgroundPdfMetadata {
+  fileKey: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  totalPages: number;
+  opacity?: number;
 }
 
 // Cấu trúc schema lưu trong bảng schema_json (cột content)
 export interface FormSchemaJson {
   pages: FormPageSchema[];
+  backgroundPdf?: BackgroundPdfMetadata;
 }
 ```
 
@@ -148,8 +201,8 @@ export interface FormSchemaJson {
 ## 4. Các Phân hệ Kỹ thuật Trọng tâm
 
 ### 4.1. Trình thiết kế biểu mẫu (Form Builder Engine)
-* **Zustand Store (`useFormBuilderStore`)**: 
-  * Quản lý danh sách `pages`, trang đang kích hoạt `activePageId` và các thuộc tính tương ứng của trang đó.
+* **Zustand Store (`useFormBuilderStore`)**:
+  * Quản lý danh sách `pages`, trang đang kích hoạt `activePageId`, các thuộc tính tương ứng và file PDF nền.
   * Đồng bộ dữ liệu hai chiều giữa trang hiện hành và mảng `pages`.
   * Hỗ trợ lưu lịch sử Undo/Redo cho thao tác kéo thả và nội dung bảng TipTap.
 * **Các loại trường thành phần**:
@@ -157,31 +210,36 @@ export interface FormSchemaJson {
 * **Đường gióng vị trí (Smart Guides)**:
   So sánh tọa độ của phần tử đang di chuyển với các phần tử xung quanh theo trục ngang và dọc để hỗ trợ căn lề (ngưỡng bắt dính: `5px`).
 
-### 4.2. Bộ máy Xuất PDF (Puppeteer Engine)
+### 4.2. Bộ máy E-Form và Thu thập dữ liệu
+* Chuyển đổi tọa độ tĩnh của schema thành cấu trúc dòng/cột hiển thị trên giao diện web (`schema-to-eform.transformer.ts`).
+* Phân tích bảng dữ liệu TipTap thành các ô nhập dữ liệu (`table-ast-parser.ts`).
+* Ánh xạ dữ liệu phản hồi vào schema gốc để phục vụ in ấn (`hydrate-submission.ts`).
+
+### 4.3. Bộ máy Xuất PDF (Puppeteer Engine)
 * **Quy chuẩn trang in CSS**:
   * Thiết lập `@page { size: ${w}mm ${h}mm; margin: 0mm !important; }`.
   * Sử dụng thuộc tính `break-after: page` để phân tách vật lý giữa các trang in.
 * **Thời điểm chụp bản in (`usePrintReadiness`)**:
-  Puppeteer theo dõi cờ `window.__DRAGFORM_RENDER_READY__`, chờ phông chữ (`document.fonts.ready`), bảng và hình ảnh tải xong trước khi xuất file.
+  Puppeteer theo dõi cờ `window.__DRAGFORM_RENDER_READY__`, chờ phông chữ (`document.fonts.ready`), bảng, hình ảnh và PDF nền tải xong trước khi xuất file.
 * **Quản lý phiên làm việc**:
   Tái sử dụng một instance trình duyệt dùng chung và mở ngữ cảnh riêng biệt cho từng yêu cầu xuất PDF để tiết kiệm bộ nhớ RAM/CPU.
 
-### 4.3. Quản lý & Đồng bộ Media (Storage Driver & Hydration)
+### 4.4. Quản lý & Đồng bộ Media (Storage Driver & Hydration)
 * **Tách biệt dữ liệu Schema và tệp tin**:
   Schema chỉ lưu mã định danh tệp tin (`fileKey`).
 * **Cơ chế Hydrate động khi đọc (`hydrateImageUrls`)**:
   Khi tải dữ liệu biểu mẫu để hiển thị trên Canvas hoặc để xuất PDF, hệ thống tự động chuyển đổi `fileKey` thành đường dẫn URL tương ứng với driver lưu trữ hiện hành.
 * **Hỗ trợ linh hoạt Storage Driver**:
-  Cho phép chuyển đổi giữa lưu trữ tệp tin trên ổ đĩa cục bộ (`local`) và dịch vụ lưu trữ đám mây chuẩn S3 (`s3` R2 Object Storage, RustFS) thông qua cấu hình môi trường.
+  Cho phép chuyển đổi giữa lưu trữ tệp tin trên ổ đĩa cục bộ (`local`) và dịch vụ lưu trữ đám mây chuẩn S3 (`s3`, R2 Object Storage, RustFS) thông qua cấu hình môi trường.
 
 ---
 
 ## 5. Hướng dẫn Cài đặt & Khởi chạy
 
 ### 5.1. Yêu cầu môi trường
-* **Node.js**: Phiên bản `>= 20.x`.
-* **Package Manager**: `pnpm` (phiên bản `>= 9.x`).
-* **Cơ sở dữ liệu**: MySQL `>= 8.0` hoặc tương đương.
+* **Node.js**: Phiên bản `24.x`.
+* **Package Manager**: `pnpm` (phiên bản `9.15.9`).
+* **Cơ sở dữ liệu**: MySQL `>= 8.0` hoặc CSDL tương thích MySQL.
 
 ### 5.2. Các bước cài đặt
 
@@ -189,6 +247,7 @@ export interface FormSchemaJson {
 ```bash
 pnpm install
 ```
+*(Lệnh `postinstall` sẽ tự động sao chép tệp `pdf.worker.min.mjs` vào thư mục `public/`)*.
 
 **2. Thiết lập tệp cấu hình môi trường (`.env`):**
 ```bash
@@ -196,8 +255,8 @@ cp .env.example .env
 ```
 Cấu hình các tham số cần thiết trong `.env`:
 ```env
-# Kết nối cơ sở dữ liệu
-DATABASE_URL="mysql://root:password@localhost:3306/dragform_db"
+# Kết nối cơ sở dữ liệu (local: MySQL trên máy bạn)
+DATABASE_URL="mysql://root:password@localhost:3306/dnd_form_db"
 
 # Chế độ dữ liệu (false: dùng MySQL thật, true: dùng mock data trong bộ nhớ)
 USE_MOCK_DATA=false
@@ -208,7 +267,7 @@ JWT_SECRET="your_jwt_secret_key_at_least_32_characters"
 # Tài khoản quản trị (super_admin) khởi tạo
 SUPER_ADMIN_FULL_NAME="Super Admin"
 SUPER_ADMIN_EMAIL="admin@dragform.io"
-SUPER_ADMIN_PASSWORD="YourPassword123!"
+SUPER_ADMIN_PASSWORD="YourPassword123!"   # chỉ là ví dụ, BẮT BUỘC đổi ở production
 
 # Nơi lưu trữ tệp tin ('local' hoặc 's3')
 STORAGE_DRIVER=local
@@ -216,14 +275,33 @@ LOCAL_STORAGE_DIR=storage/uploads
 LOCAL_PUBLIC_URL=/api/files
 ```
 
-**3. Khởi tạo cấu trúc bảng và dữ liệu ban đầu:**
-```bash
-# Đẩy schema vào MySQL
-pnpm db:push
+> Cần tạo sẵn database rỗng `dnd_form_db` trước khi chạy các lệnh bên dưới
+> (`CREATE DATABASE dnd_form_db;`). Migration chỉ tạo bảng, không tạo database.
 
-# Nạp dữ liệu mặc định (vai trò, tài khoản quản trị)
+**3. Khởi tạo cơ sở dữ liệu:**
+
+Với DB local, chọn **một** trong hai cách (không chạy cả hai trên cùng một DB):
+
+```bash
+# Cách A: giống production, chạy các file trong thư mục drizzle/
+pnpm db:migrate
+
+# Cách B: đồng bộ schema trực tiếp, nhanh khi phát triển
+pnpm db:push
+```
+
+Sau đó nạp dữ liệu mặc định (vai trò, quyền, tài khoản quản trị):
+```bash
 pnpm db:seed
 ```
+
+Khi thay đổi schema trong `src/db/schema/`, tạo file migration mới rồi commit cả thư mục `drizzle/`:
+```bash
+pnpm db:generate
+```
+
+> **Không dùng `pnpm db:push` với DB production:** push có thể xóa dữ liệu
+> và không có lịch sử thay đổi. Production chỉ dùng `db:migrate`.
 
 **4. Chạy ứng dụng ở môi trường phát triển:**
 ```bash
@@ -234,4 +312,68 @@ pnpm dev
 ### 5.3. Các lệnh thường dùng khác
 * `pnpm typecheck`: Kiểm tra kiểu dữ liệu TypeScript.
 * `pnpm lint`: Kiểm tra định dạng và quy chuẩn mã nguồn.
+* `pnpm format`: Định dạng mã nguồn với Prettier.
 * `pnpm build`: Đóng gói ứng dụng để triển khai.
+* `pnpm start`: Khởi chạy bản đóng gói production.
+
+---
+
+# PHẦN 3: CI/CD VÀ TRIỂN KHAI TỰ ĐỘNG
+
+## 1. Tổng quan
+Workflow `.github/workflows/ci-cd.yml` tự kiểm tra mã nguồn, build và đẩy Docker image lên GitHub Container Registry (GHCR), sau đó triển khai lên EC2 qua AWS Systems Manager (SSM), không cần mở cổng SSH (port 22).
+
+Workflow có ba job chạy theo thứ tự: `test` → `build-and-push` → `deploy`. Hai job sau chỉ chạy khi push vào `main` hoặc chạy thủ công trên `main`.
+
+---
+
+## 2. Các biến cần tạo trên GitHub
+
+Trước khi chạy workflow triển khai, vào **Repository → Settings → Secrets and variables → Actions → Variables** và tạo các Repository variables sau:
+
+| Tên biến | Giá trị cần điền |
+| --- | --- |
+| `AWS_ACCOUNT_ID` | ID tài khoản AWS có IAM Role dùng cho GitHub Actions. |
+| `AWS_ROLE_NAME` | Tên IAM Role cho phép GitHub Actions xác thực bằng OIDC và triển khai. |
+| `AWS_REGION` | Region AWS chứa EC2, ví dụ `ap-southeast-1`. |
+| `EC2_INSTANCE_ID` | Instance ID của máy EC2 cần triển khai, ví dụ `i-0123456789abcdef0`. |
+| `DEPLOY_DIR` | Đường dẫn thư mục triển khai trên EC2, ví dụ `/opt/dnd-form`. |
+
+Các tên trên phải khớp chính xác với workflow. Đây là **Repository variables**, không phải Secrets. IAM Role cần được cấu hình trust policy cho GitHub OIDC, và EC2 cần được SSM quản lý để nhận lệnh. `GITHUB_TOKEN` dùng để đẩy image lên GHCR được GitHub Actions cấp tự động, không cần tự tạo.
+
+---
+
+## 3. Các bước trong Pipeline
+
+Pipeline được cấu hình tại `.github/workflows/ci-cd.yml`:
+
+### 3.1. Kiểm tra (test)
+* Chạy trên Ubuntu với Node.js 24 và pnpm khi có pull request vào `main`, push vào `main`, hoặc chạy workflow thủ công.
+* Cài dependencies bằng `pnpm install --frozen-lockfile` rồi chạy `pnpm typecheck`.
+* Bước **Check migrations are up to date** chạy `pnpm db:generate`, sau đó kiểm tra thay đổi trong `drizzle/`. Nếu schema cần migration nhưng file migration chưa được tạo và commit, job sẽ báo lỗi. Hãy chạy `pnpm db:generate` ở máy local và commit các file trong `drizzle/`.
+
+### 3.2. Đóng gói và đẩy Docker image (build-and-push)
+* Chỉ chạy sau khi `test` thành công và sự kiện là push vào `main` hoặc `workflow_dispatch` trên `main`. Pull request chỉ chạy `test`.
+* Docker Buildx build hai target từ `Dockerfile`: `runner` chứa ứng dụng Next.js standalone cùng Google Chrome Stable và các font phục vụ xuất PDF; `migrator` chứa schema Drizzle, migrations và mã seed.
+* Đẩy image vào package GHCR có tên viết thường theo repository. Image ứng dụng có tag `latest` và `<git SHA>`; image migrator có tag `migrator` và `migrator-<git SHA>`. Build cache được lưu bằng GitHub Actions cache.
+
+### 3.3. Triển khai lên EC2 (deploy)
+* Chỉ chạy sau khi `build-and-push` thành công, với push vào `main` hoặc chạy thủ công trên `main`.
+* GitHub Actions xác thực AWS bằng OIDC và IAM Role, xác minh danh tính bằng `aws sts get-caller-identity`, rồi gửi lệnh `AWS-RunShellScript` đến EC2 qua SSM.
+* Workflow mã hóa `docker-compose.yml` để gửi sang EC2, tạo thư mục `DEPLOY_DIR` nếu chưa có, lưu compose file tại đó và tạo/cập nhật `.env.deploy` với `IMAGE_NAME` và `IMAGE_TAG` của commit hiện tại. File `.env` của ứng dụng được giữ trên EC2.
+* Trên EC2, workflow lần lượt kéo hai image, chạy service `migrate` (`pnpm db:migrate && pnpm db:seed`), khởi động service `dnd-form` và dọn image cũ hơn 7 ngày. Nếu migration thất bại, chuỗi lệnh dừng và không khởi động container app mới. Sau khi gửi lệnh, workflow chờ SSM hoàn tất, lấy kết quả và đánh dấu deploy thất bại nếu lệnh SSM lỗi.
+* Seed chạy mỗi lần deploy; script seed bỏ qua các hàng đã tồn tại. Thay đổi mật khẩu super admin trong `.env` không cập nhật tài khoản đã được tạo trước đó.
+
+### 3.4. Biến môi trường trên EC2
+File `.env` nằm trong thư mục deploy trên EC2, **không** đưa vào image hay repo. Cần có tối thiểu:
+```env
+DATABASE_URL="mysql://<user>:<password>@<db-host>:<port>/dnd_form_db"   # thêm tham số SSL nếu nhà cung cấp yêu cầu
+JWT_SECRET="..."
+SUPER_ADMIN_FULL_NAME="..."
+SUPER_ADMIN_EMAIL="..."
+SUPER_ADMIN_PASSWORD="..."
+STORAGE_DRIVER=local
+```
+`STORAGE_DRIVER=local` lưu tệp trong Docker volume. Nếu dùng `STORAGE_DRIVER=s3`, cần cấu hình thêm `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` và `S3_PUBLIC_URL`; có thể cấu hình `S3_REGION`, `S3_ENDPOINT` và `S3_FORCE_PATH_STYLE` tùy nhà cung cấp. `USE_MOCK_DATA` không khai báo hoặc khác `false` sẽ bật mock mode; đặt `USE_MOCK_DATA=false` để chạy với dữ liệu MySQL thật.
+
+Database `dnd_form_db` phải được tạo sẵn. User trong `DATABASE_URL` cần quyền `CREATE`, `ALTER`, `INDEX`; CSDL phải cho phép EC2 kết nối. EC2 cần Docker Compose và SSM Agent hoạt động, đồng thời có quyền tải package GHCR nếu package không public.
