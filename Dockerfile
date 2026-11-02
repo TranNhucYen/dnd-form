@@ -36,8 +36,21 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 
 RUN pnpm build
 
+# -----------------------------------------------------
+# Stage 4: Migrator (db:migrate + db:seed one-time job)
+# -----------------------------------------------------
+FROM base AS migrator
+WORKDIR /app
+COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node package.json pnpm-workspace.yaml* .npmrc* tsconfig.json drizzle.config.ts ./
+COPY --chown=node:node drizzle ./drizzle
+COPY --chown=node:node src/db ./src/db
+ENV NODE_ENV=production
+USER node
+CMD ["sh", "-c", "pnpm db:migrate && pnpm db:seed"]
+
 # --------------------------------------------------------
-# Stage 4: Runner (Node.js + Google Chrome Stable + Fonts)
+# Stage 5: Runner (Node.js + Google Chrome Stable + Fonts)
 # --------------------------------------------------------
 FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
