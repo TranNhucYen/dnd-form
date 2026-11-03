@@ -7,6 +7,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 type CanvasContextMenuProps = {
   children: React.ReactNode;
@@ -36,14 +37,14 @@ export function CanvasContextMenu({ children }: CanvasContextMenuProps) {
           }}
         >
           <ClipboardPaste className="size-3.5" />
-          <span>Dán</span>
-          <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
+          <span>{FORM_BUILDER_LABELS.canvasMenu.paste}</span>
+          <ContextMenuShortcut>{FORM_BUILDER_LABELS.canvasMenu.pasteShortcut}</ContextMenuShortcut>
         </ContextMenuItem>
 
         <ContextMenuItem onClick={() => selectAllFields()}>
           <CheckSquare className="size-3.5" />
-          <span>Chọn tất cả</span>
-          <ContextMenuShortcut>Ctrl+A</ContextMenuShortcut>
+          <span>{FORM_BUILDER_LABELS.canvasMenu.selectAll}</span>
+          <ContextMenuShortcut>{FORM_BUILDER_LABELS.canvasMenu.selectAllShortcut}</ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

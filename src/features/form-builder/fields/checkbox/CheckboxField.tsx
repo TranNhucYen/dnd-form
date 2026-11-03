@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import type { FieldProps, CheckboxFieldData } from "../types/field.types";
 import { InputOverlay } from "../shared/InputOverlay";
 import { useInlineEdit } from "../shared/useInlineEdit";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 
 export function CheckboxField({
@@ -37,7 +38,7 @@ export function CheckboxField({
             ? "border border-gray-400 bg-white"
             : "border border-dashed border-neutral-300 print:border-transparent bg-transparent"
         }`}
-        title={checked ? "Bỏ chọn" : "Chọn"}
+        title={checked ? FORM_BUILDER_LABELS.fields.checkbox.selectedAction : FORM_BUILDER_LABELS.fields.checkbox.unselected}
       >
         {checked && <Check className="size-3 text-neutral-800" strokeWidth={3} />}
       </span>

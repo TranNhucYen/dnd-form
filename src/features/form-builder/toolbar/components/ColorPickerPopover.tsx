@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 const BASIC_COLORS = [
   "black",
@@ -99,7 +100,7 @@ export function ColorPickerPopover({
               className="h-5 px-1.5 text-[10px]"
               onClick={() => handleSelectColor("transparent")}
             >
-              Không màu
+              {FORM_BUILDER_LABELS.toolbar.noColor}
             </Button>
           )}
         </div>
@@ -137,13 +138,13 @@ export function ColorPickerPopover({
         {/* Thanh tùy chỉnh mã màu Hex & Native Pipette */}
         <div className="flex items-center gap-1.5 border-t border-border pt-2 text-xs">
           <div className="relative flex flex-1 items-center">
-            <span className="absolute left-2 font-mono text-[10px] text-muted-foreground">HEX</span>
+            <span className="absolute left-2 font-mono text-[10px] text-muted-foreground">{FORM_BUILDER_LABELS.toolbar.hexColor}</span>
             <Input
               type="text"
               value={hexInput}
               onChange={handleHexChange}
               maxLength={7}
-              placeholder="black"
+              placeholder={FORM_BUILDER_LABELS.toolbar.hexPlaceholder}
               className="h-7 pl-9 font-mono text-[11px] uppercase"
             />
           </div>
@@ -154,7 +155,7 @@ export function ColorPickerPopover({
             size="icon-sm"
             className="size-7 shrink-0"
             onClick={() => nativeColorInputRef.current?.click()}
-            title="Chọn màu khác"
+            title={FORM_BUILDER_LABELS.toolbar.chooseColor}
           >
             <Pipette className="size-3" />
             <input

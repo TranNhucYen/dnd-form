@@ -4,6 +4,7 @@ import { EditableSelect, PageSizePopover } from "../components";
 import { DeleteAllPagesTool } from "../tools";
 import { MARGIN_FIELDS, MARGIN_OPTIONS } from "../constants/toolbar.constants";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function PageTabContent() {
   const pageSizePreset = useFormBuilderStore((state) => state.pageSizePreset);
@@ -30,7 +31,7 @@ export function PageTabContent() {
       <div className="flex h-7 items-center gap-1.5 text-xs">
         <div className="flex items-center gap-1 text-muted-foreground">
           <SlidersHorizontal className="size-3" />
-          <span className="text-[11px] font-medium text-foreground">Lề:</span>
+          <span className="text-[11px] font-medium text-foreground">{FORM_BUILDER_LABELS.toolbar.margin}</span>
         </div>
 
         {MARGIN_FIELDS.map(({ key, label }) => (
@@ -42,7 +43,7 @@ export function PageTabContent() {
               value={margins[key]}
               onChange={(val) => setMarginValue(key, val)}
               options={MARGIN_OPTIONS}
-              suffix="mm"
+              suffix={FORM_BUILDER_LABELS.toolbar.millimeter}
               className="h-5.5 w-[56px]"
               inputClassName="text-[11px]"
               popoverClassName="w-24"

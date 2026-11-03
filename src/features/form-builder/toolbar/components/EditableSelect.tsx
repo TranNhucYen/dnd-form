@@ -6,6 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export type EditableSelectOption = {
   value: string;
@@ -110,7 +111,7 @@ export function EditableSelect({
             type="button"
             disabled={disabled}
             className="flex h-full items-center px-1 text-muted-foreground hover:text-foreground focus:outline-none"
-            title="Mở danh sách tùy chọn"
+            title={FORM_BUILDER_LABELS.toolbar.openOptions}
           >
             <ChevronDown className="size-3 shrink-0" />
           </button>

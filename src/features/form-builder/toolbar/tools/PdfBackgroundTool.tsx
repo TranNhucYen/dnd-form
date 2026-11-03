@@ -7,6 +7,7 @@ import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { extractPdfPagesToBlobUrls } from "@/lib/pdf-client/pdf-extractor";
 import { uploadDocumentAction } from "@/features/editor";
 import { toast } from "sonner";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function PdfBackgroundTool() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +45,7 @@ export function PdfBackgroundTool() {
       file.type === "application/pdf" ||
       file.name.toLowerCase().endsWith(".pdf");
     if (!isPdf) {
-      toast.error("Định dạng tài liệu không hợp lệ. Vui lòng chọn file PDF (.pdf)");
+      toast.error(FORM_BUILDER_LABELS.toolbar.pdf.invalid);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -52,14 +53,14 @@ export function PdfBackgroundTool() {
     // Kiểm tra kích thước file, tối đa 20MB
     const MAX_FILE_SIZE = 20 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("Kích thước tài liệu vượt quá giới hạn 20MB. Vui lòng chọn file nhỏ hơn.");
+      toast.error(FORM_BUILDER_LABELS.toolbar.pdf.tooLarge);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
     try {
       setIsProcessing(true);
-      toast.loading("Đang xử lý và tải lên tài liệu PDF...", { id: "pdf-upload" });
+      toast.loading(FORM_BUILDER_LABELS.toolbar.pdf.processing, { id: "pdf-upload" });
 
       // Tải lên Storage ở Server (lưu 1 file gốc)
       const formData = new FormData();
@@ -67,7 +68,7 @@ export function PdfBackgroundTool() {
       const uploadRes = await uploadDocumentAction(formData);
 
       if (!uploadRes.success || !uploadRes.data) {
-        throw new Error(uploadRes.error || "Tải tài liệu lên máy chủ thất bại.");
+        throw new Error(uploadRes.error || FORM_BUILDER_LABELS.toolbar.pdf.uploadFailed);
       }
 
       const uploadedDoc = uploadRes.data;
@@ -76,7 +77,7 @@ export function PdfBackgroundTool() {
       const blobUrls = await extractPdfPagesToBlobUrls(file);
 
       if (blobUrls.length === 0) {
-        throw new Error("Không thể trích xuất trang nào từ tài liệu.");
+        throw new Error(FORM_BUILDER_LABELS.toolbar.pdf.noPages);
       }
 
       // Tạo map { pageIndex: pdfPageNumber } (1-based)
@@ -97,12 +98,12 @@ export function PdfBackgroundTool() {
       setMultiPageBackgrounds(blobUrls, pagePdfMap);
 
       toast.success(
-        `Đã tải lên và gán nền PDF (${blobUrls.length} trang) thành công!`,
+        FORM_BUILDER_LABELS.toolbar.pdf.success(blobUrls.length),
         { id: "pdf-upload" },
       );
     } catch (err: unknown) {
       console.error(err);
-      const message = err instanceof Error ? err.message : "Tải file PDF thất bại.";
+      const message = err instanceof Error ? err.message : FORM_BUILDER_LABELS.toolbar.pdf.failed;
       toast.error(message, { id: "pdf-upload" });
     } finally {
       setIsProcessing(false);
@@ -120,12 +121,12 @@ export function PdfBackgroundTool() {
     if (remainingBgPages.length === 0) {
       clearBackgroundPdf();
     }
-    toast.info("Đã xóa nền của trang hiện tại");
+    toast.info(FORM_BUILDER_LABELS.toolbar.pdf.clearedCurrent);
   };
 
   const handleClearAllBackgrounds = () => {
     clearBackgroundPdf();
-    toast.info("Đã xóa toàn bộ PDF nền của tài liệu");
+    toast.info(FORM_BUILDER_LABELS.toolbar.pdf.clearedAll);
   };
 
   return (
@@ -147,14 +148,14 @@ export function PdfBackgroundTool() {
         disabled={isProcessing}
         onClick={() => fileInputRef.current?.click()}
         className="h-7 gap-1.5 px-2.5 text-xs cursor-pointer font-medium"
-        title="Tải lên PDF để làm nền cho các trang Canvas"
+        title={FORM_BUILDER_LABELS.toolbar.pdf.uploadTitle}
       >
         {isProcessing ? (
           <Loader2 className="size-3.5 animate-spin text-primary" />
         ) : (
           <FileUp className="size-3.5 text-primary" />
         )}
-        <span>{isProcessing ? "Đang xử lý PDF..." : "Tải lên PDF nền"}</span>
+        <span>{isProcessing ? FORM_BUILDER_LABELS.toolbar.pdf.loading : FORM_BUILDER_LABELS.toolbar.pdf.upload}</span>
       </Button>
 
       {/* Thanh làm mờ PDF background (áp dụng cho toàn bộ các trang) */}
@@ -162,7 +163,7 @@ export function PdfBackgroundTool() {
         className={`flex items-center gap-1.5 rounded-md px-2 py-0.5 border border-border/70 bg-neutral-50/80 transition-opacity ${
           hasAnyPdfBg ? "opacity-100" : "opacity-45 pointer-events-none"
         }`}
-        title={hasAnyPdfBg ? "Thanh chỉnh độ mờ PDF nền (áp dụng cho tất cả các trang)" : "Cần có PDF nền để chỉnh độ mờ"}
+        title={hasAnyPdfBg ? FORM_BUILDER_LABELS.toolbar.pdf.opacity : FORM_BUILDER_LABELS.toolbar.pdf.opacityUnavailable}
       >
         <Sliders className="size-3 text-muted-foreground shrink-0" />
         <input
@@ -178,7 +179,7 @@ export function PdfBackgroundTool() {
           className="h-1.5 w-16 sm:w-20 cursor-pointer accent-primary"
         />
         <span className="text-[11px] font-mono text-muted-foreground w-7 text-right select-none">
-          {hasAnyPdfBg ? `${Math.round(currentOpacity * 100)}%` : "100%"}
+          {hasAnyPdfBg ? `${Math.round(currentOpacity * 100)}%` : FORM_BUILDER_LABELS.toolbar.pdf.emptyOpacity}
         </span>
       </div>
 
@@ -190,10 +191,10 @@ export function PdfBackgroundTool() {
           size="sm"
           onClick={handleClearCurrentPage}
           className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
-          title="Xóa nền của trang hiện tại đang chọn"
+          title={FORM_BUILDER_LABELS.toolbar.pdf.clearCurrentTitle}
         >
           <Trash2 className="size-3.5" />
-          <span>Xóa trang hiện tại</span>
+          <span>{FORM_BUILDER_LABELS.toolbar.pdf.clearCurrent}</span>
         </Button>
       )}
 
@@ -205,10 +206,10 @@ export function PdfBackgroundTool() {
           size="sm"
           onClick={handleClearAllBackgrounds}
           className="h-7 gap-1.5 px-2 text-xs text-destructive hover:bg-destructive/10 cursor-pointer"
-          title="Xóa toàn bộ PDF nền của tất cả các trang"
+          title={FORM_BUILDER_LABELS.toolbar.pdf.clearAllTitle}
         >
           <FileX className="size-3.5" />
-          <span>Xóa toàn bộ PDF nền</span>
+          <span>{FORM_BUILDER_LABELS.toolbar.pdf.clearAll}</span>
         </Button>
       )}
     </div>

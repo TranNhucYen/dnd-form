@@ -21,6 +21,7 @@ import {
   TEXT_ALIGN_ITEMS,
 } from "../constants/toolbar.constants";
 import { useActiveToolbarState } from "../hooks";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function HomeTabContent() {
   const {
@@ -103,7 +104,7 @@ export function HomeTabContent() {
       {/* Nhóm: Chỉnh màu: Màu chữ & Màu nền */}
       <div className="flex items-center gap-0.5">
         <ColorPickerPopover
-          title="Màu chữ"
+          title={FORM_BUILDER_LABELS.toolbar.colorText}
           currentColor={textColor}
           onChange={setTextColor}
         >
@@ -113,7 +114,7 @@ export function HomeTabContent() {
             size="sm"
             disabled={isDisabled}
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
-            title="Màu chữ"
+            title={FORM_BUILDER_LABELS.toolbar.colorText}
           >
             <Baseline className="size-3 text-muted-foreground" />
             <span
@@ -125,7 +126,7 @@ export function HomeTabContent() {
         </ColorPickerPopover>
 
         <ColorPickerPopover
-          title="Màu nền"
+          title={FORM_BUILDER_LABELS.toolbar.colorBackground}
           currentColor={bgColor}
           onChange={setBgColor}
           allowTransparent
@@ -136,7 +137,7 @@ export function HomeTabContent() {
             size="sm"
             disabled={isDisabled}
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
-            title="Màu nền"
+            title={FORM_BUILDER_LABELS.toolbar.colorBackground}
           >
             <PaintBucket className="size-3 text-muted-foreground" />
             <span

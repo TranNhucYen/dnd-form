@@ -8,6 +8,7 @@ import {
 } from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, TextFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function TextToolbar({
   data,
@@ -19,51 +20,51 @@ export function TextToolbar({
   return (
     <ToolbarPopover
       icon={TextCursorInput}
-      label={value || label || "Điền chữ"}
-      title="Cấu hình trường văn bản"
+      label={value || label || FORM_BUILDER_LABELS.fields.text.fallback}
+      title={FORM_BUILDER_LABELS.fields.text.configure}
     >
-      <ToolbarField label="Nhãn (Tiêu đề trường)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.fieldLabel}>
         <Input
           value={label}
           onChange={(e) => onDataChange({ label: e.target.value })}
-          placeholder="VD: Họ và tên..."
+          placeholder={FORM_BUILDER_LABELS.fields.text.labelExample}
           className="h-7 text-xs"
         />
       </ToolbarField>
 
       <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
         <ToolbarCheckbox
-          label="Hiển thị nhãn"
+          label={FORM_BUILDER_LABELS.fields.common.showLabel}
           checked={showLabel}
           onCheckedChange={(checked) => onDataChange({ showLabel: checked })}
         />
         <ToolbarCheckbox
-          label="Hiển thị dòng kẻ chấm"
+          label={FORM_BUILDER_LABELS.fields.common.showDottedLine}
           checked={showDottedLine}
           onCheckedChange={(checked) => onDataChange({ showDottedLine: checked })}
         />
       </div>
 
-      <ToolbarField label="Giá trị (điền sẵn)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.presetValue}>
         <Input
           value={value}
           onChange={(e) => onDataChange({ value: e.target.value })}
-          placeholder="VD: Nguyễn Văn A..."
+          placeholder={FORM_BUILDER_LABELS.fields.text.valueExample}
           className="h-7 text-xs"
         />
       </ToolbarField>
 
       {value && (
         <ToolbarClearButton onClick={() => onDataChange({ value: "" })}>
-          Xóa giá trị (để trống)
+          {FORM_BUILDER_LABELS.fields.common.clearValue}
         </ToolbarClearButton>
       )}
 
-      <ToolbarField label="Gợi ý (Placeholder)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.placeholder}>
         <Input
           value={placeholder}
           onChange={(e) => onDataChange({ placeholder: e.target.value })}
-          placeholder="VD: Nhập họ và tên..."
+          placeholder={FORM_BUILDER_LABELS.fields.text.placeholderExample}
           className="h-7 text-xs"
         />
       </ToolbarField>

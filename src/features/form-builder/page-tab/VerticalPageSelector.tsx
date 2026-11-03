@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { ChevronUp, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useFormBuilderStore } from "../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../constants/labels";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -114,8 +115,8 @@ export function VerticalPageSelector({ className }: VerticalPageSelectorProps) {
           "hover:bg-neutral-200 hover:text-black",
           "disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-neutral-500",
         )}
-        title="Trang trước"
-        aria-label="Chuyển đến trang trước"
+        title={FORM_BUILDER_LABELS.page.previous}
+        aria-label={FORM_BUILDER_LABELS.page.previous}
       >
         <ChevronUp className="size-3.5" />
       </button>
@@ -163,8 +164,8 @@ export function VerticalPageSelector({ className }: VerticalPageSelectorProps) {
                           "flex size-6 items-center justify-center rounded-[4px] text-[11px] font-bold transition-all cursor-pointer outline-none",
                           "bg-black text-white shadow-xs border-0",
                         )}
-                        title={`Trang ${pageNum}`}
-                        aria-label={`Trang ${pageNum}`}
+                        title={FORM_BUILDER_LABELS.page.title(pageNum)}
+                        aria-label={FORM_BUILDER_LABELS.page.title(pageNum)}
                       >
                         {pageNum}
                       </button>
@@ -188,8 +189,8 @@ export function VerticalPageSelector({ className }: VerticalPageSelectorProps) {
                           addPage();
                         }}
                         className="flex size-5 items-center justify-center rounded-[3px] text-neutral-600 hover:bg-neutral-100 hover:text-primary transition-colors cursor-pointer"
-                        title="Chèn thêm trang"
-                        aria-label="Chèn thêm trang"
+                        title={FORM_BUILDER_LABELS.page.insert}
+                        aria-label={FORM_BUILDER_LABELS.page.insert}
                       >
                         <Plus className="size-3" />
                       </button>
@@ -203,8 +204,8 @@ export function VerticalPageSelector({ className }: VerticalPageSelectorProps) {
                             removePage(page.id);
                           }}
                           className="flex size-5 items-center justify-center rounded-[3px] text-neutral-600 hover:bg-destructive/15 hover:text-destructive transition-colors cursor-pointer"
-                          title="Xóa trang này"
-                          aria-label="Xóa trang này"
+                          title={FORM_BUILDER_LABELS.page.delete}
+                          aria-label={FORM_BUILDER_LABELS.page.delete}
                         >
                           <Trash2 className="size-3" />
                         </button>
@@ -221,8 +222,8 @@ export function VerticalPageSelector({ className }: VerticalPageSelectorProps) {
                         ? "bg-black text-white font-bold shadow-xs border-0"
                         : "bg-white text-black border border-neutral-300 shadow-2xs hover:bg-neutral-100 hover:border-neutral-400",
                     )}
-                    title={`Trang ${pageNum}`}
-                    aria-label={`Trang ${pageNum}`}
+                    title={FORM_BUILDER_LABELS.page.title(pageNum)}
+                    aria-label={FORM_BUILDER_LABELS.page.title(pageNum)}
                   >
                     {pageNum}
                   </button>
@@ -248,8 +249,8 @@ export function VerticalPageSelector({ className }: VerticalPageSelectorProps) {
           "hover:bg-neutral-200 hover:text-black",
           "disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-neutral-500",
         )}
-        title="Trang tiếp theo"
-        aria-label="Chuyển đến trang tiếp theo"
+        title={FORM_BUILDER_LABELS.page.next}
+        aria-label={FORM_BUILDER_LABELS.page.next}
       >
         <ChevronDown className="size-3.5" />
       </button>

@@ -10,6 +10,7 @@ import type {
   DateFieldSlots,
   FieldProps,
 } from "../types/field.types";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export const SLOT_WIDTHS: Record<DateFieldSlotKey, number> = {
   location: 110,
@@ -25,10 +26,10 @@ const SLOT_CONFIGS: Array<{
   align: "left" | "center";
   maxLength?: number;
 }> = [
-  { key: "location", title: "Địa danh", placeholder: "Địa danh...", align: "left" },
-  { key: "day", title: "Ngày", placeholder: "dd", align: "center", maxLength: 2 },
-  { key: "month", title: "Tháng", placeholder: "mm", align: "center", maxLength: 2 },
-  { key: "year", title: "Năm", placeholder: "yyyy", align: "center", maxLength: 4 },
+  { key: "location", title: FORM_BUILDER_LABELS.fields.date.locationSlot, placeholder: FORM_BUILDER_LABELS.fields.date.locationPlaceholder, align: "left" },
+  { key: "day", title: FORM_BUILDER_LABELS.fields.date.day, placeholder: FORM_BUILDER_LABELS.fields.date.dayPlaceholder, align: "center", maxLength: 2 },
+  { key: "month", title: FORM_BUILDER_LABELS.fields.date.month, placeholder: FORM_BUILDER_LABELS.fields.date.monthPlaceholder, align: "center", maxLength: 2 },
+  { key: "year", title: FORM_BUILDER_LABELS.fields.date.year, placeholder: FORM_BUILDER_LABELS.fields.date.yearPlaceholder, align: "center", maxLength: 4 },
 ];
 
 /**
@@ -249,7 +250,7 @@ export function DateSlotsLayout({
               "print:border-none print:bg-transparent print:rounded-none",
               isFieldSelected && "border-sky-500/80 shadow-xs",
             )}
-            title={`${title} (Kéo trượt ngang, nhấp đúp để gõ)`}
+            title={`${title} (${FORM_BUILDER_LABELS.fields.date.editSlotHint})`}
           >
             {/* Dòng kẻ chấm */}
             {data.showDottedLine && (

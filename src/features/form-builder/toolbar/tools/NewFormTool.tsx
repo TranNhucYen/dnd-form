@@ -3,6 +3,7 @@
 import { FilePlusCorner } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function NewFormTool() {
   const triggerNewForm = useFormBuilderStore((state) => state.triggerNewForm);
@@ -14,7 +15,7 @@ export function NewFormTool() {
       variant="ghost"
       onClick={() => triggerNewForm()}
       disabled={isReadOnly}
-      title="Tạo biểu mẫu mới (Làm sạch canvas)"
+      title={FORM_BUILDER_LABELS.toolbar.newForm}
       className="p-0 hover:text-foreground text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
     >
       <FilePlusCorner className="size-3.5 text-primary" />

@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "../../store/useEditorStore";
 import type { FieldToolbarProps, DatatableFieldData } from "../types/field.types";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 type MenuAction = { label: string; run: () => void; destructive?: boolean };
 
@@ -109,25 +110,25 @@ export function DatatableToolbar({}: FieldToolbarProps<DatatableFieldData>) {
       <TableMenu
         editor={editor}
         icon={Rows3}
-        label="Hàng"
-        title="Thao tác hàng"
+        label={FORM_BUILDER_LABELS.fields.datatable.row}
+        title={FORM_BUILDER_LABELS.fields.datatable.rowActions}
         addActions={[
-          { label: "Thêm hàng trên", run: () => editor.chain().addRowBefore().run() },
-          { label: "Thêm hàng dưới", run: () => editor.chain().addRowAfter().run() },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addRowAbove, run: () => editor.chain().addRowBefore().run() },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addRowBelow, run: () => editor.chain().addRowAfter().run() },
         ]}
-        deleteAction={{ label: "Xóa hàng", run: () => editor.chain().deleteRow().run() }}
+        deleteAction={{ label: FORM_BUILDER_LABELS.fields.datatable.deleteRow, run: () => editor.chain().deleteRow().run() }}
       />
 
       <TableMenu
         editor={editor}
         icon={Columns3}
-        label="Cột"
-        title="Thao tác cột"
+        label={FORM_BUILDER_LABELS.fields.datatable.column}
+        title={FORM_BUILDER_LABELS.fields.datatable.columnActions}
         addActions={[
-          { label: "Thêm cột trái", run: () => editor.chain().addColumnBefore().run() },
-          { label: "Thêm cột phải", run: () => editor.chain().addColumnAfter().run() },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addColumnLeft, run: () => editor.chain().addColumnBefore().run() },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addColumnRight, run: () => editor.chain().addColumnAfter().run() },
         ]}
-        deleteAction={{ label: "Xóa cột", run: () => editor.chain().deleteColumn().run() }}
+        deleteAction={{ label: FORM_BUILDER_LABELS.fields.datatable.deleteColumn, run: () => editor.chain().deleteColumn().run() }}
       />
 
       <Button
@@ -135,10 +136,10 @@ export function DatatableToolbar({}: FieldToolbarProps<DatatableFieldData>) {
         size="sm"
         onClick={() => runOnEditor(editor, mergeOrSplit)}
         className={TOOLBAR_BUTTON_CLASS}
-        title="Gộp các ô đang chọn hoặc tách ô đã gộp"
+        title={FORM_BUILDER_LABELS.fields.datatable.mergeSplitTitle}
       >
         <TableCellsMerge className="size-3.5 text-neutral-600" />
-        <span>Gộp / Tách ô</span>
+        <span>{FORM_BUILDER_LABELS.fields.datatable.mergeSplit}</span>
       </Button>
     </div>
   );

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { PAGE_SIZE_OPTIONS } from "../constants/toolbar.constants";
 import type { Orientation } from "../../types/formBuilder.types";
 import type { PagePresetKey } from "../../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 type PageSizePopoverProps = {
   pageSize: PagePresetKey;
@@ -27,7 +28,7 @@ export function PageSizePopover({
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedPage = PAGE_SIZE_OPTIONS.find((p) => p.id === pageSize);
-  const pageDisplayName = `${selectedPage?.id ?? "A4"} (${orientation === "PORTRAIT" ? "Dọc" : "Ngang"})`;
+  const pageDisplayName = `${selectedPage?.id ?? "A4"} (${orientation === "PORTRAIT" ? FORM_BUILDER_LABELS.toolbar.portrait : FORM_BUILDER_LABELS.toolbar.landscape})`;
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -48,7 +49,7 @@ export function PageSizePopover({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-56 p-1.5">
         <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground">
-          Khổ giấy
+          {FORM_BUILDER_LABELS.toolbar.pageSize}
         </div>
         <div className="space-y-0.5">
           {PAGE_SIZE_OPTIONS.map((item) => (
@@ -74,7 +75,7 @@ export function PageSizePopover({
 
         {/* Radio chọn hướng giấy */}
         <div className="px-2 pt-0.5 text-[11px] font-semibold text-muted-foreground">
-          Hướng giấy
+          {FORM_BUILDER_LABELS.toolbar.orientation}
         </div>
         <div className="flex items-center gap-4 px-2 py-1 text-xs">
           <label className="flex cursor-pointer items-center gap-1.5 select-none hover:text-foreground">
@@ -85,7 +86,7 @@ export function PageSizePopover({
               onChange={() => onOrientationChange("PORTRAIT")}
               className="size-3.5 accent-primary cursor-pointer"
             />
-            <span>Dọc</span>
+            <span>{FORM_BUILDER_LABELS.toolbar.portrait}</span>
           </label>
 
           <label className="flex cursor-pointer items-center gap-1.5 select-none hover:text-foreground">
@@ -96,7 +97,7 @@ export function PageSizePopover({
               onChange={() => onOrientationChange("LANDSCAPE")}
               className="size-3.5 accent-primary cursor-pointer"
             />
-            <span>Ngang</span>
+            <span>{FORM_BUILDER_LABELS.toolbar.landscape}</span>
           </label>
         </div>
       </PopoverContent>
