@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function DeleteAllPagesTool() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +41,7 @@ export function DeleteAllPagesTool() {
 
   const handleConfirm = () => {
     clearAllPages();
-    toast.info("Đã xóa toàn bộ trang");
+    toast.info(FORM_BUILDER_LABELS.toolbar.deletePagesDialog.success);
     setIsOpen(false);
   };
 
@@ -53,10 +54,10 @@ export function DeleteAllPagesTool() {
           size="sm"
           disabled={!canClear}
           className="h-7 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-40"
-          title="Xóa toàn bộ trang (đưa về 1 trang trắng mặc định)"
+          title={FORM_BUILDER_LABELS.toolbar.deleteAllPages}
         >
           <Trash2 className="size-3.5 mr-1" />
-          Xóa toàn bộ trang
+          {FORM_BUILDER_LABELS.toolbar.deleteAllPagesButton}
         </Button>
       </AlertDialogTrigger>
 
@@ -65,22 +66,22 @@ export function DeleteAllPagesTool() {
           <AlertDialogMedia className="bg-destructive/10 text-destructive">
             <AlertTriangle className="size-5" />
           </AlertDialogMedia>
-          <AlertDialogTitle>Xác nhận xóa toàn bộ trang?</AlertDialogTitle>
+          <AlertDialogTitle>{FORM_BUILDER_LABELS.toolbar.deletePagesDialog.title}</AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này sẽ xóa tất cả các trang và đưa biểu mẫu về 1 trang trắng mặc định ban đầu. Bạn có chắc chắn muốn tiếp tục?
+            {FORM_BUILDER_LABELS.toolbar.deletePagesDialog.description}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
           <AlertDialogCancel className="cursor-pointer text-xs">
-            Hủy bỏ
+            {FORM_BUILDER_LABELS.toolbar.deletePagesDialog.cancel}
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={handleConfirm}
             className="cursor-pointer text-xs"
           >
-            Xác nhận xóa
+            {FORM_BUILDER_LABELS.toolbar.deletePagesDialog.confirm}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

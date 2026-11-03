@@ -1,6 +1,7 @@
 import { Square, SquareDashed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FieldToolbarProps, TextareaFieldData } from "../types/field.types";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function TextareaToolbar({
   data,
@@ -22,14 +23,14 @@ export function TextareaToolbar({
           ? "text-blue-600 hover:bg-blue-50"
           : "text-neutral-600 hover:bg-neutral-100"
       }`}
-      title="Bật/tắt đường viền của đoạn văn"
+      title={FORM_BUILDER_LABELS.fields.textarea.borderToggle}
     >
       {showBorder ? (
         <Square className="size-3.5 text-blue-600" />
       ) : (
         <SquareDashed className="size-3.5 text-neutral-400" />
       )}
-      <span>{showBorder ? "Viền: Bật" : "Viền: Tắt"}</span>
+      <span>{showBorder ? FORM_BUILDER_LABELS.fields.textarea.borderOn : FORM_BUILDER_LABELS.fields.textarea.borderOff}</span>
     </Button>
   );
 }

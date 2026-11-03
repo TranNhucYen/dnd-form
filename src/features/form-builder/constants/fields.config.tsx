@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { FieldDataMap, FieldStyle, FieldType } from "../types/formBuilder.types";
 import { DEFAULT_FIELD_DATA } from "./defaultFieldData";
+import { FORM_BUILDER_LABELS } from "./labels";
 
 export const PALETTE_ITEM_CENTER = { x: 42, y: 25 } as const;
 
@@ -39,7 +40,7 @@ export type AnyFieldDefinition = {
 export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   {
     type: "text",
-    label: "Văn bản",
+    label: FORM_BUILDER_LABELS.palette.fields.text,
     icon: <Text />,
     resizeMode: "horizontal",
     defaultSize: { width: 260, height: 24 },
@@ -47,7 +48,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "textarea",
-    label: "Đoạn văn",
+    label: FORM_BUILDER_LABELS.palette.fields.textarea,
     icon: <AlignLeft />,
     resizeMode: "8-way",
     defaultSize: { width: 360, height: 120 },
@@ -55,7 +56,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "number",
-    label: "Số",
+    label: FORM_BUILDER_LABELS.palette.fields.number,
     icon: <Hash />,
     resizeMode: "horizontal",
     defaultSize: { width: 200, height: 24 },
@@ -63,7 +64,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "date",
-    label: "Ngày",
+    label: FORM_BUILDER_LABELS.palette.fields.date,
     icon: <Calendar />,
     resizeMode: "horizontal",
     defaultSize: { width: 300, height: 24 },
@@ -71,7 +72,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "select",
-    label: "Danh sách",
+    label: FORM_BUILDER_LABELS.palette.fields.select,
     icon: <ListCollapse />,
     resizeMode: "horizontal",
     defaultSize: { width: 220, height: 24 },
@@ -79,7 +80,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "line",
-    label: "Đường kẻ",
+    label: FORM_BUILDER_LABELS.palette.fields.line,
     icon: <Minus />,
     resizeMode: "horizontal",
     defaultSize: { width: 200, height: 1 },
@@ -87,7 +88,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "checkbox",
-    label: "Hộp kiểm",
+    label: FORM_BUILDER_LABELS.palette.fields.checkbox,
     icon: <SquareCheck />,
     resizeMode: "none",
     defaultSize: { width: 90, height: 24 },
@@ -95,7 +96,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "label",
-    label: "Nhãn",
+    label: FORM_BUILDER_LABELS.palette.fields.label,
     icon: <Type />,
     resizeMode: "8-way",
     defaultSize: { width: 160, height: 40 },
@@ -103,7 +104,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "signature",
-    label: "Chữ ký",
+    label: FORM_BUILDER_LABELS.palette.fields.signature,
     icon: <Signature />,
     resizeMode: "8-way",
     defaultSize: { width: 130, height: 140 },
@@ -120,7 +121,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "qrcode",
-    label: "Mã QR",
+    label: FORM_BUILDER_LABELS.palette.fields.qrcode,
     icon: <QrCode />,
     resizeMode: "8-way",
     defaultSize: { width: 100, height: 100 },
@@ -128,7 +129,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "image",
-    label: "Hình ảnh",
+    label: FORM_BUILDER_LABELS.palette.fields.image,
     icon: <ImageIcon />,
     resizeMode: "8-way",
     defaultSize: { width: 360, height: 220 },
@@ -136,7 +137,7 @@ export const FIELD_DEFINITIONS: AnyFieldDefinition[] = [
   },
   {
     type: "datatable",
-    label: "Bảng dữ liệu",
+    label: FORM_BUILDER_LABELS.palette.fields.datatable,
     icon: <Table />,
     resizeMode: "horizontal", // Chỉ cho phép kéo dãn chiều ngang, chiều cao tự điều chỉnh theo số hàng
     defaultSize: { width: 440, height: 70 },

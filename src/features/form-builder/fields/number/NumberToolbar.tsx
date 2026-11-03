@@ -8,12 +8,13 @@ import {
 } from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, NumberFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 function getLimitLabel(min?: number, max?: number) {
-  if (min !== undefined && max !== undefined) return `${min} đến ${max}`;
+  if (min !== undefined && max !== undefined) return `${min}${FORM_BUILDER_LABELS.fields.number.rangeSeparator}${max}`;
   if (min !== undefined) return `≥ ${min}`;
   if (max !== undefined) return `≤ ${max}`;
-  return "Giới hạn số";
+  return FORM_BUILDER_LABELS.fields.number.limit;
 }
 
 function NumberInput({
@@ -48,67 +49,67 @@ export function NumberToolbar({
   return (
     <ToolbarPopover
       icon={SlidersHorizontal}
-      label={value !== undefined ? `Số: ${value}` : label || getLimitLabel(min, max)}
-      title="Cấu hình trường số và giá trị"
+      label={value !== undefined ? `${FORM_BUILDER_LABELS.fields.number.valuePrefix} ${value}` : label || getLimitLabel(min, max)}
+      title={FORM_BUILDER_LABELS.fields.number.configure}
     >
-      <ToolbarField label="Nhãn (Tiêu đề trường)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.fieldLabel}>
         <Input
           value={label}
           onChange={(e) => onDataChange({ label: e.target.value })}
-          placeholder="VD: Số lượng..."
+          placeholder={FORM_BUILDER_LABELS.fields.number.labelExample}
           className="h-7 text-xs"
         />
       </ToolbarField>
 
       <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
         <ToolbarCheckbox
-          label="Hiển thị nhãn"
+          label={FORM_BUILDER_LABELS.fields.common.showLabel}
           checked={showLabel}
           onCheckedChange={(checked) => onDataChange({ showLabel: checked })}
         />
         <ToolbarCheckbox
-          label="Hiển thị dòng kẻ chấm"
+          label={FORM_BUILDER_LABELS.fields.common.showDottedLine}
           checked={showDottedLine}
           onCheckedChange={(checked) => onDataChange({ showDottedLine: checked })}
         />
       </div>
 
-      <ToolbarField label="Giá trị số (điền sẵn)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.number.value}>
         <NumberInput
           value={value}
-          placeholder="VD: 10, 100..."
+          placeholder={FORM_BUILDER_LABELS.fields.number.valueExample}
           onChange={(next) => onDataChange({ value: next })}
         />
       </ToolbarField>
 
       {value !== undefined && (
         <ToolbarClearButton onClick={() => onDataChange({ value: undefined })}>
-          Xóa giá trị (để trống)
+          {FORM_BUILDER_LABELS.fields.common.clearValue}
         </ToolbarClearButton>
       )}
 
       <div className="grid grid-cols-2 gap-2 border-t border-border pt-2">
-        <ToolbarField label="Tối thiểu (Min)">
+        <ToolbarField label={FORM_BUILDER_LABELS.fields.number.minimum}>
           <NumberInput
             value={min}
-            placeholder="Không giới hạn"
+            placeholder={FORM_BUILDER_LABELS.fields.common.noLimit}
             onChange={(next) => onDataChange({ min: next })}
           />
         </ToolbarField>
-        <ToolbarField label="Tối đa (Max)">
+        <ToolbarField label={FORM_BUILDER_LABELS.fields.number.maximum}>
           <NumberInput
             value={max}
-            placeholder="Không giới hạn"
+            placeholder={FORM_BUILDER_LABELS.fields.common.noLimit}
             onChange={(next) => onDataChange({ max: next })}
           />
         </ToolbarField>
       </div>
 
-      <ToolbarField label="Gợi ý (Placeholder)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.placeholder}>
         <Input
           value={placeholder}
           onChange={(e) => onDataChange({ placeholder: e.target.value })}
-          placeholder="VD: Nhập số lượng, số tiền..."
+          placeholder={FORM_BUILDER_LABELS.fields.number.placeholderExample}
           className="h-7 text-xs"
         />
       </ToolbarField>

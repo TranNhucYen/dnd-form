@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HomeTabContent, PageTabContent, BackgroundTabContent, EFormTabContent } from "./tabs";
 import { SaveTool, NewFormTool, HistoryTools } from "./tools";
+import { FORM_BUILDER_LABELS } from "../constants/labels";
 
 export function EditorToolbar() {
   return (
@@ -13,10 +14,10 @@ export function EditorToolbar() {
           <HistoryTools />
           <div className="h-4 w-0.5 bg-border mx-0.5" />
           <TabsList variant="line">
-            <TabsTrigger value="home">Home</TabsTrigger>
-            <TabsTrigger value="page">Page</TabsTrigger>
-            <TabsTrigger value="background">Background</TabsTrigger>
-            <TabsTrigger value="eform">E-Form</TabsTrigger>
+            <TabsTrigger value="home">{FORM_BUILDER_LABELS.toolbarTabs.home}</TabsTrigger>
+            <TabsTrigger value="page">{FORM_BUILDER_LABELS.toolbarTabs.page}</TabsTrigger>
+            <TabsTrigger value="background">{FORM_BUILDER_LABELS.toolbarTabs.background}</TabsTrigger>
+            <TabsTrigger value="eform">{FORM_BUILDER_LABELS.toolbarTabs.eform}</TabsTrigger>
           </TabsList>
         </div>
       

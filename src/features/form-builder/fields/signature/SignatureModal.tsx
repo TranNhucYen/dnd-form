@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { Check, Eraser, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 import {
   Dialog,
   DialogClose,
@@ -184,10 +185,10 @@ export function SignatureModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PenLine className="size-5 text-primary" />
-            <span>Ký chữ ký điện tử</span>
+            <span>{FORM_BUILDER_LABELS.fields.signature.dialogTitle}</span>
           </DialogTitle>
           <DialogDescription>
-            Dùng chuột hoặc ngón tay để vẽ chữ ký của bạn vào khung bên dưới
+            {FORM_BUILDER_LABELS.fields.signature.dialogDescription}
           </DialogDescription>
         </DialogHeader>
 
@@ -209,7 +210,7 @@ export function SignatureModal({
               className="pointer-events-none absolute inset-0 flex flex-col 
               items-center justify-center text-sm text-muted-foreground select-none"
             >
-              <span>Vẽ chữ ký của bạn tại đây</span>
+              <span>{FORM_BUILDER_LABELS.fields.signature.drawHint}</span>
               <div className="w-1/2 border-b border-dashed border-border mt-2" />
             </div>
           )}
@@ -224,13 +225,13 @@ export function SignatureModal({
             onClick={handleClear}
           >
             <Eraser className="size-3.5" />
-            <span>Xóa chữ ký</span>
+            <span>{FORM_BUILDER_LABELS.fields.signature.clear}</span>
           </Button>
 
           <div className="flex items-center gap-2">
             <DialogClose asChild>
               <Button type="button" variant="outline" size="sm">
-                Hủy
+                {FORM_BUILDER_LABELS.fields.signature.cancel}
               </Button>
             </DialogClose>
             <Button
@@ -240,7 +241,7 @@ export function SignatureModal({
               disabled={!hasDrawn}
             >
               <Check className="size-3.5" />
-              <span>Lưu chữ ký</span>
+              <span>{FORM_BUILDER_LABELS.fields.signature.save}</span>
             </Button>
           </div>
         </DialogFooter>

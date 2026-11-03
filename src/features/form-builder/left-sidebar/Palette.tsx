@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { PaletteItem } from "./PaletteItem";
 import { FIELD_DEFINITIONS } from "../constants/fields.config";
+import { FORM_BUILDER_LABELS } from "../constants/labels";
 
 
 export function Palette() {
@@ -23,7 +24,7 @@ export function Palette() {
       >
         {opened && (
           <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Thành phần
+            {FORM_BUILDER_LABELS.palette.heading}
           </h2>
         )}
 
@@ -31,8 +32,8 @@ export function Palette() {
         <button
           type="button"
           onClick={() => setOpened((prev) => !prev)}
-          title={opened ? "Thu gọn" : "Mở rộng"}
-          aria-label={opened ? "Thu gọn" : "Mở rộng"}
+          title={opened ? FORM_BUILDER_LABELS.palette.collapse : FORM_BUILDER_LABELS.palette.expand}
+          aria-label={opened ? FORM_BUILDER_LABELS.palette.collapse : FORM_BUILDER_LABELS.palette.expand}
           className="
             flex h-6 w-6 shrink-0 items-center justify-center
             rounded text-gray-400

@@ -10,6 +10,7 @@ import {
 } from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, SelectFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function SelectToolbar({
   data,
@@ -42,36 +43,36 @@ export function SelectToolbar({
   return (
     <ToolbarPopover
       icon={ListPlus}
-      label={currentValue ? `Chọn: ${currentValue}` : label || `Tùy chọn (${options.length})`}
-      title="Quản lý danh sách lựa chọn"
+      label={currentValue ? `${FORM_BUILDER_LABELS.fields.select.currentPrefix} ${currentValue}` : label || FORM_BUILDER_LABELS.fields.select.countLabel(options.length)}
+      title={FORM_BUILDER_LABELS.fields.select.configure}
     >
-      <ToolbarField label="Nhãn (Tiêu đề trường)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.fieldLabel}>
         <Input
           value={label}
           onChange={(e) => onDataChange({ label: e.target.value })}
-          placeholder="VD: Danh sách..."
+          placeholder={FORM_BUILDER_LABELS.fields.select.example}
           className="h-7 text-xs"
         />
       </ToolbarField>
 
       <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
         <ToolbarCheckbox
-          label="Hiển thị nhãn"
+          label={FORM_BUILDER_LABELS.fields.common.showLabel}
           checked={showLabel}
           onCheckedChange={(checked) => onDataChange({ showLabel: checked })}
         />
         <ToolbarCheckbox
-          label="Hiển thị dòng kẻ chấm"
+          label={FORM_BUILDER_LABELS.fields.common.showDottedLine}
           checked={showDottedLine}
           onCheckedChange={(checked) => onDataChange({ showDottedLine: checked })}
         />
       </div>
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-foreground">
-          Danh sách lựa chọn
+          {FORM_BUILDER_LABELS.fields.select.options}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          Click để chọn / bỏ chọn
+          {FORM_BUILDER_LABELS.fields.select.instruction}
         </span>
       </div>
 
@@ -79,7 +80,7 @@ export function SelectToolbar({
         <Input
           value={newOption}
           onChange={(e) => setNewOption(e.target.value)}
-          placeholder="Thêm lựa chọn..."
+          placeholder={FORM_BUILDER_LABELS.fields.select.addOption}
           className="h-7 text-xs"
         />
         <Button
@@ -95,7 +96,7 @@ export function SelectToolbar({
       <div className="flex max-h-40 flex-col gap-1 overflow-y-auto pr-1">
         {options.length === 0 && (
           <span className="py-2 text-center text-xs text-muted-foreground">
-            Chưa có lựa chọn nào
+            {FORM_BUILDER_LABELS.fields.select.empty}
           </span>
         )}
         {options.map((option) => {
@@ -122,7 +123,7 @@ export function SelectToolbar({
                   handleRemoveOption(option);
                 }}
                 className="p-0.5 text-neutral-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
-                title="Xóa lựa chọn"
+                title={FORM_BUILDER_LABELS.fields.select.removeOption}
               >
                 <Trash2 className="size-3" />
               </button>
@@ -133,7 +134,7 @@ export function SelectToolbar({
 
       {currentValue && (
         <ToolbarClearButton onClick={() => onDataChange({ value: undefined })}>
-          Bỏ chọn (để trống)
+          {FORM_BUILDER_LABELS.fields.select.clear}
         </ToolbarClearButton>
       )}
     </ToolbarPopover>

@@ -1,6 +1,7 @@
 import { FormCanvas } from "./FormCanvas";
 import { VerticalPageSelector } from "../page-tab/VerticalPageSelector";
 import { useFormBuilderStore } from "../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../constants/labels";
 
 type CanvasViewPortProps = {
   onCollisionChange?: (isColliding: boolean) => void;
@@ -15,7 +16,7 @@ export function CanvasViewPort({ onCollisionChange }: CanvasViewPortProps) {
           <FormCanvas onCollisionChange={onCollisionChange} />
           {isReadOnly && (
             <div
-              title="Chế độ chỉ xem"
+              title={FORM_BUILDER_LABELS.canvas.readOnly}
               className="absolute inset-0 z-50 bg-transparent cursor-default"
             />
           )}

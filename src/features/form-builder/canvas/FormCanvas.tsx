@@ -16,6 +16,7 @@ import {
   SmartGuidesOverlay,
 } from "./components";
 import type { AlignmentGuide } from "./utils";
+import { FORM_BUILDER_LABELS } from "../constants/labels";
 import {
   useEffectivePageDimensions,
   useFormBuilderStore,
@@ -119,7 +120,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
           >
             <img
               src={activePage.backgroundUrl}
-              alt="Canvas Background"
+              alt={FORM_BUILDER_LABELS.canvas.backgroundAlt}
               className="w-full h-full object-contain pointer-events-none select-none"
               draggable={false}
             />

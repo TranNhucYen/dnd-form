@@ -17,6 +17,7 @@ import {
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { useEditorStore } from "../../store/useEditorStore";
 import type { FieldType } from "../../types/formBuilder.types";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 type FieldContextMenuProps = {
   fieldId: string;
@@ -63,24 +64,24 @@ export function FieldContextMenu({
           onClick={() => removeField(fieldId)}
         >
           <Trash2 className="size-3.5" />
-          <span>Xóa</span>
-          <ContextMenuShortcut>Del / Backspace</ContextMenuShortcut>
+          <span>{FORM_BUILDER_LABELS.canvasMenu.remove}</span>
+          <ContextMenuShortcut>{FORM_BUILDER_LABELS.canvasMenu.deleteShortcut}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onClick={() => duplicateField(fieldId)}>
           <CopyPlus className="size-3.5" />
-          <span>Nhân bản</span>
-          <ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
+          <span>{FORM_BUILDER_LABELS.canvasMenu.duplicate}</span>
+          <ContextMenuShortcut>{FORM_BUILDER_LABELS.canvasMenu.duplicateShortcut}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onClick={() => copyField(fieldId)}>
           <Copy className="size-3.5" />
-          <span>Sao chép</span>
-          <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
+          <span>{FORM_BUILDER_LABELS.canvasMenu.copy}</span>
+          <ContextMenuShortcut>{FORM_BUILDER_LABELS.canvasMenu.copyShortcut}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onClick={() => cutField(fieldId)}>
           <Scissors className="size-3.5" />
-          <span>Cắt</span>
-          <ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
+          <span>{FORM_BUILDER_LABELS.canvasMenu.cut}</span>
+          <ContextMenuShortcut>{FORM_BUILDER_LABELS.canvasMenu.cutShortcut}</ContextMenuShortcut>
         </ContextMenuItem>
 
         {type === "datatable" && (
@@ -105,31 +106,31 @@ function TableTool() {
         onClick={() => editor.chain().focus().addRowBefore().run()}
       >
         <Plus className="size-3.5" />
-        <span>Thêm hàng trên</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.addRowAbove}</span>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().addRowAfter().run()}
       >
         <Plus className="size-3.5" />
-        <span>Thêm hàng dưới</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.addRowBelow}</span>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().addColumnBefore().run()}
       >
         <Plus className="size-3.5" />
-        <span>Thêm cột trái</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.addColumnLeft}</span>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().addColumnAfter().run()}
       >
         <Plus className="size-3.5" />
-        <span>Thêm cột phải</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.addColumnRight}</span>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().mergeOrSplit().run()}
       >
         <TableCellsMerge className="size-3.5" />
-        <span>Gộp / Tách ô</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.mergeSplitCells}</span>
       </ContextMenuItem>
       <ContextMenuSeparator />
       <ContextMenuItem
@@ -137,14 +138,14 @@ function TableTool() {
         onClick={() => editor.chain().focus().deleteRow().run()}
       >
         <Trash2 className="size-3.5" />
-        <span>Xóa hàng</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.deleteRow}</span>
       </ContextMenuItem>
       <ContextMenuItem
         variant="destructive"
         onClick={() => editor.chain().focus().deleteColumn().run()}
       >
         <Trash2 className="size-3.5" />
-        <span>Xóa cột</span>
+        <span>{FORM_BUILDER_LABELS.canvasMenu.deleteColumn}</span>
       </ContextMenuItem>
     </>
   );
