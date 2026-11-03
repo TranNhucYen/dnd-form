@@ -1,3 +1,5 @@
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
+
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const ACCEPT_IMAGE_TYPES = "image/png,image/jpeg,image/webp";
@@ -12,14 +14,14 @@ export function validateImageFile(file: File): ImageValidationResult {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     return {
       valid: false,
-      error: "Định dạng ảnh không được hỗ trợ (chỉ nhận JPG, PNG, WEBP)",
+      error: FORM_BUILDER_LABELS.fields.image.unsupported,
     };
   }
 
   if (file.size > MAX_IMAGE_SIZE) {
     return {
       valid: false,
-      error: "Kích thước ảnh vượt quá 5MB",
+      error: FORM_BUILDER_LABELS.fields.image.tooLarge,
     };
   }
 

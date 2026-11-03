@@ -8,6 +8,7 @@ import { PenLine, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { getFieldPartStyle } from "../shared/fieldStyle.utils";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 
 export function SignatureField({
@@ -147,7 +148,7 @@ function SignaturePreview({ src, onOpen, onClear }: {
         <div className="group relative flex h-full w-full items-center justify-center p-1">
           <img
             src={src}
-            alt="Chữ ký"
+            alt={FORM_BUILDER_LABELS.fields.signature.signer}
             className="max-h-full max-w-full object-contain pointer-events-none"
             draggable={false}
           />
@@ -160,7 +161,7 @@ function SignaturePreview({ src, onOpen, onClear }: {
             className="absolute top-1 right-1 hidden group-hover:flex items-center gap-1 text-xs text-destructive"
           >
             <Trash2 className="size-3" />
-            Xóa
+            {FORM_BUILDER_LABELS.canvasMenu.remove}
           </button>
         </div>
       ) : (
@@ -169,7 +170,7 @@ function SignaturePreview({ src, onOpen, onClear }: {
           rounded border border-dashed text-muted-foreground hover:bg-muted/50"
         >
           <PenLine className="size-4" />
-          <span className="text-xs">Nhấn để ký</span>
+          <span className="text-xs">{FORM_BUILDER_LABELS.fields.signature.sign}</span>
         </div>
       )}
     </div>

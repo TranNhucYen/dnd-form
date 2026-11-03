@@ -2,6 +2,7 @@ import { memo } from "react";
 import { CopyPlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FIELD_DEFINITIONS_MAP } from "../../constants/fields.config";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { FieldToolbarRenderer } from "../../fields/FieldToolbarRenderer";
 import type { FieldData, FieldType } from "../../types/formBuilder.types";
@@ -76,7 +77,7 @@ export const FieldFloatingToolbar = memo(function FieldFloatingToolbar({
           size="sm"
           onClick={() => duplicateField(fieldId)}
           className="size-7 p-0 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100"
-          title="Nhân bản (Ctrl+D)"
+          title={FORM_BUILDER_LABELS.canvas.duplicateField}
         >
           <CopyPlus className="size-3.5" />
         </Button>
@@ -86,7 +87,7 @@ export const FieldFloatingToolbar = memo(function FieldFloatingToolbar({
           size="sm"
           onClick={() => removeField(fieldId)}
           className="size-7 p-0 text-neutral-500 hover:text-red-600 hover:bg-red-50"
-          title="Xóa field (Del)"
+          title={FORM_BUILDER_LABELS.canvas.deleteField}
         >
           <Trash2 className="size-3.5" />
         </Button>

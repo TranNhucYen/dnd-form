@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useEditorState } from "@tiptap/react";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 import { useEditorStore } from "../../store/useEditorStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function HistoryTools() {
   const editor = useEditorStore((state) => state.editor);
@@ -76,7 +77,7 @@ export function HistoryTools() {
         disabled={!canUndo}
         onMouseDown={(e) => e.preventDefault()}
         onClick={handleUndo}
-        title="Undo (ctrl + z)"
+        title={FORM_BUILDER_LABELS.canvas.undo}
         className="size-7 p-0 text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
       >
         <Undo2 className="size-3.5" />
@@ -90,7 +91,7 @@ export function HistoryTools() {
         disabled={!canRedo}
         onMouseDown={(e) => e.preventDefault()}
         onClick={handleRedo}
-        title="Redo (ctrl + z),(ctrl + shift + z)"
+        title={FORM_BUILDER_LABELS.canvas.redo}
         className="size-7 p-0 text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
       >
         <Redo2 className="size-3.5" />

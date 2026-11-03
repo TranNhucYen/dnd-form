@@ -7,6 +7,7 @@ import { toMm, toInternalUnit } from '@/features/form-builder/domain/units';
 import { FieldRenderer } from '@/features/form-builder/fields/FieldRenderer';
 import { loadPdfDocument, renderPdfPageToBlobUrl } from '@/lib/pdf-client/pdf-extractor';
 import { usePrintReadiness } from './usePrintReadiness';
+import { FORM_BUILDER_LABELS } from '../constants/labels';
 
 
 export interface PrintCanvasProps {
@@ -163,7 +164,7 @@ export function PrintCanvas({ schema }: PrintCanvasProps) {
                 <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
                   <img
                     src={bgBlobUrl}
-                    alt="Print Background"
+                    alt={FORM_BUILDER_LABELS.canvas.printBackgroundAlt}
                     className="w-full h-full object-contain pointer-events-none select-none"
                     draggable={false}
                   />

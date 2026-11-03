@@ -5,6 +5,7 @@ import { FieldScopeSlot } from "./FieldScopeSlot";
 import { getFieldPartStyle } from "./fieldStyle.utils";
 import { InputOverlay } from "./InputOverlay";
 import { useInlineEdit } from "./useInlineEdit";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export type DottedFieldLineProps = {
   fieldId?: string;
@@ -55,7 +56,7 @@ export function FieldLabel({
           />
         )}
       </span>
-      <span>: </span>
+      <span>{FORM_BUILDER_LABELS.fields.common.labelSeparator} </span>
     </span>
   );
 }
@@ -125,7 +126,7 @@ export function DottedFieldLine({
   } = useInlineEdit(initialLabel, onLabelSave);
 
   const isBothHiddenAndEmpty = !showLabel && !showDottedLine && !value;
-  const placeholderHint = isBothHiddenAndEmpty ? `[${placeholder || label || "Ô nhập"}]` : undefined;
+  const placeholderHint = isBothHiddenAndEmpty ? `[${placeholder || label || FORM_BUILDER_LABELS.fields.common.inputFallback}]` : undefined;
 
   return (
     <span

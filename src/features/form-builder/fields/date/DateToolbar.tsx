@@ -9,6 +9,7 @@ import {
 } from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, DateFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 // Ngày được lưu trong data dưới dạng chuỗi "dd/MM/yyyy", còn <input type="date"> dùng "yyyy-MM-dd"
 function toInputValue(value?: string) {
@@ -38,26 +39,26 @@ export function DateToolbar({
   return (
     <ToolbarPopover
       icon={CalendarDays}
-      label={value ? `${label ? `${label}, ` : ""}${value}` : label || "Ngày tháng"}
-      title="Chỉnh sửa địa danh và ngày tháng"
+      label={value ? `${label ? `${label}, ` : ""}${value}` : label || FORM_BUILDER_LABELS.fields.date.fallback}
+      title={FORM_BUILDER_LABELS.fields.date.configure}
     >
-      <ToolbarField label="Địa danh (Tỉnh/Thành phố)">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.date.location}>
         <Input
           value={label}
           onChange={(e) => onDataChange({ label: e.target.value })}
-          placeholder="VD: Hà Nội..."
+          placeholder={FORM_BUILDER_LABELS.fields.date.locationExample}
           className="h-7 text-xs"
         />
       </ToolbarField>
 
       <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
         <ToolbarCheckbox
-          label="Hiển thị chữ 'ngày, tháng, năm'"
+          label={FORM_BUILDER_LABELS.fields.date.dateLabels}
           checked={showDateLabels}
           onCheckedChange={(checked) => onDataChange({ showDateLabels: checked })}
         />
         <ToolbarCheckbox
-          label="Hiển thị dòng kẻ chấm"
+          label={FORM_BUILDER_LABELS.fields.common.showDottedLine}
           checked={showDottedLine}
           onCheckedChange={(checked) => onDataChange({ showDottedLine: checked })}
         />
@@ -71,12 +72,12 @@ export function DateToolbar({
             onClick={() => onDataChange({ slots: undefined })}
             className="h-7 w-full text-xs text-muted-foreground hover:text-foreground justify-center"
           >
-            Đặt lại vị trí 4 ô mặc định
+            {FORM_BUILDER_LABELS.fields.date.resetSlots}
           </Button>
         </div>
       )}
 
-      <ToolbarField label="Ngày tháng năm">
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.date.slots}>
         <div className="flex items-center gap-1.5">
           <Input
             type="date"
@@ -90,14 +91,14 @@ export function DateToolbar({
             onClick={() => onDataChange({ value: getToday() })}
             className="h-7 shrink-0 px-2 text-[11px]"
           >
-            Hôm nay
+            {FORM_BUILDER_LABELS.fields.date.today}
           </Button>
         </div>
       </ToolbarField>
 
       {value && (
         <ToolbarClearButton onClick={() => onDataChange({ value: undefined })}>
-          Xóa ngày (để trống)
+          {FORM_BUILDER_LABELS.fields.date.clear}
         </ToolbarClearButton>
       )}
     </ToolbarPopover>

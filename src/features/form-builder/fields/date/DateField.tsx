@@ -6,6 +6,7 @@ import { useInlineEdit } from "../shared/useInlineEdit";
 import type { FieldProps, DateFieldData } from "../types/field.types";
 
 import { DateSlotsLayout } from "./DateSlotsLayout";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 /**
  * DateSlot: Ô trong ngày tháng năm (Giá trị - Value)
@@ -111,7 +112,7 @@ function DateNormalLayout({
       {/* Placeholder gợi ý khi ẩn hết và chưa có giá trị */}
       {isCompletelyEmptyAndHidden && (
         <span className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden px-1">
-          [Ngày tháng năm]
+          {FORM_BUILDER_LABELS.fields.date.defaultPlaceholder}
         </span>
       )}
 
@@ -124,7 +125,7 @@ function DateNormalLayout({
             style={labelCustomStyle}
             className="select-none"
           >
-            , ngày&nbsp;
+            {FORM_BUILDER_LABELS.fields.date.dayPrefix}
           </FieldScopeSlot>
         ) : (
           <span className="w-2 shrink-0 inline-block" />
@@ -143,7 +144,7 @@ function DateNormalLayout({
             style={labelCustomStyle}
             className="select-none"
           >
-            &nbsp;tháng&nbsp;
+            {FORM_BUILDER_LABELS.fields.date.monthPrefix}
           </FieldScopeSlot>
         ) : (
           <span className="w-2 shrink-0 inline-block" />
@@ -162,7 +163,7 @@ function DateNormalLayout({
             style={labelCustomStyle}
             className="select-none"
           >
-            &nbsp;năm&nbsp;
+            {FORM_BUILDER_LABELS.fields.date.yearPrefix}
           </FieldScopeSlot>
         ) : (
           <span className="w-2 shrink-0 inline-block" />

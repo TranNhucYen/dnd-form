@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CollectFormModal } from "@/features/eform";
 import { useFormBuilderStore } from "../../store/useFormBuilderStore";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 export function EFormTabContent() {
   const searchParams = useSearchParams();
@@ -23,7 +24,7 @@ export function EFormTabContent() {
   const getCurrentFormTitle = () =>
     document
       .querySelector<HTMLInputElement>("[data-form-title-input]")
-      ?.value.trim() || "Biểu mẫu chưa đặt tên";
+      ?.value.trim() || FORM_BUILDER_LABELS.toolbar.eform.untitledForm;
 
   const handlePreviewEForm = () => {
     const store = useFormBuilderStore.getState();
@@ -54,7 +55,7 @@ export function EFormTabContent() {
 
   const handleOpenCollect = () => {
     if (!activeFormId) {
-      toast.info("Vui lòng lưu biểu mẫu trước khi bật thu thập phản hồi.");
+      toast.info(FORM_BUILDER_LABELS.toolbar.eform.saveFirst);
       return;
     }
     setCollectModalOpen(true);
@@ -68,10 +69,10 @@ export function EFormTabContent() {
         size="sm"
         onClick={handlePreviewEForm}
         className="h-7 gap-1.5 px-2.5 text-xs font-medium hover:bg-neutral-100 cursor-pointer text-foreground border border-neutral-200/80 shadow-2xs"
-        title="Mở biểu mẫu điện tử trên tab trình duyệt mới"
+        title={FORM_BUILDER_LABELS.toolbar.eform.previewTitle}
       >
         <ExternalLink className="size-3.5 text-primary" />
-        <span>Xem trước E-Form</span>
+        <span>{FORM_BUILDER_LABELS.toolbar.eform.preview}</span>
       </Button>
 
       {/* Nút quản lý thu thập phản hồi qua E-Form */}
@@ -80,17 +81,17 @@ export function EFormTabContent() {
         size="sm"
         onClick={handleOpenCollect}
         className="text-xs hover:bg-neutral-100 cursor-pointer border border-neutral-200/80 shadow-2xs"
-        title="Lấy liên kết thu thập công khai và xem các bản đã điền"
+        title={FORM_BUILDER_LABELS.toolbar.eform.collectTitle}
       >
         <Inbox className="size-3.5 text-primary" />
-        <span>Thu thập phản hồi</span>
+        <span>{FORM_BUILDER_LABELS.toolbar.eform.collect}</span>
       </Button>
 
       {/* Thông tin tóm tắt số trang & trường */}
       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground select-none">
         <Sparkles className="size-3 text-amber-500" />
         <span>
-          Tự động sinh web form ({pages.length} trang, {totalFields} trường)
+          {FORM_BUILDER_LABELS.toolbar.eform.summary}{pages.length} {FORM_BUILDER_LABELS.toolbar.eform.pages} {totalFields} {FORM_BUILDER_LABELS.toolbar.eform.fields}
         </span>
       </div>
 

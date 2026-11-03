@@ -8,22 +8,23 @@ import {
 } from "../shared/ToolbarPopover";
 import type { FieldToolbarProps, SignatureFieldData } from "../types/field.types";
 import { DEFAULT_FIELD_DATA } from "../../constants";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 const TEXT_FIELDS = [
   {
     key: "label",
-    label: "Tiêu đề (Dòng 1)",
-    placeholder: "VD: Người làm đơn, Giám đốc...",
+    label: FORM_BUILDER_LABELS.fields.signature.title,
+    placeholder: FORM_BUILDER_LABELS.fields.signature.titleExample,
   },
   {
     key: "subTitle",
-    label: "Ghi chú / Chức danh (Dòng 2)",
-    placeholder: "VD: (Ký, ghi rõ họ tên)...",
+    label: FORM_BUILDER_LABELS.fields.signature.subtitle,
+    placeholder: FORM_BUILDER_LABELS.fields.signature.subtitleExample,
   },
   {
     key: "signerName",
-    label: "Họ tên người ký (Dòng 3)",
-    placeholder: "VD: Nguyễn Văn A...",
+    label: FORM_BUILDER_LABELS.fields.signature.signerName,
+    placeholder: FORM_BUILDER_LABELS.fields.signature.signerNameExample,
   },
 ] as const;
 
@@ -37,17 +38,17 @@ export function SignatureToolbar({
   return (
     <ToolbarPopover
       icon={UserCheck}
-      label={fieldData.label || "Người ký"}
-      title="Cấu hình thông tin người ký"
+      label={fieldData.label || FORM_BUILDER_LABELS.fields.signature.signer}
+      title={FORM_BUILDER_LABELS.fields.signature.configure}
     >
       <div className="flex flex-col gap-0.5 border-b border-border pb-1.5 mb-1">
         <ToolbarCheckbox
-          label="Hiển thị tiêu đề & ghi chú"
+          label={FORM_BUILDER_LABELS.fields.signature.showTitleAndNote}
           checked={showSignatureLabels}
           onCheckedChange={(checked) => onDataChange({ showSignatureLabels: checked })}
         />
         <ToolbarCheckbox
-          label="Hiển thị họ tên người ký"
+          label={FORM_BUILDER_LABELS.fields.signature.showSignerName}
           checked={showSignerName}
           onCheckedChange={(checked) => onDataChange({ showSignerName: checked })}
         />
@@ -73,7 +74,7 @@ export function SignatureToolbar({
           className="h-7 gap-1.5 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
         >
           <Eraser className="size-3" />
-          <span>Xóa chữ ký đã vẽ</span>
+          <span>{FORM_BUILDER_LABELS.fields.signature.deleteDrawn}</span>
         </Button>
       )}
     </ToolbarPopover>

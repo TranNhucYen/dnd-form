@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
 type QrCodeModalProps = {
   open: boolean;
@@ -44,7 +45,7 @@ export function QrCodeModal({
         className="sm:max-w-md"
       >
         <DialogHeader>
-          <DialogTitle>Cấu hình mã QR</DialogTitle>
+          <DialogTitle>{FORM_BUILDER_LABELS.fields.qrcode.dialogTitle}</DialogTitle>
         </DialogHeader>
         <div className="py-2">
           <Input
@@ -56,14 +57,14 @@ export function QrCodeModal({
                 handleSave();
               }
             }}
-            placeholder="Nhập liên kết hoặc văn bản..."
+            placeholder={FORM_BUILDER_LABELS.fields.qrcode.placeholder}
             autoFocus
           />
         </div>
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" size="sm" onClick={handleSave}>
-              Lưu
+              {FORM_BUILDER_LABELS.fields.qrcode.save}
             </Button>
           </DialogClose>
         </DialogFooter>
