@@ -97,7 +97,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
       <SidebarHeader className="h-16 flex items-center px-4 justify-between border-b">
         <Link
           href={ROUTES.ADMIN_DASHBOARD}
-          className="flex items-center gap-2 font-bold text-lg tracking-tight text-foreground"
+          className="select-none flex items-center gap-2 font-bold text-lg tracking-tight text-foreground"
         >
           <span
             className="
@@ -164,7 +164,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t">
-        <div className="flex items-center gap-3 p-1 -m-1 rounded-md">
+        <div className="select-none flex items-center gap-3 p-1 -m-1 rounded-md">
           <div
             className="
               h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center 
