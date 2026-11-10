@@ -75,6 +75,7 @@ export interface FormBuilderState {
 
   // Tương tác phần tử trên Canvas
   selectedFieldId: string | null;
+  selectedFieldIds: string[];
   clipboardField: CanvasField | null;
   formatScope: FormatScope;
   setFormatScope: (scope: FormatScope) => void;
@@ -122,6 +123,7 @@ export interface FormBuilderState {
     scope?: FormatScope,
   ) => void;
   selectAllFields: () => void;
+  removeSelectedFields: () => void;
   addField: (type: FieldType, coordinates: { x: number; y: number }) => void;
   updateFieldPosition: (fieldId: string, coordinates: { x: number; y: number }) => void;
   updateFieldStyle: (fieldId: string, style: Partial<FieldStyle>) => void;
@@ -190,6 +192,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   fields: initialDefaultPage.fields,
 
   selectedFieldId: null,
+  selectedFieldIds: [],
   clipboardField: null,
   formatScope: "all",
   setFormatScope: (formatScope) => set({ formatScope }),
@@ -272,6 +275,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: targetPage.margins,
       fields: targetPage.fields,
       selectedFieldId: previousSnapshot.selectedFieldId,
+      selectedFieldIds: [],
       past: newPast,
       future: [currentSnapshot, ...future].slice(0, MAX_HISTORY_STEPS),
       canUndo: newPast.length > 0,
@@ -308,6 +312,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: targetPage.margins,
       fields: targetPage.fields,
       selectedFieldId: nextSnapshot.selectedFieldId,
+      selectedFieldIds: [],
       past: newPast,
       future: newFuture,
       canUndo: true,
@@ -344,6 +349,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: newPage.margins,
       fields: [],
       selectedFieldId: null,
+      selectedFieldIds: [],
     });
   },
 
@@ -381,6 +387,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: nextActivePage.margins,
       fields: nextActivePage.fields,
       selectedFieldId: null,
+      selectedFieldIds: [],
     });
   },
 
@@ -401,6 +408,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: blankPage.margins,
       fields: [],
       selectedFieldId: null,
+      selectedFieldIds: [],
       backgroundPdf: undefined,
       isDirty: true,
     });
@@ -420,6 +428,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: targetPage.margins,
       fields: targetPage.fields,
       selectedFieldId: null,
+      selectedFieldIds: [],
     });
   },
 
@@ -583,9 +592,27 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
 
   // ===== THAO TÁC PHẦN TỬ TRÊN TRANG ACTIVE =====
   setSelectedFieldId: (id, scope = "all") =>
-    set({ selectedFieldId: id, formatScope: scope }),
+    set({ selectedFieldId: id, selectedFieldIds: [], formatScope: scope }),
 
-  selectAllFields: () => { },
+  selectAllFields: () => {
+    const { fields } = get();
+    set({ selectedFieldId: null, selectedFieldIds: fields.map((field) => field.id) });
+  },
+
+  removeSelectedFields: () => {
+    const { selectedFieldIds, fields, pages, activePageId } = get();
+    if (selectedFieldIds.length === 0) return;
+
+    get().recordHistory();
+    const selectedIds = new Set(selectedFieldIds);
+    const nextFields = fields.filter((field) => !selectedIds.has(field.id));
+    set({
+      fields: nextFields,
+      pages: updateActivePageFields(pages, activePageId, nextFields),
+      selectedFieldId: null,
+      selectedFieldIds: [],
+    });
+  },
 
   addField: (type, coordinates) => {
     get().recordHistory();
@@ -607,6 +634,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       fields: nextFields,
       pages: updateActivePageFields(pages, activePageId, nextFields),
       selectedFieldId: newField.id,
+      selectedFieldIds: [],
     });
   },
 
@@ -767,6 +795,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       fields: nextFields,
       pages: updateActivePageFields(pages, activePageId, nextFields),
       selectedFieldId: selectedFieldId === fieldId ? null : selectedFieldId,
+      selectedFieldIds: get().selectedFieldIds.filter((id) => id !== fieldId),
     });
   },
 
@@ -791,6 +820,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       fields: nextFields,
       pages: updateActivePageFields(pages, activePageId, nextFields),
       selectedFieldId: duplicatedField.id,
+      selectedFieldIds: [],
     });
   },
 
@@ -814,6 +844,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       fields: nextFields,
       pages: updateActivePageFields(pages, activePageId, nextFields),
       selectedFieldId: selectedFieldId === fieldId ? null : selectedFieldId,
+      selectedFieldIds: get().selectedFieldIds.filter((id) => id !== fieldId),
     });
   },
 
@@ -837,6 +868,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       fields: nextFields,
       pages: updateActivePageFields(pages, activePageId, nextFields),
       selectedFieldId: pastedField.id,
+      selectedFieldIds: [],
     });
   },
 
@@ -895,6 +927,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       margins: firstPage.margins,
       fields: firstPage.fields,
       selectedFieldId: null,
+      selectedFieldIds: [],
       formatScope: "all",
       past: [],
       future: [],

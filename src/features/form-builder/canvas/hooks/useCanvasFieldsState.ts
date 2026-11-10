@@ -7,6 +7,7 @@ import { useFormBuilderStore } from "../../store/useFormBuilderStore";
 export function useCanvasFieldsState() {
   const fields = useFormBuilderStore((state) => state.fields);
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
+  const selectedFieldIds = useFormBuilderStore((state) => state.selectedFieldIds);
   const setSelectedFieldId = useFormBuilderStore(
     (state) => state.setSelectedFieldId,
   );
@@ -26,6 +27,7 @@ export function useCanvasFieldsState() {
   return {
     fields,
     selectedFieldId,
+    selectedFieldIds,
     setSelectedFieldId,
     collidingFieldIds,
     setCollidingFieldIds,

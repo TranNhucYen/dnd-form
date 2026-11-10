@@ -28,6 +28,7 @@ type FormFieldShellProps = {
   allowResize?: boolean;
   isColliding?: boolean;
   isSelected?: boolean;
+  isPrimarySelected?: boolean;
   onSelect?: () => void;
   onGuidesChange?: (guides: AlignmentGuide[]) => void;
   onResize?: (change: FieldResizeChange) => void;
@@ -52,6 +53,7 @@ export function FormFieldShell({
   allowResize = false,
   isColliding = false,
   isSelected = false,
+  isPrimarySelected = false,
   onSelect,
   onGuidesChange,
   onResize,
@@ -164,11 +166,11 @@ export function FormFieldShell({
           {children}
         </div>
 
-        {allowResize && isSelected && !isDragging && (
+        {allowResize && isPrimarySelected && !isDragging && (
           <ResizeHandles type={type} onResizeStart={startResize} />
         )}
 
-        {isSelected && !isDragging && currentField && (
+        {isPrimarySelected && !isDragging && currentField && (
           <FieldFloatingToolbar
             fieldId={id}
             type={type}
