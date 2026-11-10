@@ -35,7 +35,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="h-16 flex items-center px-4 justify-start border-b">
-        <Link href="/home" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
+        <Link href="/home" className="select-none flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
           <span className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-sm">D</span>
           Dnd Form
         </Link>
@@ -100,7 +100,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarFooter className="p-4 border-t">
         <Link
           href={ROUTES.ACCOUNT}
-          className="flex items-center gap-3 p-1 -m-1 rounded-md transition-colors hover:bg-accent group"
+          className="select-none flex items-center gap-3 p-1 -m-1 rounded-md transition-colors hover:bg-accent group"
         >
           <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20">
             {initials}
