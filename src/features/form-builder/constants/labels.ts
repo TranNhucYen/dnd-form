@@ -41,6 +41,7 @@ export const FORM_BUILDER_LABELS = {
     page: "Page",
     background: "Background",
     eform: "E-Form",
+    export: "Export",
   },
   formatting: {
     bold: "In đậm",
@@ -52,6 +53,15 @@ export const FORM_BUILDER_LABELS = {
     alignJustify: "Căn đều",
   },
   toolbar: {
+    exportTool: {
+      button: "Tải xuống",
+      buttonTitle: "Xuất PDF",
+      dialogTitle: "Lưu và xuất PDF?",
+      description: "Biểu mẫu sẽ được lưu trước khi xuất PDF. Nếu đã lưu và không có thay đổi, PDF sẽ được xuất ngay.",
+      cancel: "Hủy",
+      confirm: "Lưu và xuất",
+      processing: "Đang xử lý...",
+    },
     fonts: {
       roboto: "Roboto",
       inter: "Inter",

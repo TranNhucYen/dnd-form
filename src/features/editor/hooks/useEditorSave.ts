@@ -8,6 +8,7 @@ import { useFormBuilderStore } from "@/features/form-builder/store/useFormBuilde
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
 import { DYNAMIC_ROUTES } from "@/shared/constants/routes";
 import { clearFormDraft, createFormSnapshot } from "../utils/draft-storage";
+import { useExportFormPdf } from "@/features/my-form/hooks/useExportFormPdf";
 
 export interface UseEditorSaveOptions {
   onSaveSuccess?: (savedSnapshot: string, newFormId: number, savedTitle: string) => void;
@@ -25,7 +26,11 @@ export function useEditorSave(
   const queryClient = useQueryClient();
 
   const setOnSave = useFormBuilderStore((state) => state.setOnSave);
+  const setOnExport = useFormBuilderStore((state) => state.setOnExport);
   const setIsDirty = useFormBuilderStore((state) => state.setIsDirty);
+  const { downloadPdf } = useExportFormPdf();
+  const currentFormIdRef = useRef(formId);
+  currentFormIdRef.current = formId;
 
   const onSaveSuccessRef = useRef(options?.onSaveSuccess);
   useEffect(() => {
@@ -66,6 +71,7 @@ export function useEditorSave(
         }
 
         const newFormId = res.data.formId ?? formId;
+        currentFormIdRef.current = newFormId;
 
         // Xóa bản nháp trong localStorage
         clearFormDraft(formId);
@@ -91,26 +97,40 @@ export function useEditorSave(
     [formId, title, setIsDirty, queryClient],
   );
 
-  // Ref trampoline: giữ tham chiếu mới nhất, tránh vòng lặp re-render
   const handleSaveRef = useRef(handleSave);
   useEffect(() => {
     handleSaveRef.current = handleSave;
   });
 
+  const handleExport = useCallback(async () => {
+    const state = useFormBuilderStore.getState();
+    if (state.isDirty || !currentFormIdRef.current) {
+      await handleSaveRef.current(state.getFormSchema());
+      if (useFormBuilderStore.getState().isDirty) return;
+    }
+    const savedFormId = currentFormIdRef.current;
+    if (!savedFormId) return;
+    await downloadPdf(savedFormId, title);
+  }, [downloadPdf, title]);
+
+  // Ref trampoline: giữ tham chiếu mới nhất, tránh vòng lặp re-render
   useEffect(() => {
     if (isReadOnly) {
       setOnSave(undefined);
+      setOnExport(undefined);
       return;
     }
 
     setOnSave(async (schema) => {
       await handleSaveRef.current(schema);
     });
+    setOnExport(handleExport);
 
     return () => {
       setOnSave(undefined);
+      setOnExport(undefined);
     };
-  }, [setOnSave, isReadOnly]);
+  }, [setOnSave, setOnExport, isReadOnly, handleExport]);
 
   return {
     formId,

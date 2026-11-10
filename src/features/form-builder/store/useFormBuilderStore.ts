@@ -153,6 +153,8 @@ export interface FormBuilderState {
 
   // Adapter lưu trữ và giao tiếp với Host App
   onSave?: (schema: FormSchemaJson) => Promise<void> | void;
+  onExport?: () => Promise<void> | void;
+  setOnExport: (handler?: () => Promise<void> | void) => void;
   setOnSave: (
     handler?: (schema: FormSchemaJson) => Promise<void> | void,
   ) => void;
@@ -201,6 +203,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   setIsReadOnly: (isReadOnly) => set({ isReadOnly }),
 
   onSave: undefined,
+  onExport: undefined,
   isSaving: false,
 
   past: [],
@@ -878,6 +881,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   },
 
   setOnSave: (handler) => set({ onSave: handler }),
+
+  setOnExport: (handler) => set({ onExport: handler }),
 
   setIsSaving: (isSaving) => set({ isSaving }),
 
