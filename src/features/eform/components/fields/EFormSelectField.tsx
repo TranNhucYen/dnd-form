@@ -8,23 +8,20 @@ interface EFormSelectFieldProps {
 }
 
 export function EFormSelectField({ data, style, onChange }: EFormSelectFieldProps) {
-  const showLabel = data.showLabel !== false;
   const options = Array.isArray(data.options) ? data.options : [];
 
   return (
     <div className="flex w-full flex-col gap-1.5">
-      {showLabel && (
-        <Label
-          style={{
-            color: style?.parts?.label?.color || style?.color,
-            fontSize: style?.parts?.label?.fontSize,
-            fontWeight: style?.parts?.label?.fontWeight,
-          }}
-          className="text-xs md:text-sm font-medium text-neutral-700"
-        >
-          {data.label || "Lựa chọn"}
-        </Label>
-      )}
+      <Label
+        style={{
+          color: style?.parts?.label?.color || style?.color,
+          fontSize: style?.parts?.label?.fontSize,
+          fontWeight: style?.parts?.label?.fontWeight,
+        }}
+        className="text-xs md:text-sm font-medium text-neutral-700"
+      >
+        {data.label || "Lựa chọn"}
+      </Label>
       <select
         defaultValue={data.value ?? ""}
         onChange={(e) => onChange?.(e.target.value)}

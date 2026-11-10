@@ -9,22 +9,18 @@ interface EFormNumberFieldProps {
 }
 
 export function EFormNumberField({ data, style, onChange }: EFormNumberFieldProps) {
-  const showLabel = data.showLabel !== false;
-
   return (
     <div className="flex w-full flex-col gap-1.5">
-      {showLabel && (
-        <Label
-          style={{
-            color: style?.parts?.label?.color || style?.color,
-            fontSize: style?.parts?.label?.fontSize,
-            fontWeight: style?.parts?.label?.fontWeight,
-          }}
-          className="text-xs md:text-sm font-medium text-neutral-700"
-        >
-          {data.label || "Số lượng / Giá trị"}
-        </Label>
-      )}
+      <Label
+        style={{
+          color: style?.parts?.label?.color || style?.color,
+          fontSize: style?.parts?.label?.fontSize,
+          fontWeight: style?.parts?.label?.fontWeight,
+        }}
+        className="text-xs md:text-sm font-medium text-neutral-700"
+      >
+        {data.label || "Số lượng / Giá trị"}
+      </Label>
       <Input
         type="number"
         min={data.min}

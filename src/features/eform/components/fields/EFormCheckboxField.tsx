@@ -14,18 +14,16 @@ export function EFormCheckboxField({ data, style, onChange }: EFormCheckboxField
         defaultChecked={Boolean(data.checked)}
         onCheckedChange={(checked) => onChange?.(Boolean(checked))}
       />
-      {data.showLabel !== false && (
-        <span
-          style={{
-            color: style?.parts?.label?.color || style?.color,
-            fontSize: style?.parts?.label?.fontSize,
-            fontWeight: style?.parts?.label?.fontWeight,
-          }}
-          className="text-xs md:text-sm text-neutral-800"
-        >
-          {data.label || "Tùy chọn"}
-        </span>
-      )}
+      <span
+        style={{
+          color: style?.parts?.label?.color || style?.color,
+          fontSize: style?.parts?.label?.fontSize,
+          fontWeight: style?.parts?.label?.fontWeight,
+        }}
+        className="text-xs md:text-sm text-neutral-800"
+      >
+        {data.label || "Tùy chọn"}
+      </span>
     </label>
   );
 }
