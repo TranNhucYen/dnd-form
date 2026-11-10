@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -74,7 +75,11 @@ export function CollectionStatsView() {
     refetchSubmissions,
   } = useCollectionStats();
 
-  const { isExporting: isDownloadingPdf, downloadSubmissionPdf } =
+  const {
+    isExporting: isDownloadingPdf,
+    downloadSubmissionPdf,
+    downloadSubmissionPdfsZip,
+  } =
     useExportSubmissionPdf();
 
   // State thông báo chép link & các ID đang xử lý
@@ -82,7 +87,12 @@ export function CollectionStatsView() {
   const [detailSubmission, setDetailSubmission] =
     useState<FormSubmissionItem | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
-  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const selectedSubmissions = (config?.submissions ?? []).filter((submission) =>
+    selectedSubmissionIds.has(submission.id),
+  );
 
   // Hook quản lý các cột trường tùy chọn do người dùng chọn hiển thị
   const {
@@ -124,23 +134,52 @@ export function CollectionStatsView() {
     }
   };
 
-  // Tải file PDF bản nộp cụ thể
-  const handleDownloadSinglePdf = async (sub: FormSubmissionItem) => {
-    setDownloadingId(sub.id);
-    try {
-      await downloadSubmissionPdf(sub.id, selectedForm?.name);
-    } finally {
-      setDownloadingId(null);
+  const handleToggleSubmission = (submissionId: number, checked: boolean) => {
+    setSelectedSubmissionIds((current) => {
+      const next = new Set(current);
+      if (checked) next.add(submissionId);
+      else next.delete(submissionId);
+      return next;
+    });
+  };
+
+  const visibleSubmissionIds = filteredSubmissions.map((submission) => submission.id);
+  const selectedVisibleCount = visibleSubmissionIds.filter((id) =>
+    selectedSubmissionIds.has(id),
+  ).length;
+  const allVisibleSelected =
+    visibleSubmissionIds.length > 0 &&
+    selectedVisibleCount === visibleSubmissionIds.length;
+  const hasVisibleSelection = selectedVisibleCount > 0;
+
+  const handleToggleVisibleSubmissions = (checked: boolean) => {
+    setSelectedSubmissionIds((current) => {
+      const next = new Set(current);
+      for (const id of visibleSubmissionIds) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const handleDownloadSelected = async () => {
+    if (selectedSubmissions.length === 1) {
+      await downloadSubmissionPdf(selectedSubmissions[0].id, selectedForm?.name);
+    } else if (selectedSubmissions.length > 1) {
+      await downloadSubmissionPdfsZip(
+        selectedSubmissions.map((submission) => submission.id),
+        selectedForm?.name,
+      );
     }
   };
 
-  // Ánh xạ STT gốc (bản nộp đầu tiên là 1, tiếp theo tăng dần)
+  // Bản nộp mới nhất hiển thị đầu tiên với STT tăng dần.
   const submissionOrderMap = useMemo(() => {
     const map = new Map<number, number>();
     const all = config?.submissions || [];
-    const total = all.length;
     all.forEach((item, idx) => {
-      map.set(item.id, total - idx);
+      map.set(item.id, idx + 1);
     });
     return map;
   }, [config?.submissions]);
@@ -177,7 +216,10 @@ export function CollectionStatsView() {
             <CollectingFormCombobox
               forms={forms}
               selectedFormId={selectedFormId}
-              onSelectForm={handleSelectForm}
+              onSelectForm={(formId) => {
+                setSelectedSubmissionIds(new Set());
+                handleSelectForm(formId);
+              }}
             />
           )}
 
@@ -237,6 +279,30 @@ export function CollectionStatsView() {
             />
 
             <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
+              {selectedSubmissions.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadSelected}
+                  disabled={isDownloadingPdf}
+                  className="h-8 text-xs gap-1.5 cursor-pointer"
+                  title={
+                    selectedSubmissions.length > 1
+                      ? "Tải các bản nộp đã chọn dưới dạng ZIP"
+                      : "Tải bản nộp đã chọn dưới dạng PDF"
+                  }
+                >
+                  {isDownloadingPdf ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Download className="size-3.5 text-neutral-600" />
+                  )}
+                  <span>
+                    PDF{selectedSubmissions.length > 1 ? ` (${selectedSubmissions.length})` : ""}
+                  </span>
+                </Button>
+              )}
+
               {collectUrl && (
                 <>
                   <Button
@@ -322,6 +388,21 @@ export function CollectionStatsView() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/40">
+                      <TableHead className="w-10 pl-4">
+                        <Checkbox
+                          aria-label="Chọn tất cả bản nộp đang hiển thị"
+                          checked={
+                            allVisibleSelected
+                              ? true
+                              : hasVisibleSelection
+                                ? "indeterminate"
+                                : false
+                          }
+                          onCheckedChange={(checked) =>
+                            handleToggleVisibleSubmissions(checked === true)
+                          }
+                        />
+                      </TableHead>
                       {/* Cột 1: STT (hỗ trợ sắp xếp) */}
                       <TableHead className="w-20 font-semibold">
                         <button
@@ -462,6 +543,15 @@ export function CollectionStatsView() {
                           key={sub.id}
                           className="hover:bg-muted/40 transition-colors"
                         >
+                          <TableCell className="pl-4">
+                            <Checkbox
+                              aria-label={`Chọn bản nộp ${orderNumber}`}
+                              checked={selectedSubmissionIds.has(sub.id)}
+                              onCheckedChange={(checked) =>
+                                handleToggleSubmission(sub.id, checked === true)
+                              }
+                            />
+                          </TableCell>
                           {/* Số thứ tự STT */}
                           <TableCell className="font-medium text-xs text-muted-foreground">
                             {orderNumber}
@@ -574,27 +664,6 @@ export function CollectionStatsView() {
                                 <span className="hidden sm:inline">
                                   Xem/In
                                 </span>
-                              </Button>
-
-                              {/* Tải xuống PDF */}
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDownloadSinglePdf(sub)}
-                                disabled={
-                                  isDownloadingPdf && downloadingId === sub.id
-                                }
-                                className="h-8 px-2.5 text-xs gap-1.5 cursor-pointer"
-                                title="Tải xuống file PDF"
-                              >
-                                {isDownloadingPdf &&
-                                downloadingId === sub.id ? (
-                                  <Loader2 className="size-3.5 animate-spin" />
-                                ) : (
-                                  <Download className="size-3.5 text-neutral-600" />
-                                )}
-                                <span className="hidden sm:inline">PDF</span>
                               </Button>
 
                               {/* Xóa bản ghi */}
