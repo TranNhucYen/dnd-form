@@ -53,8 +53,52 @@ export function useExportSubmissionPdf() {
     []
   );
 
+  const downloadSubmissionPdfsZip = useCallback(
+    async (submissionIds: number[], formName?: string) => {
+      if (submissionIds.length < 2) return;
+
+      const toastId = toast.loading("Đang tạo PDF và đóng gói file ZIP...");
+
+      try {
+        setIsExporting(true);
+        const response = await fetch("/api/submissions/export-pdf-zip", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ submissionIds }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Không thể xuất file ZIP PDF");
+        }
+
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = blobUrl;
+        downloadLink.download = `${slugify(formName) || "ban-nop"}-pdf.zip`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
+
+        toast.success("Đã tải xuống file ZIP thành công!", { id: toastId });
+      } catch (err) {
+        console.error("Lỗi khi xuất ZIP PDF:", err);
+        toast.error(
+          err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải file ZIP",
+          { id: toastId },
+        );
+      } finally {
+        setIsExporting(false);
+      }
+    },
+    [],
+  );
+
   return {
     isExporting,
     downloadSubmissionPdf,
+    downloadSubmissionPdfsZip,
   };
 }
