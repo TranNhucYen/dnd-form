@@ -75,6 +75,7 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
   const {
     fields,
     selectedFieldId,
+    selectedFieldIds,
     setSelectedFieldId,
     collidingFieldIds,
     setCollidingFieldIds,
@@ -157,7 +158,8 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
               margins={marginPx}
               allowResize={isResizable}
               isColliding={collidingFieldIds.includes(field.id)}
-              isSelected={selectedFieldId === field.id}
+              isSelected={selectedFieldId === field.id || selectedFieldIds.includes(field.id)}
+              isPrimarySelected={selectedFieldId === field.id}
               onSelect={() => setSelectedFieldId(field.id)}
               onGuidesChange={setActiveGuides}
               onResize={(change) => updateFieldResize(field.id, change)}

@@ -8,10 +8,12 @@ export function useCanvasKeyboardShortcuts() {
       const {
         isReadOnly,
         selectedFieldId,
+        selectedFieldIds,
         triggerSave,
         undo,
         redo,
         removeField,
+        removeSelectedFields,
         duplicateField,
         copyField,
         cutField,
@@ -64,6 +66,15 @@ export function useCanvasKeyboardShortcuts() {
       ) {
         event.preventDefault();
         redo();
+        return;
+      }
+
+      if (
+        (event.key === "Delete" || event.key === "Backspace") &&
+        selectedFieldIds.length > 0
+      ) {
+        event.preventDefault();
+        removeSelectedFields();
         return;
       }
 
