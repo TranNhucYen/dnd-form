@@ -102,6 +102,8 @@ export function FormCanvas({ onCollisionChange }: FormCanvasProps) {
       <div
         ref={setCanvasRef}
         data-droppable-id="canvas"
+        tabIndex={0}
+        aria-label="Canvas biểu mẫu"
         onClick={(event) => {
           if (event.target === event.currentTarget) {
             setSelectedFieldId(null);
