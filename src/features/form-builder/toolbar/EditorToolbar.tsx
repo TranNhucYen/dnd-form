@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HomeTabContent, PageTabContent, BackgroundTabContent, EFormTabContent } from "./tabs";
-import { SaveTool, NewFormTool, HistoryTools } from "./tools";
+import { SaveTool, ExportTool, NewFormTool, HistoryTools } from "./tools";
 import { FORM_BUILDER_LABELS } from "../constants/labels";
 
 export function EditorToolbar() {
@@ -18,6 +18,7 @@ export function EditorToolbar() {
             <TabsTrigger value="page">{FORM_BUILDER_LABELS.toolbarTabs.page}</TabsTrigger>
             <TabsTrigger value="background">{FORM_BUILDER_LABELS.toolbarTabs.background}</TabsTrigger>
             <TabsTrigger value="eform">{FORM_BUILDER_LABELS.toolbarTabs.eform}</TabsTrigger>
+            <TabsTrigger value="export">{FORM_BUILDER_LABELS.toolbarTabs.export}</TabsTrigger>
           </TabsList>
         </div>
       
@@ -37,6 +38,10 @@ export function EditorToolbar() {
 
           <TabsContent value="eform" className="m-0">
             <EFormTabContent />
+          </TabsContent>
+
+          <TabsContent value="export" className="m-0">
+            <ExportTool />
           </TabsContent>
         </div>
       </Tabs>
