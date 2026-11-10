@@ -28,6 +28,7 @@ export function useEditorSave(
   const setOnSave = useFormBuilderStore((state) => state.setOnSave);
   const setOnExport = useFormBuilderStore((state) => state.setOnExport);
   const setIsDirty = useFormBuilderStore((state) => state.setIsDirty);
+  const clearHistory = useFormBuilderStore((state) => state.clearHistory);
   const { downloadPdf } = useExportFormPdf();
   const currentFormIdRef = useRef(formId);
   currentFormIdRef.current = formId;
@@ -81,6 +82,8 @@ export function useEditorSave(
 
         // Cập nhật snapshot mới và tắt cờ dirty
         const savedSnapshot = createFormSnapshot(savedTitle, schema);
+        // Bản lưu thành công là mốc mới: không cho undo quay về trạng thái trước khi lưu.
+        clearHistory();
         setIsDirty(false);
         onSaveSuccessRef.current?.(savedSnapshot, newFormId, savedTitle);
 
@@ -94,7 +97,7 @@ export function useEditorSave(
         toast.error(error instanceof Error ? error.message : "Đã xảy ra lỗi khi lưu", { id: toastId });
       }
     },
-    [formId, title, setIsDirty, queryClient],
+    [formId, title, clearHistory, setIsDirty, queryClient],
   );
 
   const handleSaveRef = useRef(handleSave);
