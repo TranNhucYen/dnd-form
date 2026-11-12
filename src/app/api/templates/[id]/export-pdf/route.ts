@@ -9,6 +9,13 @@ import { sanitizeSignatureFromSchema } from '@/features/templates/utils/sanitize
 
 export const dynamic = 'force-dynamic';
 
+const MAX_CONCURRENT_PDF_JOBS = 2;
+const PDF_CACHE_TTL_MS = 5 * 60_000;
+const MAX_CACHED_PDFS = 10;
+
+const pdfJobs = new Map<string, Promise<Buffer>>();
+const pdfCache = new Map<string, { buffer: Buffer; expiresAt: number }>();
+
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
@@ -60,11 +67,41 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
     const printUrl = new URL(`/print/templates/${templateId}`, getBaseUrl()).toString();
 
     // Kết xuất PDF bằng Puppeteer
-    const pdfBuffer = await pdfGeneratorService.generatePdf({
-      url: printUrl,
-      widthMm,
-      heightMm,
-    });
+    const cacheKey = `${templateId}:${templateData.updatedAt ?? ''}`;
+    const cachedPdf = pdfCache.get(cacheKey);
+    let pdfBuffer = cachedPdf && cachedPdf.expiresAt > Date.now() ? cachedPdf.buffer : undefined;
+
+    if (!pdfBuffer) {
+      if (cachedPdf) pdfCache.delete(cacheKey);
+
+      let pdfJob = pdfJobs.get(cacheKey);
+      if (!pdfJob) {
+        if (pdfJobs.size >= MAX_CONCURRENT_PDF_JOBS) {
+          return NextResponse.json(
+            { success: false, error: 'Đang có nhiều yêu cầu tải PDF. Vui lòng thử lại sau.' },
+            { status: 503, headers: { 'Retry-After': '10' } }
+          );
+        }
+        pdfJob = pdfGeneratorService.generatePdf({ url: printUrl, widthMm, heightMm });
+        pdfJobs.set(cacheKey, pdfJob);
+      }
+
+      try {
+        pdfBuffer = await pdfJob;
+        for (const [key, value] of pdfCache) {
+          if (value.expiresAt <= Date.now()) pdfCache.delete(key);
+        }
+        if (pdfBuffer.length <= 5 * 1024 * 1024) {
+          if (pdfCache.size >= MAX_CACHED_PDFS) {
+            const oldestKey = pdfCache.keys().next().value;
+            if (oldestKey) pdfCache.delete(oldestKey);
+          }
+          pdfCache.set(cacheKey, { buffer: pdfBuffer, expiresAt: Date.now() + PDF_CACHE_TTL_MS });
+        }
+      } finally {
+        if (pdfJobs.get(cacheKey) === pdfJob) pdfJobs.delete(cacheKey);
+      }
+    }
 
     const filename = `${slugify(templateData.name) || 'mau-bieu-mau'}.pdf`;
 
