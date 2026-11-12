@@ -45,6 +45,7 @@ COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 COPY --chown=node:node package.json pnpm-workspace.yaml* .npmrc* tsconfig.json drizzle.config.ts ./
 COPY --chown=node:node drizzle ./drizzle
 COPY --chown=node:node src/db ./src/db
+COPY --chown=node:node src/shared ./src/shared
 ENV NODE_ENV=production
 USER node
 CMD ["sh", "-c", "pnpm db:migrate && pnpm db:seed"]
