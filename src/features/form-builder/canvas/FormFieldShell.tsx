@@ -111,7 +111,7 @@ export function FormFieldShell({
     onSelect?.();
   };
 
-  const { startResize } = useFieldResize({
+  const { isResizing, startResize } = useFieldResize({
     elementRef: shellRef,
     position,
     controlledSize,
@@ -170,7 +170,7 @@ export function FormFieldShell({
           <ResizeHandles type={type} onResizeStart={startResize} />
         )}
 
-        {isPrimarySelected && !isDragging && currentField && (
+        {isPrimarySelected && !isDragging && !isResizing && currentField && (
           <FieldFloatingToolbar
             fieldId={id}
             type={type}
