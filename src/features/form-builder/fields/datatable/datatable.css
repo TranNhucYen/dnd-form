@@ -42,7 +42,7 @@
 
 .datatable-field-editor th {
   border: 1px solid black;
-  padding: 0.5rem;
+  padding: 0;
   text-align: left;
   font-size: 0.75rem;
   line-height: 1rem;
@@ -57,7 +57,7 @@
 
 .datatable-field-editor td {
   border: 1px solid black;
-  padding: 0.5rem;
+  padding: 0;
   font-size: 0.75rem;
   line-height: 1rem;
   position: relative;

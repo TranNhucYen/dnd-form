@@ -59,7 +59,7 @@ export function SignatureField({
   });
 
   return (
-    <div className="flex h-full w-full flex-col justify-between p-2 bg-transparent select-none overflow-hidden">
+    <div className="flex h-full w-full flex-col justify-between p-0 bg-transparent select-none overflow-hidden">
       {/* Phần đầu: 2 dòng tiêu đề và ghi chú */}
       {showSignatureLabels && (
         <div className="flex flex-col gap-0.5 shrink-0">
@@ -145,7 +145,7 @@ function SignaturePreview({ src, onOpen, onClear }: {
       className="flex flex-1 w-full min-h-12 max-h-20 my-1 cursor-pointer"
     >
       {src ? (
-        <div className="group relative flex h-full w-full items-center justify-center p-1">
+        <div className="group relative flex h-full w-full items-center justify-center p-0">
           <img
             src={src}
             alt={FORM_BUILDER_LABELS.fields.signature.signer}

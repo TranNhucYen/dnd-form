@@ -32,7 +32,7 @@ function DateSlot({
     >
       {showDottedLine && <DotDecoration />}
       {value && (
-        <span style={style} className="relative z-10 select-none px-0.5 leading-[1.25]">
+        <span style={style} className="relative z-10 select-none p-0 leading-[1.25]">
           {value}
         </span>
       )}
@@ -91,7 +91,7 @@ function DateNormalLayout({
         {locationText && (
           <span
             style={valueCustomStyle}
-            className={`relative z-10 select-none pr-1 leading-[1.25] ${
+            className={`relative z-10 select-none p-0 leading-[1.25] ${
               isEditing ? "invisible" : ""
             }`}
           >
@@ -111,7 +111,7 @@ function DateNormalLayout({
 
       {/* Placeholder gợi ý khi ẩn hết và chưa có giá trị */}
       {isCompletelyEmptyAndHidden && (
-        <span className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden px-1">
+        <span className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden p-0">
           {FORM_BUILDER_LABELS.fields.date.defaultPlaceholder}
         </span>
       )}

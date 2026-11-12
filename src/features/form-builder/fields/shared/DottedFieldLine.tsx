@@ -77,7 +77,7 @@ export function FieldValue({
       return (
         <span
           style={valueCustomStyle}
-          className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden px-1"
+          className="relative z-10 select-none leading-[1.25] text-neutral-400 italic text-[11px] print:hidden p-0"
         >
           {placeholderHint}
         </span>
@@ -92,7 +92,7 @@ export function FieldValue({
   return (
     <span
       style={valueCustomStyle}
-      className="relative z-10 select-none pr-1 leading-[1.25]"
+      className="relative z-10 select-none p-0 leading-[1.25]"
     >
       {value}
     </span>
