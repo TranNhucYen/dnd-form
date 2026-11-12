@@ -3,7 +3,8 @@
 import { cookies } from 'next/headers'
 import { verifyJwtToken } from '@/lib/jwt'
 import { handleActionError } from '@/shared/utils/action.util'
-import { AccountBlockedError } from '@/shared/errors'
+import { requirePermission } from '@/shared/auth/authorization'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 import {
   ContributionItem,
   ContributeFormInput,
@@ -80,18 +81,10 @@ export async function submitContributionAction(
   input: ContributeFormInput
 ): Promise<ActionResponse<ContributionItem>> {
   try {
-    const authResult = await getAuthenticatedUserId()
-    if ('error' in authResult) {
-      return { success: false, error: authResult.error, code: authResult.code }
-    }
-
-    const data = await communityService.submitContribution(authResult.userId, input)
+    const { userId } = await requirePermission(PERMISSIONS.form.submit)
+    const data = await communityService.submitContribution(userId, input)
     return { success: true, data }
   } catch (error) {
-    if (error instanceof AccountBlockedError) {
-      const cookieStore = await cookies()
-      cookieStore.delete('auth_token')
-    }
     return handleActionError(error, 'submitContributionAction')
   }
 }

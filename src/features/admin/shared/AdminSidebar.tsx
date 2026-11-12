@@ -31,8 +31,8 @@ import { cn } from '@/lib/utils'
 import { ROUTES } from '@/shared/constants/routes'
 import { logoutAction } from '@/features/auth/actions/auth.action'
 import { LayoutDashboard, Users, LayoutTemplate, ChartBarStacked, Settings, LogOut, Loader2 } from 'lucide-react'
-import { UserRole } from '@/shared/types/user.type'
-import { AuthUser } from '@/features/auth/types/auth.type'
+import { PERMISSIONS, type PermissionCode } from '@/shared/auth/permissions'
+import type { AuthUser } from '@/features/auth/types/auth.type'
 import { getInitials } from '@/shared/utils'
 
 const adminNavItems = [
@@ -64,18 +64,27 @@ const adminNavItems = [
 ]
 
 interface AdminSidebarProps {
-  user: AuthUser
+  user: Pick<AuthUser, 'fullName' | 'email'>
+  permissions: PermissionCode[]
 }
 
-export function AdminSidebar({ user }: AdminSidebarProps) {
+export function AdminSidebar({ user, permissions }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryClient = useQueryClient()
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const isSuperAdmin = user.role === UserRole.SUPER_ADMIN
-  const navItems = adminNavItems.filter((item) => item.url !== ROUTES.ADMIN_USERS || isSuperAdmin)
+  const permissionForRoute: Partial<Record<string, PermissionCode>> = {
+    [ROUTES.ADMIN_DASHBOARD]: PERMISSIONS.dashboard.read,
+    [ROUTES.ADMIN_USERS]: PERMISSIONS.user.read,
+    [ROUTES.ADMIN_TEMPLATES]: PERMISSIONS.template.read,
+    [ROUTES.ADMIN_CATEGORIES]: PERMISSIONS.category.read,
+  }
+  const navItems = adminNavItems.filter((item) => {
+    const requiredPermission = permissionForRoute[item.url]
+    return !requiredPermission || permissions.includes(requiredPermission)
+  })
 
   const initials = getInitials(user.fullName)
 
@@ -112,7 +121,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
               variant="outline"
               className="text-xs px-1.5 py-0 bg-primary/10 text-primary border-primary/30"
             >
-              {isSuperAdmin ? 'Super Admin' : 'Admin'}
+              {permissions.includes(PERMISSIONS.user.delete) ? 'Super Admin' : 'Admin'}
             </Badge>
           </span>
         </Link>

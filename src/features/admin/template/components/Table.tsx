@@ -41,8 +41,11 @@ import { GuidelineModal } from './GuidelineModal'
 import { RejectModal, RejectDetailModal } from './RejectModal'
 import { ApproveModal } from './ApproveModal'
 import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
+import { useAdminPermission } from '@/features/admin/shared/AdminPermissionsProvider'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 export function Table() {
+  const canUpdateTemplates = useAdminPermission(PERMISSIONS.template.update)
   const {
     paginatedTemplates,
     categories,
@@ -225,6 +228,7 @@ export function Table() {
                     <TableCell className="px-2 py-2.5">
                       <Select
                         value={String(item.categoryId)}
+                        disabled={!canUpdateTemplates}
                         onValueChange={(val: string) => {
                           const selectedId = Number(val)
                           const selectedCat = categories.find((c) => c.id === selectedId)
@@ -256,6 +260,7 @@ export function Table() {
                       <div className="flex items-center gap-1.5">
                         <Switch
                           checked={item.isPaid}
+                          disabled={!canUpdateTemplates}
                           onCheckedChange={(checked) =>
                             updateTemplate(item.id, { isPaid: checked })
                           }
@@ -281,6 +286,7 @@ export function Table() {
                       <Button
                         variant="outline"
                         size="sm"
+                        disabled={!canUpdateTemplates}
                         onClick={() => setDescModalTemplate(item)}
                         className="text-xs h-7 px-1.5 gap-1 cursor-pointer"
                       >
@@ -294,6 +300,7 @@ export function Table() {
                       <Button
                         variant="outline"
                         size="sm"
+                        disabled={!canUpdateTemplates}
                         onClick={() => setGuidelineModalTemplate(item)}
                         className="text-xs h-7 px-1.5 gap-1 cursor-pointer"
                       >
@@ -311,6 +318,7 @@ export function Table() {
                       <div className="flex items-center gap-1">
                         <Select
                           value={item.review_status}
+                          disabled={!canUpdateTemplates}
                           onValueChange={(val: TemplateStatus) =>
                             handleStatusSelectChange(item, val)
                           }
@@ -374,6 +382,7 @@ export function Table() {
                       {item.status ? (
                         <Select
                           value={item.status}
+                          disabled={!canUpdateTemplates}
                           onValueChange={(val: 'active' | 'block') =>
                             updateTemplate(item.id, { status: val })
                           }

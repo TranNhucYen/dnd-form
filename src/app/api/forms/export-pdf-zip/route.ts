@@ -9,6 +9,8 @@ import { pdfGeneratorService } from '@/lib/pdf/pdf-generator.service'
 import { slugify } from '@/lib/slug'
 import { toMm } from '@/features/form-builder/domain/units'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+import { requireAuthenticatedUser } from '@/shared/auth/authorization'
+import { AppError } from '@/shared/errors'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -19,6 +21,7 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('auth_token')?.value
+    const principal = await requireAuthenticatedUser()
     const user = token ? await verifyJwtToken(token) : null
     if (!user) {
       return NextResponse.json({ success: false, error: 'Bạn cần đăng nhập để tải biểu mẫu' }, { status: 401 })
@@ -51,7 +54,7 @@ export async function POST(request: NextRequest) {
       .select({ id: form.id, name: form.name, schemaContent: schemaJson.content })
       .from(form)
       .innerJoin(schemaJson, eq(form.schemaId, schemaJson.id))
-      .where(and(inArray(form.id, formIds), eq(form.ownerId, user.id)))
+      .where(and(inArray(form.id, formIds), eq(form.ownerId, principal.userId)))
 
     if (records.length !== formIds.length || records.some((record) => !record.schemaContent)) {
       return NextResponse.json(
@@ -97,7 +100,7 @@ export async function POST(request: NextRequest) {
     console.error('[API /api/forms/export-pdf-zip] Lỗi xuất ZIP:', error)
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Đã xảy ra lỗi khi tạo file ZIP' },
-      { status: 500 },
+      { status: error instanceof AppError ? error.status : 500 },
     )
   }
 }

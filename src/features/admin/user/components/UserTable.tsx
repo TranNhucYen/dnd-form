@@ -28,8 +28,12 @@ import { AddUserModal } from './AddUserModal'
 import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
 import { SearchInput } from '@/shared/components'
 import { getInitials } from '@/shared/utils'
+import { useAdminPermission } from '@/features/admin/shared/AdminPermissionsProvider'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 export function UserTable() {
+  const canCreateUsers = useAdminPermission(PERMISSIONS.user.create)
+  const canUpdateUsers = useAdminPermission(PERMISSIONS.user.update)
   const [isAddUserOpen, setIsAddUserOpen] = useState(false)
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     user: User
@@ -100,14 +104,14 @@ export function UserTable() {
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Tìm theo tên hoặc email..."
         />
-        <Button
+        {canCreateUsers && <Button
           size="sm"
           onClick={() => setIsAddUserOpen(true)}
           className="text-xs h-9 gap-1.5 cursor-pointer shrink-0"
         >
           <UserPlus className="size-3.5" />
           Thêm người dùng
-        </Button>
+        </Button>}
       </AdminPageHeader>
 
       {/* Bảng danh sách người dùng */}
@@ -171,7 +175,7 @@ export function UserTable() {
                             })
                           }
                         }}
-                        disabled={item.role === UserRole.SUPER_ADMIN}
+                        disabled={!canUpdateUsers || item.role === UserRole.SUPER_ADMIN}
                       >
                         <SelectTrigger className="w-28 h-8 text-xs bg-background">
                           <SelectValue />

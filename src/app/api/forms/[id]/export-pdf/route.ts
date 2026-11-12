@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { and, eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { form, schemaJson } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 import { pdfGeneratorService } from '@/lib/pdf/pdf-generator.service'
 import { slugify } from '@/lib/slug'
 import { toMm } from '@/features/form-builder/domain/units'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+import { requireAuthenticatedUser } from '@/shared/auth/authorization'
+import { AppError } from '@/shared/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +27,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       )
     }
 
+    const principal = await requireAuthenticatedUser()
+
     const [formRecord] = await db
       .select({
         id: form.id,
@@ -33,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       })
       .from(form)
       .innerJoin(schemaJson, eq(form.schemaId, schemaJson.id))
-      .where(eq(form.id, formId))
+      .where(and(eq(form.id, formId), eq(form.ownerId, principal.userId)))
 
     if (!formRecord || !formRecord.schemaContent) {
       return NextResponse.json(
@@ -67,6 +71,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       url: printUrl,
       widthMm,
       heightMm,
+      cookieHeader: request.headers.get('cookie') ?? undefined,
     })
 
     const filename = `${slugify(formRecord.name) || 'bieu-mau'}.pdf`
@@ -87,7 +92,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         success: false,
         error: error instanceof Error ? error.message : 'Đã xảy ra lỗi khi tạo file PDF',
       },
-      { status: 500 }
+      { status: error instanceof AppError ? error.status : 500 }
     )
   }
 }

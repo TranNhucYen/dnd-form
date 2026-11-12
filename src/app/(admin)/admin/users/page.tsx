@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { verifyJwtToken } from '@/lib/jwt'
 import { ROUTES } from '@/shared/constants/routes'
-import { UserRole } from '@/shared/types/user.type'
+import { requireAuthenticatedUser, hasPermissionForUser } from '@/shared/auth/authorization'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 import { UserTable } from '@/features/admin/user'
 
 export const metadata: Metadata = {
@@ -11,11 +10,8 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminUsersPage() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('auth_token')?.value
-  const user = token ? await verifyJwtToken(token) : null
-
-  if (!user || user.role !== UserRole.SUPER_ADMIN) {
+  const user = await requireAuthenticatedUser().catch(() => null)
+  if (!user || !(await hasPermissionForUser(user.userId, PERMISSIONS.user.read))) {
     redirect(ROUTES.ADMIN_DASHBOARD)
   }
 

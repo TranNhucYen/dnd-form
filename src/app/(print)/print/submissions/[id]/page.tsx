@@ -9,6 +9,7 @@ import { hydrateImageUrls } from "@/features/editor/utils/schema-hydrate";
 import { formatDate } from "@/shared/utils";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
 import { SubmissionPrintViewer } from "@/features/eform/components/collect/SubmissionPrintViewer";
+import { requireAuthenticatedUser } from "@/shared/auth/authorization";
 
 export const metadata: Metadata = {
   title: "Xem & tải xuống biểu mẫu đã điền",
@@ -36,6 +37,9 @@ export default async function SubmissionPrintPage({
     notFound();
   }
 
+  const principal = await requireAuthenticatedUser().catch(() => null);
+  if (!principal) notFound();
+
   const [record] = await db
     .select({
       id: formSubmission.id,
@@ -46,7 +50,7 @@ export default async function SubmissionPrintPage({
     .from(formSubmission)
     .innerJoin(form, eq(formSubmission.formId, form.id))
     .where(
-      and(eq(formSubmission.id, submissionId), eq(form.ownerId, user.id)),
+      and(eq(formSubmission.id, submissionId), eq(form.ownerId, principal.userId)),
     );
 
   if (!record || !record.filledSchema) {
