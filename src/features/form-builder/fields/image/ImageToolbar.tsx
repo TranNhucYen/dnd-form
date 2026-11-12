@@ -4,16 +4,20 @@ import { ACCEPT_IMAGE_TYPES } from "./image.utils";
 import { useImageUpload } from "./useImageUpload";
 import type { FieldToolbarProps, ImageFieldData } from "../types/field.types";
 import { FORM_BUILDER_LABELS } from "../../constants/labels";
+import { useFormBuilderCapabilities } from "../../context/FormBuilderCapabilities";
 
 export function ImageToolbar({
   data,
   onDataChange,
 }: FieldToolbarProps<ImageFieldData>) {
+  const { allowMediaUpload } = useFormBuilderCapabilities();
   const hasImage = Boolean(data?.value);
   const { isUploading, inputRef, handleFileChange, triggerUpload } =
     useImageUpload({
       onSuccess: ({ url, key }) => onDataChange({ value: url, key }),
     });
+
+  if (!allowMediaUpload) return null;
 
   return (
     <div className="flex items-center gap-0.5">

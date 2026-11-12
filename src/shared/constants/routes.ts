@@ -10,6 +10,8 @@ export const ROUTES = {
   SHARED_WITH_ME: "/shared-with-me",
   EDITOR: "/editor",
   TEMPLATES: "/templates",
+  PUBLIC_TEMPLATES: "/public/templates",
+  PUBLIC_BUILDER: "/public/builder",
   COMMUNITY: "/community",
   NOTIFICATIONS: "/notifications",
   SETTINGS: "/settings",
@@ -27,6 +29,7 @@ export const DYNAMIC_ROUTES = {
   FORM_EDIT: (id: string | number) => `/editor?formId=${id}`,
   FORM_DETAIL: (id: string | number) => `/my-form/${id}`,
   TEMPLATE_DETAIL: (id: string | number) => `/templates/${id}`,
+  PUBLIC_TEMPLATE_DETAIL: (id: string | number) => `${ROUTES.PUBLIC_TEMPLATES}/${id}`,
   COLLECTION_STATS: (id?: string | number) => (id ? `/collection-stats?formId=${id}` : `/collection-stats`),
 } as const
 

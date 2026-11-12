@@ -4,6 +4,8 @@ import { pdfGeneratorService } from '@/lib/pdf/pdf-generator.service';
 import { slugify } from '@/lib/slug';
 import { toMm } from '@/features/form-builder/domain/units';
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types';
+import { getBaseUrl } from '@/lib/url';
+import { sanitizeSignatureFromSchema } from '@/features/templates/utils/sanitize';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +13,7 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(request: NextRequest, { params }: RouteContext) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   try {
     const { id } = await params;
     const templateId = Number(id);
@@ -33,7 +35,13 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    const schema = templateData.schemaContent as FormSchemaJson;
+    const schema = sanitizeSignatureFromSchema(templateData.schemaContent) as FormSchemaJson | null;
+    if (!schema) {
+      return NextResponse.json(
+        { success: false, error: 'Không tìm thấy nội dung biểu mẫu công khai.' },
+        { status: 404 }
+      );
+    }
 
     const firstPage = schema?.pages?.[0];
 
@@ -49,9 +57,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         : 297;
 
     // URL trang in nội bộ
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || 'http';
-    const printUrl = `${protocol}://${host}/print/templates/${templateId}`;
+    const printUrl = new URL(`/print/templates/${templateId}`, getBaseUrl()).toString();
 
     // Kết xuất PDF bằng Puppeteer
     const pdfBuffer = await pdfGeneratorService.generatePdf({

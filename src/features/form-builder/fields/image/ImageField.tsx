@@ -5,12 +5,14 @@ import { Image as ImageIcon, Loader2 } from "lucide-react";
 import { ACCEPT_IMAGE_TYPES } from "./image.utils";
 import { useImageUpload } from "./useImageUpload";
 import { FORM_BUILDER_LABELS } from "../../constants/labels";
+import { useFormBuilderCapabilities } from "../../context/FormBuilderCapabilities";
 
 export function ImageField({
   data,
   onDataChange,
 }: FieldProps<ImageFieldData>) {
   const url = data.value ?? "";
+  const { allowMediaUpload } = useFormBuilderCapabilities();
   const { isUploading, inputRef, handleFileChange, triggerUpload } =
     useImageUpload({
       onSuccess: ({ url: newUrl, key }) =>
@@ -24,18 +26,18 @@ export function ImageField({
 
   return (
     <div
-      onDoubleClick={!isUploading ? handleTriggerUpload : undefined}
-      title={url ? FORM_BUILDER_LABELS.fields.image.changeHint : FORM_BUILDER_LABELS.fields.image.uploadHint}
-      className="relative flex h-full w-full overflow-hidden border border-gray-300 bg-gray-50 select-none cursor-pointer"
+      onDoubleClick={allowMediaUpload && !isUploading ? handleTriggerUpload : undefined}
+      title={allowMediaUpload ? (url ? FORM_BUILDER_LABELS.fields.image.changeHint : FORM_BUILDER_LABELS.fields.image.uploadHint) : "Tải ảnh lên cần đăng nhập"}
+      className={`relative flex h-full w-full overflow-hidden border border-gray-300 bg-gray-50 select-none ${allowMediaUpload ? "cursor-pointer" : "cursor-default"}`}
     >
-      <input
+      {allowMediaUpload && <input
         ref={inputRef}
         onChange={handleFileChange}
         type="file"
         accept={ACCEPT_IMAGE_TYPES}
         disabled={isUploading}
         className="hidden"
-      />
+      />}
 
       {isUploading ? (
         <div className="flex h-full w-full flex-col items-center justify-center p-0 text-gray-500">
@@ -54,7 +56,9 @@ export function ImageField({
         <div className="flex h-full w-full flex-col items-center justify-center p-0 text-gray-400">
           <ImageIcon className="mb-1 size-8 stroke-1 text-gray-400" />
           <span className="text-xs font-medium text-gray-500">{FORM_BUILDER_LABELS.fields.image.choose}</span>
-          <span className="text-[10px] text-gray-400">{FORM_BUILDER_LABELS.fields.image.uploadHint}</span>
+          <span className="text-[10px] text-gray-400">
+            {allowMediaUpload ? FORM_BUILDER_LABELS.fields.image.uploadHint : "Tải ảnh lên cần đăng nhập"}
+          </span>
         </div>
       )}
     </div>

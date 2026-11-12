@@ -129,8 +129,17 @@ export const templateMockRepository: ITemplateRepository = {
     const unique = Array.from(new Set(mockData.map((item) => item.categoryName).filter(Boolean)))
     return unique
   },
+  async getPublicCategories(): Promise<string[]> {
+    const unique = Array.from(new Set(mockData
+      .filter((item) => item.status === TemplateStatus.ACTIVE)
+      .map((item) => item.categoryName)
+      .filter(Boolean)))
+    return unique
+  },
   async getTemplateById(id: number): Promise<Template | null> {
-    const template = mockData.find((item) => item.id === id);
+    const template = mockData.find(
+      (item) => item.id === id && item.status === TemplateStatus.ACTIVE
+    );
     return template || null;
   },
   async getTemplates(params?: GetTemplatesParams): Promise<PaginatedTemplates> {
@@ -140,6 +149,7 @@ export const templateMockRepository: ITemplateRepository = {
     const categoryName = params?.categoryName;
 
     const filtered = mockData.filter((item) => {
+      if (item.status !== TemplateStatus.ACTIVE) return false;
       const matchesCategory =
         !categoryName || categoryName === 'all' || item.categoryName === categoryName;
       const matchesSearch =

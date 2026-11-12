@@ -23,13 +23,16 @@ import { useExportTemplatePdf } from "../hooks/useExportTemplatePdf"
 import { TemplatePricingType } from "../types/template.type"
 import { TemplateCanvasPreview, TemplateZoomModal } from "./preview"
 import { formatDate, formatNumber } from "@/shared/utils"
+import { ROUTES } from "@/shared/constants/routes"
 
 export interface DetailProps {
   id: string
+  publicView?: boolean
 }
 
-export function Detail({ id }: DetailProps) {
-  const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id))
+export function Detail({ id, publicView = false }: DetailProps) {
+  const templatesRoute = publicView ? ROUTES.PUBLIC_TEMPLATES : ROUTES.TEMPLATES
+  const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id), publicView)
   const { isExporting, downloadPdf } = useExportTemplatePdf()
   const [isZoomOpen, setIsZoomOpen] = useState(false)
 
@@ -41,7 +44,7 @@ export function Detail({ id }: DetailProps) {
     return (
       <div className="w-full mx-auto flex flex-col gap-6 py-12">
         <div>
-          <Link href="/templates">
+          <Link href={templatesRoute}>
             <Button
               variant="ghost"
               size="sm"
@@ -71,7 +74,7 @@ export function Detail({ id }: DetailProps) {
               <RefreshCw className="size-3.5" />
               Thử lại
             </Button>
-            <Link href="/templates">
+            <Link href={templatesRoute}>
               <Button size="sm" className="cursor-pointer">
                 Xem tất cả biểu mẫu
               </Button>
@@ -89,7 +92,7 @@ export function Detail({ id }: DetailProps) {
     <div className="w-full mx-auto flex flex-col gap-6">
       {/* Back button */}
       <div>
-        <Link href="/templates">
+        <Link href={templatesRoute}>
           <Button
             variant="ghost"
             size="sm"
@@ -140,7 +143,7 @@ export function Detail({ id }: DetailProps) {
             )}
             <span>{isExporting ? "Đang tạo PDF..." : "Tải xuống (PDF)"}</span>
           </Button>
-          <Button
+          {!publicView && <Button
             onClick={createFormCopy}
             disabled={isCopying}
             className="flex-1 md:flex-none cursor-pointer gap-1.5"
@@ -151,7 +154,7 @@ export function Detail({ id }: DetailProps) {
               <Copy className="size-4" />
             )}
             {isCopying ? "Đang tạo bản sao..." : "Tạo bản sao chỉnh sửa"}
-          </Button>
+          </Button>}
         </div>
       </div>
 
@@ -276,7 +279,7 @@ export function Detail({ id }: DetailProps) {
         onOpenChange={setIsZoomOpen}
         templateName={template.name}
         schema={template.schemaContent}
-        onUseTemplate={createFormCopy}
+        onUseTemplate={publicView ? undefined : createFormCopy}
         isCopying={isCopying}
       />
     </div>

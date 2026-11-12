@@ -9,7 +9,7 @@ import { SearchInput, EmptyState, ErrorAlert } from "@/shared/components"
 import { Card, CardSkeleton } from "./Card"
 import { useTemplateList } from "../hooks/useTemplate"
 
-export default function List() {
+export default function List({ publicView = false }: { publicView?: boolean }) {
   const {
     templates,
     categories,
@@ -23,7 +23,7 @@ export default function List() {
     setSelectedCategory,
     loadMore,
     refetch,
-  } = useTemplateList()
+  } = useTemplateList(publicView)
 
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
@@ -63,12 +63,14 @@ export default function List() {
             Khám phá và sử dụng các mẫu biểu mẫu chuẩn có sẵn để bắt đầu nhanh chóng.
           </p>
         </div>
-        <Link href="/editor">
-          <Button className="cursor-pointer">
-            <Plus data-icon="inline-start" />
-            Tạo biểu mẫu mới
-          </Button>
-        </Link>
+        {!publicView && (
+          <Link href="/editor">
+            <Button className="cursor-pointer">
+              <Plus data-icon="inline-start" />
+              Tạo biểu mẫu mới
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Filter by Category and Search section */}
@@ -138,7 +140,7 @@ export default function List() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {templates.map((template) => (
-              <Card key={template.id} template={template} />
+              <Card key={template.id} template={template} publicView={publicView} />
             ))}
             {/* Loading skeletons for infinite scroll */}
             {isFetchingMore &&

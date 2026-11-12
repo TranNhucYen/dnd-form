@@ -8,6 +8,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth_token')?.value
   const user = token ? await verifyJwtToken(token) : null
+  const isLandingRoute = pathname === '/' || pathname === ROUTES.HOME
+
+  if (isLandingRoute && (!user || user.status === UserStatus.BLOCKED)) {
+    const response = NextResponse.redirect(new URL(ROUTES.PUBLIC_TEMPLATES, request.url))
+    if (token) response.cookies.delete('auth_token')
+    return response
+  }
 
   if (pathname.startsWith('/admin')) {
     if (!user) {
@@ -53,9 +60,9 @@ export async function proxy(request: NextRequest) {
     ROUTES.ACCOUNT,
   ]
 
-  const isUserRoute =
-    pathname === '/' ||
-    userRoutePrefixes.some((route) => pathname === route || pathname.startsWith(route + '/'))
+  const isUserRoute = userRoutePrefixes.some(
+    (route) => pathname === route || pathname.startsWith(route + '/')
+  ) || pathname === '/'
 
   if (isUserRoute) {
     if (!user) {

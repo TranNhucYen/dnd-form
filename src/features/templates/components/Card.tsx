@@ -2,18 +2,25 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Download, Pencil, FileText } from "lucide-react"
+import { Download, Pencil, FileText, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 import { formatNumber } from "@/shared/utils"
+import { DYNAMIC_ROUTES } from "@/shared/constants/routes"
 import { Template, TemplatePricingType } from "../types/template.type"
+import { useExportTemplatePdf } from '../hooks/useExportTemplatePdf'
 
 export interface CardProps {
   template: Template
+  publicView?: boolean
 }
 
-export function Card({ template }: CardProps) {
+export function Card({ template, publicView = false }: CardProps) {
   const isPaid = template.pricingType === TemplatePricingType.PAID
+  const detailHref = publicView
+    ? DYNAMIC_ROUTES.PUBLIC_TEMPLATE_DETAIL(template.id)
+    : DYNAMIC_ROUTES.TEMPLATE_DETAIL(template.id)
+  const { isExporting, downloadPdf } = useExportTemplatePdf()
 
   return (
     <div
@@ -23,7 +30,7 @@ export function Card({ template }: CardProps) {
         hover:shadow-md hover:border-border transition-all duration-200
       "
     >
-      <Link href={`/templates/${template.id}`} className="flex gap-4 group/link cursor-pointer">
+      <Link href={detailHref} className="flex gap-4 group/link cursor-pointer">
         {/* Left: Thumbnail Preview */}
         <div className="shrink-0 w-24">
           <AspectRatio
@@ -82,13 +89,15 @@ export function Card({ template }: CardProps) {
           variant="outline"
           size="sm"
           className="flex-1 text-xs gap-1.5 cursor-pointer text-muted-foreground"
+          onClick={() => downloadPdf(template.id, template.name)}
+          disabled={isExporting}
         >
-          <Download className="size-3.5" />
-          Tải xuống
+          {isExporting ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+          {isExporting ? 'Đang tải...' : 'Tải xuống'}
         </Button>
-        <Link href={`/templates/${template.id}`} className="flex-1">
+        <Link href={detailHref} className="flex-1">
           <Button size="sm" className="w-full text-xs gap-1.5 cursor-pointer">
-            <Pencil className="size-3.5" />
+            {publicView ? <FileText className="size-3.5" /> : <Pencil className="size-3.5" />}
             Chi tiết
           </Button>
         </Link>
