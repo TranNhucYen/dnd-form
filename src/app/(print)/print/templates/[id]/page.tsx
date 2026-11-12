@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { templateRepository } from '@/features/templates/repositories';
 import { PrintCanvas } from '@/features/form-builder/print/PrintCanvas';
+import { sanitizeSignatureFromSchema } from '@/features/templates/utils/sanitize';
 
 export const metadata: Metadata = {
   title: 'In form mẫu',
@@ -25,9 +26,12 @@ export default async function PrintTemplatePage({ params }: PrintTemplatePagePro
     notFound();
   }
 
+  const publicSchema = sanitizeSignatureFromSchema(templateData.schemaContent);
+  if (!publicSchema) notFound();
+
   return (
     <main className="w-full flex justify-center py-6 print:py-0">
-      <PrintCanvas schema={templateData.schemaContent} />
+      <PrintCanvas schema={publicSchema} />
     </main>
   );
 }

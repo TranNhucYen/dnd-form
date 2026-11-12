@@ -11,6 +11,7 @@ import {
   PaginatedTemplates,
 } from '../types/template.type'
 import { templateService } from '../services/template.service'
+import { sanitizeSignatureFromSchema } from '../utils/sanitize'
 
 async function getAuthenticatedUserId(): Promise<
   { userId: number } | { error: string; code: string }
@@ -64,6 +65,77 @@ export async function getTemplateByIdAction(id: number): Promise<ActionResponse<
     return { success: true, data: template }
   } catch (error) {
     return handleActionError(error, 'getTemplateByIdAction')
+  }
+}
+
+// Public endpoints return only fields required by the template gallery. Keep this
+// allowlist separate from the authenticated dashboard actions.
+export async function getPublicTemplatesAction(
+  params?: GetTemplatesParams
+): Promise<ActionResponse<PaginatedTemplates>> {
+  try {
+    const safeParams: GetTemplatesParams = {
+      page: Number.isSafeInteger(params?.page) ? Math.min(Math.max(params!.page!, 1), 100_000) : 1,
+      pageSize: Number.isSafeInteger(params?.pageSize)
+        ? Math.min(Math.max(params!.pageSize!, 1), 50)
+        : 25,
+      search: typeof params?.search === 'string' ? params.search.trim().slice(0, 100) : undefined,
+      categoryName:
+        typeof params?.categoryName === 'string' ? params.categoryName.slice(0, 100) : undefined,
+    }
+    const result = await templateService.getTemplates(safeParams)
+    return {
+      success: true,
+      data: {
+        ...result,
+        items: result.items.map((template) => ({
+          id: template.id,
+          name: template.name,
+          ownerName: template.ownerName,
+          categoryName: template.categoryName,
+          pricingType: template.pricingType,
+          description: template.description,
+          downloads: template.downloads,
+          createdAt: template.createdAt,
+          updatedAt: template.updatedAt,
+        })),
+      },
+    }
+  } catch (error) {
+    return handleActionError(error, 'getPublicTemplatesAction')
+  }
+}
+
+export async function getPublicTemplateCategoriesAction(): Promise<ActionResponse<string[]>> {
+  try {
+    return { success: true, data: await templateService.getPublicCategories() }
+  } catch (error) {
+    return handleActionError(error, 'getPublicTemplateCategoriesAction')
+  }
+}
+
+export async function getPublicTemplateByIdAction(id: number): Promise<ActionResponse<Template>> {
+  try {
+    const template = await templateService.getTemplateById(id)
+    const schemaContent = sanitizeSignatureFromSchema(template.schemaContent)
+    return {
+      success: true,
+      data: {
+        id: template.id,
+        name: template.name,
+        ownerName: template.ownerName,
+        categoryName: template.categoryName,
+        pricingType: template.pricingType,
+        description: template.description,
+        guideline: template.guideline,
+        downloads: template.downloads,
+        schemaContent: schemaContent ?? undefined,
+        createdAt: template.createdAt,
+        updatedAt: template.updatedAt,
+      },
+    }
+  } catch (error) {
+    return handleActionError(error, 'getPublicTemplateByIdAction')
   }
 }
 

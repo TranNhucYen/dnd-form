@@ -14,6 +14,9 @@ import {
   getTemplateCategoriesAction,
   getTemplateByIdAction,
   useTemplateAction as applyTemplateAction,
+  getPublicTemplatesAction,
+  getPublicTemplateCategoriesAction,
+  getPublicTemplateByIdAction,
 } from '../actions/template.action'
 import { useDebounce } from '@/shared/hooks'
 
@@ -25,16 +28,18 @@ interface TemplatePage {
   page: number
 }
 
-export function useTemplateList() {
+export function useTemplateList(publicView = false) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const debouncedSearch = useDebounce(searchTerm, 400)
 
   const categoriesQuery = useQuery({
-    queryKey: ['templates', 'categories'] as const,
+    queryKey: ['templates', 'categories', publicView] as const,
     queryFn: async (): Promise<string[]> => {
-      const res = await getTemplateCategoriesAction()
+      const res = publicView
+        ? await getPublicTemplateCategoriesAction()
+        : await getTemplateCategoriesAction()
       if (!res.success) {
         throw new Error(res.error || 'Không thể tải danh mục mẫu')
       }
@@ -54,16 +59,18 @@ export function useTemplateList() {
     queryKey: [
       'templates',
       'list',
+      publicView,
       selectedCategory,
       debouncedSearch,
     ] as const,
     queryFn: async ({ pageParam }): Promise<TemplatePage> => {
-      const res = await getTemplatesAction({
+      const params = {
         page: pageParam,
         pageSize: PAGE_SIZE,
         search: debouncedSearch,
         categoryName: selectedCategory,
-      })
+      }
+      const res = publicView ? await getPublicTemplatesAction(params) : await getTemplatesAction(params)
       if (!res.success) {
         throw new Error(res.error)
       }
@@ -118,16 +125,18 @@ export function useTemplateList() {
   }
 }
 
-export function useTemplateDetail(id: number) {
+export function useTemplateDetail(id: number, publicView = false) {
   const queryClient = useQueryClient()
   const [isCopying, setIsCopying] = useState(false)
   const router = useRouter()
 
   const templateQuery = useQuery({
-    queryKey: ['templates', 'detail', id] as const,
+    queryKey: ['templates', 'detail', publicView, id] as const,
     queryFn: async (): Promise<Template> => {
       if (!id || isNaN(id)) throw new Error('Mã biểu mẫu không hợp lệ')
-      const res = await getTemplateByIdAction(id)
+      const res = publicView
+        ? await getPublicTemplateByIdAction(id)
+        : await getTemplateByIdAction(id)
       if (!res.success) throw new Error(res.error)
       return res.data
     },

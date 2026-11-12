@@ -11,6 +11,10 @@ export const templateService = {
     return await templateRepository.getCategories()
   },
 
+  async getPublicCategories(): Promise<string[]> {
+    return await templateRepository.getPublicCategories()
+  },
+
   async getTemplateById(id: number): Promise<Template> {
     if (!id || isNaN(id)) {
       throw new ValidationError("Mã biểu mẫu không hợp lệ.")

@@ -17,6 +17,7 @@ import { sanitizeSignatureFromSchema, filterTemplateMedia } from '../utils/sanit
 export interface ITemplateRepository {
   getTemplates(params?: GetTemplatesParams): Promise<PaginatedTemplates>
   getCategories(): Promise<string[]>
+  getPublicCategories(): Promise<string[]>
   getTemplateById(id: number): Promise<Template | null>
   useTemplate(templateId: number, userId: number): Promise<UseTemplateResult>
 }
@@ -26,6 +27,17 @@ export const drizzleTemplateRepository: ITemplateRepository = {
     const rows = await db
       .select({ name: templateCategory.name })
       .from(templateCategory)
+      .orderBy(templateCategory.name)
+
+    return rows.map((r) => r.name)
+  },
+
+  async getPublicCategories(): Promise<string[]> {
+    const rows = await db
+      .selectDistinct({ name: templateCategory.name })
+      .from(templateCategory)
+      .innerJoin(template, eq(template.categoryId, templateCategory.id))
+      .where(and(eq(template.reviewStatus, 'approved'), eq(template.status, 'active')))
       .orderBy(templateCategory.name)
 
     return rows.map((r) => r.name)

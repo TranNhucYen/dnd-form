@@ -3,18 +3,24 @@ import { toast } from "sonner";
 import { uploadMediaAction } from "@/features/editor/actions/upload.action";
 import { validateImageFile } from "./image.utils";
 import { FORM_BUILDER_LABELS } from "../../constants/labels";
+import { useFormBuilderCapabilities } from "../../context/FormBuilderCapabilities";
 
 interface UseImageUploadOptions {
   onSuccess: (data: { url: string; key?: string }) => void;
 }
 
 export function useImageUpload({ onSuccess }: UseImageUploadOptions) {
+  const { allowMediaUpload } = useFormBuilderCapabilities();
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (!allowMediaUpload) {
+      event.target.value = "";
+      return;
+    }
 
     const validation = validateImageFile(file);
     if (!validation.valid) {
@@ -48,7 +54,7 @@ export function useImageUpload({ onSuccess }: UseImageUploadOptions) {
   };
 
   const triggerUpload = () => {
-    if (isUploading) return;
+    if (isUploading || !allowMediaUpload) return;
     inputRef.current?.click();
   };
 
