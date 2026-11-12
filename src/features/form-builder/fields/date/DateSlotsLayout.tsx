@@ -254,7 +254,7 @@ export function DateSlotsLayout({
               "absolute select-none flex items-center justify-center h-full p-0 box-border",
               onDataChange && !isEditingThisSlot ? "cursor-grab active:cursor-grabbing" : "",
               "transition-colors",
-              !data.value && !val && "border border-dashed border-sky-400/60 dark:border-sky-500/50 bg-sky-50/20 dark:bg-sky-950/20 hover:border-sky-500 hover:bg-sky-50/40",
+              !data.value && !val && "border border-dashed border-sky-400/60 bg-sky-50/20 hover:border-sky-500 hover:bg-sky-50/40",
               "rounded-xs",
               "print:border-none print:bg-transparent print:rounded-none",
               isFieldSelected && "border-sky-500/80 shadow-xs",
@@ -278,7 +278,7 @@ export function DateSlotsLayout({
                     ? "text-center w-full px-0"
                     : "text-left w-full p-0",
                   data.showDottedLine &&
-                    "bg-white/90 dark:bg-neutral-900/90 print:bg-transparent",
+                    "bg-white/90 print:bg-transparent",
                   isEditingThisSlot && "invisible",
                 )}
               >
@@ -287,7 +287,7 @@ export function DateSlotsLayout({
             ) : (
               <span
                 className={cn(
-                  "relative z-10 text-[10px] italic text-neutral-400/80 dark:text-neutral-500 select-none pointer-events-none print:hidden truncate",
+                  "relative z-10 text-[10px] italic text-neutral-400/80 select-none pointer-events-none print:hidden truncate",
                   align === "center"
                     ? "text-center w-full px-0"
                     : "text-left w-full p-0",
@@ -300,7 +300,7 @@ export function DateSlotsLayout({
             {/* Nhãn định danh nhỏ khi field được chọn */}
             {isFieldSelected && (
               <span
-                className="absolute -top-3.5 left-0 text-[8.5px] font-semibold leading-none tracking-tight text-sky-600 dark:text-sky-400 bg-sky-100/95 dark:bg-sky-950/95 px-1 py-0.5 rounded border border-sky-300/70 select-none pointer-events-none print:hidden no-print shadow-xs"
+                className="absolute -top-3.5 left-0 text-[8.5px] font-semibold leading-none tracking-tight text-sky-600 bg-sky-100/95 px-1 py-0.5 rounded border border-sky-300/70 select-none pointer-events-none print:hidden no-print shadow-xs"
               >
                 {title}
               </span>

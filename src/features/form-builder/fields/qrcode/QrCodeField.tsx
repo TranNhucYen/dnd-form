@@ -22,7 +22,7 @@ export function QrCodeField({
           e.stopPropagation();
           setIsModalOpen(true);
         }}
-        className="flex h-full w-full items-center justify-center p-0 cursor-pointer bg-background"
+        className="flex h-full w-full items-center justify-center p-0 cursor-pointer bg-white"
       >
         <QRCodeSVG
           value={qrValue}
