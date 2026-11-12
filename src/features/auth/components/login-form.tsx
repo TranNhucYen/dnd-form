@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,7 +36,16 @@ export function LoginForm() {
       <div className="w-87.5 space-y-6 rounded-lg border bg-card p-6 shadow-sm">
         <div className="space-y-1.5 text-center">
           <h1 className="text-2xl font-bold tracking-tight">Đăng nhập</h1>
-          <p className="text-sm text-muted-foreground">Nhập email và mật khẩu của bạn để tiếp tục</p>
+          <div className="flex items-center justify-center gap-1.5 py-1">
+            <Image
+              src="/icon.svg"
+              alt="Logo Dnd Form"
+              width={20}
+              height={20}
+              className="size-5 rounded-sm"
+            />
+            <span className="text-sm font-semibold tracking-tight">Dnd Form</span>
+          </div>
         </div>
 
         {error && (
