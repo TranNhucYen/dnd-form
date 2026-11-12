@@ -4,6 +4,8 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { form, formSubmission } from '@/db/schema';
 import { verifyJwtToken } from '@/lib/jwt';
+import { requireAuthenticatedUser } from '@/shared/auth/authorization';
+import { AppError } from '@/shared/errors';
 import { pdfGeneratorService } from '@/lib/pdf/pdf-generator.service';
 import { slugify } from '@/lib/slug';
 import { toMm } from '@/features/form-builder/domain/units';
@@ -38,6 +40,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       );
     }
 
+    const principal = await requireAuthenticatedUser();
+
     const [record] = await db
       .select({
         id: formSubmission.id,
@@ -48,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       .from(formSubmission)
       .innerJoin(form, eq(formSubmission.formId, form.id))
       .where(
-        and(eq(formSubmission.id, submissionId), eq(form.ownerId, user.id))
+          and(eq(formSubmission.id, submissionId), eq(form.ownerId, principal.userId))
       );
 
     if (!record || !record.filledSchema) {
@@ -106,7 +110,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         success: false,
         error: error instanceof Error ? error.message : 'Đã xảy ra lỗi khi tạo file PDF',
       },
-      { status: 500 }
+      { status: error instanceof AppError ? error.status : 500 }
     );
   }
 }

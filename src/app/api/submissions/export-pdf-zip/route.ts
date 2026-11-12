@@ -5,6 +5,8 @@ import { zipSync } from 'fflate';
 import { db } from '@/db';
 import { form, formSubmission } from '@/db/schema';
 import { verifyJwtToken } from '@/lib/jwt';
+import { requireAuthenticatedUser } from '@/shared/auth/authorization';
+import { AppError } from '@/shared/errors';
 import { pdfGeneratorService } from '@/lib/pdf/pdf-generator.service';
 import { slugify } from '@/lib/slug';
 import { toMm } from '@/features/form-builder/domain/units';
@@ -25,6 +27,8 @@ export async function POST(request: NextRequest) {
         { status: 401 },
       );
     }
+
+    const principal = await requireAuthenticatedUser();
 
     const body: unknown = await request.json().catch(() => null);
     const requestedIds =
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
       .where(
         and(
           inArray(formSubmission.id, submissionIds),
-          eq(form.ownerId, user.id),
+          eq(form.ownerId, principal.userId),
         ),
       );
 
@@ -128,7 +132,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: error instanceof Error ? error.message : 'Đã xảy ra lỗi khi tạo file ZIP',
       },
-      { status: 500 },
+      { status: error instanceof AppError ? error.status : 500 },
     );
   }
 }

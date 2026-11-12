@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { db } from '@/db'
 import { form, schemaJson } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { PrintCanvas } from '@/features/form-builder/print/PrintCanvas'
 import { hydrateImageUrls } from '@/features/editor/utils/schema-hydrate'
 import type { FormSchemaJson } from '@/features/form-builder/types/formBuilder.types'
+import { requireAuthenticatedUser } from '@/shared/auth/authorization'
 
 export const metadata: Metadata = {
   title: 'In biểu mẫu',
@@ -23,6 +24,9 @@ export default async function PrintFormPage({ params }: PrintFormPageProps) {
     notFound()
   }
 
+  const principal = await requireAuthenticatedUser().catch(() => null)
+  if (!principal) notFound()
+
   const [record] = await db
     .select({
       id: form.id,
@@ -31,7 +35,7 @@ export default async function PrintFormPage({ params }: PrintFormPageProps) {
     })
     .from(form)
     .innerJoin(schemaJson, eq(form.schemaId, schemaJson.id))
-    .where(eq(form.id, formId))
+    .where(and(eq(form.id, formId), eq(form.ownerId, principal.userId)))
 
   if (!record || !record.schemaContent) {
     notFound()

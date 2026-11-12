@@ -1,34 +1,28 @@
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AdminSidebar } from '@/features/admin'
-import { cookies } from 'next/headers'
+import { AdminPermissionsProvider } from '@/features/admin/shared/AdminPermissionsProvider'
 import { redirect } from 'next/navigation'
-import { verifyJwtToken } from '@/lib/jwt'
+import { ADMIN_ENTRY_PERMISSIONS } from '@/shared/auth/permissions'
+import { getUserPermissionCodes, requireAnyPermission } from '@/shared/auth/authorization'
+import type { PermissionCode } from '@/shared/auth/permissions'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const cookiesStore = await cookies()
-  const token = cookiesStore.get('auth_token')?.value
+  const principal = await requireAnyPermission(ADMIN_ENTRY_PERMISSIONS).catch(() => null)
+  if (!principal) redirect('/login')
 
-  if (!token) {
-    redirect('/login')
-  }
-
-  // Xác thực và giải mã JWT token
-  const user = await verifyJwtToken(token)
-
-  // Nếu token không hợp lệ hoặc không có quyền admin -> đá về login
-  if (!user || (user.role !== 'super_admin' && user.role !== 'admin')) {
-    redirect('/login')
-  }
+  const permissions: PermissionCode[] = await getUserPermissionCodes(principal.userId)
 
   return (
     <SidebarProvider className="h-svh overflow-hidden">
-      <AdminSidebar user={user} />
+      <AdminSidebar user={principal} permissions={permissions} />
       <main className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
         </header>
         <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 overflow-hidden">
-          {children}
+          <AdminPermissionsProvider permissions={permissions}>
+            {children}
+          </AdminPermissionsProvider>
         </div>
       </main>
     </SidebarProvider>

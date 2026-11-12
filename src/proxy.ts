@@ -37,15 +37,7 @@ export async function proxy(request: NextRequest) {
       response.cookies.delete('auth_token')
       return response
     }
-    // kiểm tra quyền để vào trang admin
-    if (user.role !== UserRole.SUPER_ADMIN && user.role !== UserRole.ADMIN) {
-      return NextResponse.redirect(new URL(ROUTES.HOME, request.url))
-    }
-
-    // kiểm tra quyền super_admin để vào trang quản lý người dùng
-    if (pathname.startsWith(ROUTES.ADMIN_USERS) && user.role !== UserRole.SUPER_ADMIN) {
-      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, request.url))
-    }
+    // Quyền truy cập từng trang admin được xác thực từ permission DB trong layout/actions.
   }
 
   const userRoutePrefixes = [

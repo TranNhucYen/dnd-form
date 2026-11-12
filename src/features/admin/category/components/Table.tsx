@@ -15,8 +15,12 @@ import { useCategory } from '../hooks/useCategory'
 import { Modal } from './Modal'
 import { AdminPageHeader, AdminPagination, AdminTableHeader } from '@/features/admin/shared'
 import { SearchInput } from '@/shared/components'
+import { useAdminPermission } from '@/features/admin/shared/AdminPermissionsProvider'
+import { PERMISSIONS } from '@/shared/auth/permissions'
 
 export function Table() {
+  const canCreateCategories = useAdminPermission(PERMISSIONS.category.create)
+  const canUpdateCategories = useAdminPermission(PERMISSIONS.category.update)
   const {
     paginatedCategories,
     isLoading,
@@ -68,14 +72,14 @@ export function Table() {
           placeholder="Tìm theo tên hoặc đường dẫn..."
         />
 
-        <Button
+        {canCreateCategories && <Button
           onClick={handleOpenCreateModal}
           size="sm"
           className="h-9 px-3 text-xs gap-1.5 cursor-pointer shrink-0"
         >
           <Plus className="size-3.5" />
           <span>Thêm danh mục</span>
-        </Button>
+        </Button>}
       </AdminPageHeader>
 
       {/* Bảng danh sách loại biểu mẫu */}
@@ -113,7 +117,7 @@ export function Table() {
                         <span className="font-semibold text-foreground">
                           {item.name}
                         </span>
-                        <Button
+                        {canUpdateCategories && <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenEditModal(item)}
@@ -121,7 +125,7 @@ export function Table() {
                           title="Đổi tên loại biểu mẫu"
                         >
                           <Pencil className="size-3" />
-                        </Button>
+                        </Button>}
                       </div>
                     </TableCell>
 

@@ -1,120 +1,72 @@
-import { and, eq, inArray, or } from "drizzle-orm";
-import bcrypt from "bcrypt";
-import { db } from "..";
-import { permission, role, rolePermission, user } from "../schema";
+import { and, eq, inArray, or } from 'drizzle-orm'
+import bcrypt from 'bcrypt'
+import { db } from '..'
+import { permission, role, rolePermission, user } from '../schema'
+import { PERMISSIONS, ROLE_PERMISSION_CODES } from '@/shared/auth/permissions'
+import { UserRole } from '@/shared/types/user.type'
 
-// quyền áp dụng lên các đối tượng (user,template,form) trong hệ thống
-const permissionCode = {
-  user: {
-    create: 'user.create',
-    read: 'user.read',
-    update: 'user.update',
-    delete: 'user.delete',
-  },
-  template: {
-    create: 'template.create',
-    read: 'template.read',
-    update: 'template.update',
-    delete: 'template.delete',
-  },
-  form: {
-    submit: 'form.submit',
-  },
-} as const;
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
-type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+const permissionDefinitions: (typeof permission.$inferInsert)[] = [
+  { permissionCode: PERMISSIONS.user.create, description: 'Tạo user' },
+  { permissionCode: PERMISSIONS.user.read, description: 'Xem user' },
+  { permissionCode: PERMISSIONS.user.update, description: 'Cập nhật user' },
+  { permissionCode: PERMISSIONS.user.delete, description: 'Xóa user' },
+  { permissionCode: PERMISSIONS.template.create, description: 'Tạo biểu mẫu' },
+  { permissionCode: PERMISSIONS.template.read, description: 'Xem biểu mẫu' },
+  { permissionCode: PERMISSIONS.template.update, description: 'Cập nhật biểu mẫu' },
+  { permissionCode: PERMISSIONS.template.delete, description: 'Xóa biểu mẫu' },
+  { permissionCode: PERMISSIONS.category.create, description: 'Tạo danh mục biểu mẫu' },
+  { permissionCode: PERMISSIONS.category.read, description: 'Xem danh mục biểu mẫu' },
+  { permissionCode: PERMISSIONS.category.update, description: 'Cập nhật danh mục biểu mẫu' },
+  { permissionCode: PERMISSIONS.category.delete, description: 'Xóa danh mục biểu mẫu' },
+  { permissionCode: PERMISSIONS.dashboard.read, description: 'Xem dashboard admin và thống kê hệ thống' },
+  { permissionCode: PERMISSIONS.form.submit, description: 'Yêu cầu duyệt form để đưa vào template cộng đồng' },
+]
 
 async function roleSeed(tx: Transaction) {
   const roles: (typeof role.$inferInsert)[] = [
     {
       roleCode: 'super_admin',
       name: 'Super Admin',
-      description: 'quản trị viên có toàn quyền truy cập và quản lý tất cả các biểu mẫu ,user,admin trong hệ thống.',
+      description: 'Quản trị viên có toàn quyền quản lý người dùng, biểu mẫu mẫu và danh mục.',
     },
     {
       roleCode: 'admin',
       name: 'Admin',
-      description: 'quản trị viên có thể quản lý user thường và biểu mẫu',
+      description: 'Quản trị viên có thể quản lý biểu mẫu mẫu và danh mục.',
     },
     {
       roleCode: 'user',
       name: 'User',
-      description: 'Chỉ có thể quản lý biểu mẫu của chính mình',
+      description: 'Người dùng quản lý biểu mẫu của mình và gửi biểu mẫu cộng đồng.',
     },
-  ];
-  await tx.insert(role).ignore().values(roles);
+  ]
+  await tx.insert(role).ignore().values(roles)
 }
 
 async function permissionSeed(tx: Transaction) {
-  const { user, template, form } = permissionCode;
-  const permissions: (typeof permission.$inferInsert)[] = [
-    {
-      permissionCode: user.create,
-      description: 'Tạo user',
-    },
-    {
-      permissionCode: user.read,
-      description: 'Xem user',
-    },
-    {
-      permissionCode: user.update,
-      description: 'Cập nhật user',
-    },
-    {
-      permissionCode: user.delete,
-      description: 'Xóa user',
-    },
-    {
-      permissionCode: template.create,
-      description: 'Tạo biểu mẫu',
-    },
-    {
-      permissionCode: template.read,
-      description: 'Xem biểu mẫu',
-    },
-    {
-      permissionCode: template.update,
-      description: 'Cập nhật biểu mẫu',
-    },
-    {
-      permissionCode: template.delete,
-      description: 'Xóa biểu mẫu',
-    },
-    {
-      permissionCode: form.submit,
-      description: 'Yêu cầu duyệt form để đưa vào template cộng đồng',
-    },
-  ];
-
-  await tx.insert(permission).ignore().values(permissions);
+  await tx.insert(permission).ignore().values(permissionDefinitions)
 }
 
 async function rolePermissionSeed(tx: Transaction) {
-  const { user, template, form } = permissionCode;
-
-  const rolePermissions = await tx
+  const assignments = await tx
     .select({ roleId: role.id, permissionId: permission.id })
     .from(role)
     .crossJoin(permission)
     .where(
       or(
-        and(
-          eq(role.roleCode, 'super_admin'),
-          inArray(permission.permissionCode, [user.create, user.read, user.update, user.delete])
+        ...Object.entries(ROLE_PERMISSION_CODES).map(([roleCode, codes]) =>
+          and(
+            eq(role.roleCode, roleCode as UserRole),
+            inArray(permission.permissionCode, [...codes]),
+          ),
         ),
-        and(
-          eq(role.roleCode, 'admin'),
-          inArray(permission.permissionCode, [template.create, template.read, template.update, template.delete])
-        ),
-        and(
-          eq(role.roleCode, 'user'),
-          inArray(permission.permissionCode, [form.submit])
-        )
-      )
-    );
+      ),
+    )
 
-  if (rolePermissions.length > 0) {
-    await tx.insert(rolePermission).ignore().values(rolePermissions);
+  if (assignments.length > 0) {
+    await tx.insert(rolePermission).ignore().values(assignments)
   }
 }
 
@@ -122,46 +74,51 @@ async function superAdminDataSeed(tx: Transaction) {
   const [superAdminRole] = await tx
     .select({ id: role.id })
     .from(role)
-    .where(eq(role.roleCode, 'super_admin'));
+    .where(eq(role.roleCode, 'super_admin'))
 
   if (!superAdminRole) {
-    throw new Error('Không tìm thấy role super_admin');
+    throw new Error('Không tìm thấy role super_admin')
   }
 
-  const fullName = process.env.SUPER_ADMIN_FULL_NAME;
-  const email = process.env.SUPER_ADMIN_EMAIL;
-  const password = process.env.SUPER_ADMIN_PASSWORD;
+  const [existingSuperAdmin] = await tx
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.roleId, superAdminRole.id))
+    .limit(1)
+
+  if (existingSuperAdmin) return
+
+  const fullName = process.env.SUPER_ADMIN_FULL_NAME
+  const email = process.env.SUPER_ADMIN_EMAIL
+  const password = process.env.SUPER_ADMIN_PASSWORD
 
   if (!fullName || !email || !password) {
-    throw new Error('Không đủ thông tin để seed SuperAdmin');
+    throw new Error('Không đủ thông tin để seed Super Admin')
   }
 
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+  const hashedPassword = await bcrypt.hash(password, 10)
   await tx.insert(user).ignore().values({
     fullName,
     email,
     password: hashedPassword,
     roleId: superAdminRole.id,
     status: 'active',
-  });
+  })
 }
 
 async function main() {
-  console.log('---Đang khởi tạo system data---');
+  console.log('Đang khởi tạo system data...')
   await db.transaction(async (tx) => {
-    await roleSeed(tx);
-    await permissionSeed(tx);
-    await rolePermissionSeed(tx);
-    await superAdminDataSeed(tx);
-  });
-
-  console.log('---Khởi tạo system data thành công---');
-  process.exit(0);
+    await roleSeed(tx)
+    await permissionSeed(tx)
+    await rolePermissionSeed(tx)
+    await superAdminDataSeed(tx)
+  })
+  console.log('Khởi tạo system data thành công')
+  process.exit(0)
 }
 
 main().catch((error) => {
-  console.error('---Lỗi khởi tạo system data (đã rollback):---', error);
-  process.exit(1);
-});
+  console.error('Lỗi khởi tạo system data (đã rollback):', error)
+  process.exit(1)
+})
