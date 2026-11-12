@@ -82,6 +82,8 @@ export type DateFieldSlots = {
 };
 
 export type DateFieldData = {
+  showLabel?: boolean;
+  dateDisplayFormat?: "dd/mm/yyyy" | "dd-mm-yyyy";
   label: string; // Địa danh
   value?: string; // Chuỗi định dạng ngày dd/mm/yyyy hoặc yyyy-mm-dd
   showDateLabels: boolean;
