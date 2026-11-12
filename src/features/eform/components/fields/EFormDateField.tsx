@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { DateFieldData, FieldStyle } from "@/features/form-builder/types/formBuilder.types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -5,7 +8,7 @@ import { Label } from "@/components/ui/label";
 interface EFormDateFieldProps {
   data: DateFieldData;
   style?: FieldStyle;
-  onChange?: (value: string) => void;
+  onChange?: (value: { label: string; value: string }) => void;
 }
 
 function toInputDateValue(raw?: string): string {
@@ -21,23 +24,44 @@ function toInputDateValue(raw?: string): string {
 }
 
 export function EFormDateField({ data, style, onChange }: EFormDateFieldProps) {
+  const [location, setLocation] = useState("");
+  const [date, setDate] = useState(() => toInputDateValue(data.value));
+
+  const updateLocation = (nextLocation: string) => {
+    setLocation(nextLocation);
+    onChange?.({ label: nextLocation, value: date });
+  };
+
+  const updateDate = (nextDate: string) => {
+    setDate(nextDate);
+    onChange?.({ label: location, value: nextDate });
+  };
+
   return (
-    <div className="flex w-full flex-col gap-1.5">
-      <Label
-        style={{
-          color: style?.parts?.label?.color || style?.color,
-          fontSize: style?.parts?.label?.fontSize,
-          fontWeight: style?.parts?.label?.fontWeight,
-        }}
-        className="text-xs md:text-sm font-medium text-neutral-700"
-      >
-        {data.label ? `${data.label} (Ngày/Tháng/Năm)` : "Ngày tháng"}
-      </Label>
+    <div className="flex w-full items-center gap-3">
+      {(data.showLabel ?? true) && (
+        <>
+          <Label className="sr-only">{data.label || "Địa điểm"}</Label>
+          <Input
+            type="text"
+            value={location}
+            onChange={(e) => updateLocation(e.target.value)}
+            placeholder={data.label || "Địa điểm"}
+            style={{
+              color: style?.parts?.label?.color || style?.color,
+              fontSize: style?.parts?.label?.fontSize,
+              fontWeight: style?.parts?.label?.fontWeight,
+            }}
+            className="h-9 min-w-0 flex-1 bg-white text-xs text-neutral-700 md:text-sm"
+          />
+        </>
+      )}
       <Input
         type="date"
-        defaultValue={toInputDateValue(data.value)}
-        onChange={(e) => onChange?.(e.target.value)}
-        className="h-9 w-full bg-white text-xs md:text-sm text-neutral-700"
+        value={date}
+        onChange={(e) => updateDate(e.target.value)}
+        aria-label="Ngày tháng năm"
+        className="h-9 min-w-0 flex-1 bg-white text-xs text-neutral-700 md:text-sm"
       />
     </div>
   );

@@ -254,7 +254,8 @@ export function DateSlotsLayout({
               "absolute select-none flex items-center justify-center h-full p-0 box-border",
               onDataChange && !isEditingThisSlot ? "cursor-grab active:cursor-grabbing" : "",
               "transition-colors",
-              "border border-dashed border-sky-400/60 dark:border-sky-500/50 bg-sky-50/20 dark:bg-sky-950/20 hover:border-sky-500 hover:bg-sky-50/40 rounded-xs",
+              !data.value && !val && "border border-dashed border-sky-400/60 dark:border-sky-500/50 bg-sky-50/20 dark:bg-sky-950/20 hover:border-sky-500 hover:bg-sky-50/40",
+              "rounded-xs",
               "print:border-none print:bg-transparent print:rounded-none",
               isFieldSelected && "border-sky-500/80 shadow-xs",
             )}
