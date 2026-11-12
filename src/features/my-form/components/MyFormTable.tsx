@@ -37,11 +37,15 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { Checkbox } from '@/components/ui/checkbox'
 import type { MyForm } from '../types/my-form.type'
 import { useExportFormPdf } from '../hooks/useExportFormPdf'
 
 interface MyFormTableProps {
   forms: MyForm[]
+  selectedIds: Set<number>
+  onToggleForm: (id: number, checked: boolean) => void
+  onToggleVisibleForms: (checked: boolean) => void
   onOpenPreview: (form: MyForm) => void
   onOpenShare: (form: MyForm) => void
   onOpenCollect: (form: MyForm) => void
@@ -51,6 +55,9 @@ interface MyFormTableProps {
 
 export function MyFormTable({
   forms,
+  selectedIds,
+  onToggleForm,
+  onToggleVisibleForms,
   onOpenPreview,
   onOpenShare,
   onOpenCollect,
@@ -59,6 +66,7 @@ export function MyFormTable({
 }: MyFormTableProps) {
   const router = useRouter()
   const { isExporting, downloadPdf } = useExportFormPdf()
+  const allVisibleSelected = forms.length > 0 && forms.every((form) => selectedIds.has(form.id))
 
   const renderAccessBadge = (form: MyForm) => {
     if (form.isPublic && form.sharedWith && form.sharedWith.length > 0) {
@@ -146,6 +154,13 @@ export function MyFormTable({
         <Table className="min-w-[650px]">
           <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur-xs shadow-xs">
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-10 pl-4">
+                <Checkbox
+                  aria-label="Chọn tất cả biểu mẫu đang hiển thị"
+                  checked={allVisibleSelected}
+                  onCheckedChange={(checked) => onToggleVisibleForms(checked === true)}
+                />
+              </TableHead>
               <TableHead className="text-xs font-bold text-foreground py-3.5 pl-4">
                 Tên biểu mẫu
               </TableHead>
@@ -169,9 +184,16 @@ export function MyFormTable({
               <TableRow
                 key={form.id}
                 onDoubleClick={() => router.push(`/editor?formId=${form.id}`)}
-                className="hover:bg-muted/80 transition-colors group cursor-pointer select-none"
+                className={`hover:bg-muted/80 transition-colors group cursor-pointer select-none ${selectedIds.has(form.id) ? 'bg-muted/50' : ''}`}
                 title="Nhấp đúp chuột để chỉnh sửa biểu mẫu"
               >
+                <TableCell className="pl-4" onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    aria-label={`Chọn biểu mẫu ${form.name}`}
+                    checked={selectedIds.has(form.id)}
+                    onCheckedChange={(checked) => onToggleForm(form.id, checked === true)}
+                  />
+                </TableCell>
                 {/* Form Name & Info */}
                 <TableCell className="py-3.5 pl-4">
                   <div className="flex items-start gap-3">
