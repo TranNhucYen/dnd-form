@@ -267,7 +267,7 @@ export function DateSlotsLayout({
                   "relative z-10 leading-[1.25] truncate",
                   align === "center"
                     ? "text-center w-full px-0"
-                    : "text-left w-full pl-1 pr-0.5",
+                    : "text-left w-full p-0",
                   data.showDottedLine &&
                     "bg-white/90 dark:bg-neutral-900/90 print:bg-transparent",
                   isEditingThisSlot && "invisible",
@@ -281,7 +281,7 @@ export function DateSlotsLayout({
                   "relative z-10 text-[10px] italic text-neutral-400/80 dark:text-neutral-500 select-none pointer-events-none print:hidden truncate",
                   align === "center"
                     ? "text-center w-full px-0"
-                    : "text-left w-full pl-1 pr-0.5",
+                    : "text-left w-full p-0",
                 )}
               >
                 {align === "center" ? placeholder : `[${placeholder}]`}
@@ -309,7 +309,7 @@ export function DateSlotsLayout({
                 onSubmit={handleFinishEdit}
                 onCancel={() => setEditingSlot(null)}
                 inputRef={inputRef}
-                className={align === "center" ? "text-center p-0" : "text-left pl-1 pr-0.5"}
+                className={align === "center" ? "text-center p-0" : "text-left p-0"}
               />
             )}
           </div>

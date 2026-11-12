@@ -161,7 +161,7 @@ export function TextareaField({
         }
       }}
       className={`
-        h-full w-full overflow-hidden bg-white p-1 cursor-text 
+        h-full w-full overflow-hidden bg-white p-0 cursor-text
         ${showBorder ? "border border-gray-400" : "border border-transparent"}
         ${!isEditing ? "select-none" : ""}`
       }

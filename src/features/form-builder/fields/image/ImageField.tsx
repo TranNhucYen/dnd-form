@@ -38,7 +38,7 @@ export function ImageField({
       />
 
       {isUploading ? (
-        <div className="flex h-full w-full flex-col items-center justify-center p-2 text-gray-500">
+        <div className="flex h-full w-full flex-col items-center justify-center p-0 text-gray-500">
           <Loader2 className="mb-1 size-7 animate-spin text-primary" />
           <span className="text-xs font-medium">{FORM_BUILDER_LABELS.fields.image.loading}</span>
         </div>
@@ -51,7 +51,7 @@ export function ImageField({
           draggable={false}
         />
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center p-2 text-gray-400">
+        <div className="flex h-full w-full flex-col items-center justify-center p-0 text-gray-400">
           <ImageIcon className="mb-1 size-8 stroke-1 text-gray-400" />
           <span className="text-xs font-medium text-gray-500">{FORM_BUILDER_LABELS.fields.image.choose}</span>
           <span className="text-[10px] text-gray-400">{FORM_BUILDER_LABELS.fields.image.uploadHint}</span>
