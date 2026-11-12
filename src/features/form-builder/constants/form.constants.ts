@@ -20,4 +20,4 @@ export type PagePresetKey = keyof typeof PAGE_PRESETS;
 /**
  * Bán kính hít đường gióng thông minh tính theo pixel
  */
-export const SNAP_THRESHOLD = 5;
+export const SNAP_THRESHOLD = 2;

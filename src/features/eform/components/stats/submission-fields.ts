@@ -159,6 +159,17 @@ function formatFieldValue(
     };
   }
 
+  if (fieldType === "date" && rawVal && typeof rawVal === "object") {
+    const dateValue = rawVal as { label?: unknown; value?: unknown };
+    const parts = [dateValue.label, dateValue.value]
+      .filter((part): part is string => typeof part === "string" && part.trim().length > 0)
+      .map((part) => part.trim());
+    return {
+      isFilled: parts.length > 0,
+      formattedValue: parts.length > 0 ? parts.join(" — ") : "(Chưa điền)",
+    };
+  }
+
   // 5. Các trường thông thường (Text, Number, Date, Select...)
   if (rawVal !== undefined && rawVal !== null && rawVal !== "") {
     if (typeof rawVal === "string") {

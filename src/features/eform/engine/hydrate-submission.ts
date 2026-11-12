@@ -80,6 +80,15 @@ export function hydrateFormDataIntoSchema(
           const data = field.data as DateFieldData;
           if (typeof submittedValue === "string" && submittedValue.trim()) {
             data.value = normalizeDateForCanvas(submittedValue);
+          } else if (submittedValue && typeof submittedValue === "object") {
+            const dateValue = (submittedValue as { value?: unknown }).value;
+            const labelValue = (submittedValue as { label?: unknown }).label;
+            if (typeof dateValue === "string") {
+              data.value = dateValue.trim() ? normalizeDateForCanvas(dateValue) : undefined;
+            }
+            if (typeof labelValue === "string") {
+              data.label = labelValue;
+            }
           }
           break;
         }
