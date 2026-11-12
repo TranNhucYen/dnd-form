@@ -25,10 +25,13 @@ import { DuplicateFormModal } from './DuplicateFormModal'
 import { ShareFormModal } from './ShareFormModal'
 import { PreviewFormModal } from './PreviewFormModal'
 import { DeleteFormModal } from './DeleteFormModal'
+import { Download, Trash2 } from 'lucide-react'
+import { useExportFormPdf } from '../hooks/useExportFormPdf'
 
 export default function MyFormList() {
   const {
     forms,
+    rawForms,
     isLoading,
     error,
     searchTerm,
@@ -43,6 +46,9 @@ export default function MyFormList() {
     deleteForm,
     refetch,
   } = useMyFormList()
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const { isExporting, downloadPdf, downloadPdfsZip } = useExportFormPdf()
+  const selectedForms = rawForms.filter((form) => selectedIds.has(form.id))
 
   // Modals state
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -50,7 +56,27 @@ export default function MyFormList() {
   const [shareModalForm, setShareModalForm] = useState<MyForm | null>(null)
   const [collectModalForm, setCollectModalForm] = useState<MyForm | null>(null)
   const [previewModalForm, setPreviewModalForm] = useState<MyForm | null>(null)
-  const [deleteModalForm, setDeleteModalForm] = useState<MyForm | null>(null)
+  const [deleteModalForms, setDeleteModalForms] = useState<MyForm[]>([])
+
+  const handleDownloadSelected = async () => {
+    if (selectedForms.length === 1) {
+      await downloadPdf(selectedForms[0].id, selectedForms[0].name)
+    } else if (selectedForms.length > 1) {
+      await downloadPdfsZip(selectedForms.map((form) => form.id))
+    }
+  }
+
+  const handleConfirmDelete = async (id: number) => {
+    const deleted = await deleteForm(id)
+    if (deleted) {
+      setSelectedIds((current) => {
+        const next = new Set(current)
+        next.delete(id)
+        return next
+      })
+    }
+    return deleted
+  }
 
   return (
     <div className="w-full mx-auto flex flex-col gap-4 sm:gap-5 h-[calc(100svh-5rem)]">
@@ -83,10 +109,23 @@ export default function MyFormList() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-
-        <span className="text-xs text-muted-foreground self-end sm:self-center">
-          Tổng số: <strong className="font-semibold text-foreground">{totalItems}</strong> biểu mẫu
-        </span>
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+          {selectedForms.length > 0 && (
+            <div className="flex shrink-0 items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleDownloadSelected} disabled={isExporting} className="h-8 gap-1 px-2 text-[11px] cursor-pointer">
+                <Download className="size-3" />
+                {selectedForms.length > 1 ? `Tải ZIP (${selectedForms.length})` : 'Tải PDF'}
+              </Button>
+              <Button variant="destructive" size="sm" onClick={() => setDeleteModalForms(selectedForms)} className="h-8 gap-1 px-2 text-[11px] cursor-pointer">
+                <Trash2 className="size-3" />
+                Xóa ({selectedForms.length})
+              </Button>
+            </div>
+          )}
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            Tổng số: <strong className="font-semibold text-foreground">{totalItems}</strong> biểu mẫu
+          </span>
+        </div>
       </div>
 
       {/* Error state */}
@@ -148,10 +187,25 @@ export default function MyFormList() {
         <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">
           <MyFormTable
             forms={forms}
+            selectedIds={selectedIds}
+            onToggleForm={(id, checked) => setSelectedIds((current) => {
+              const next = new Set(current)
+              if (checked) next.add(id)
+              else next.delete(id)
+              return next
+            })}
+            onToggleVisibleForms={(checked) => setSelectedIds((current) => {
+              const next = new Set(current)
+              for (const form of forms) {
+                if (checked) next.add(form.id)
+                else next.delete(form.id)
+              }
+              return next
+            })}
             onOpenPreview={(form) => setPreviewModalForm(form)}
             onOpenShare={(form) => setShareModalForm(form)}
             onOpenCollect={(form) => setCollectModalForm(form)}
-            onOpenDelete={(form) => setDeleteModalForm(form)}
+            onOpenDelete={(form) => setDeleteModalForms([form])}
             onOpenDuplicate={(form) => setDuplicateModalForm(form)}
           />
 
@@ -272,10 +326,10 @@ export default function MyFormList() {
       />
 
       <DeleteFormModal
-        form={deleteModalForm}
-        open={!!deleteModalForm}
-        onOpenChange={(open) => !open && setDeleteModalForm(null)}
-        onConfirmDelete={deleteForm}
+        forms={deleteModalForms}
+        open={deleteModalForms.length > 0}
+        onOpenChange={(open) => !open && setDeleteModalForms([])}
+        onConfirmDelete={handleConfirmDelete}
       />
     </div>
   )

@@ -16,28 +16,32 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 import type { MyForm } from '../types/my-form.type'
 
 interface DeleteFormModalProps {
-  form: MyForm | null
+  forms: MyForm[]
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirmDelete: (id: number) => Promise<unknown>
 }
 
 export function DeleteFormModal({
-  form,
+  forms,
   open,
   onOpenChange,
   onConfirmDelete,
 }: DeleteFormModalProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
-  if (!form) return null
+  if (forms.length === 0) return null
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault()
     setIsDeleting(true)
     try {
-      await onConfirmDelete(form.id)
-      onOpenChange(false)
+      let allDeleted = true
+      for (const form of forms) {
+        const result = await onConfirmDelete(form.id)
+        if (result !== true) allDeleted = false
+      }
+      if (allDeleted) onOpenChange(false)
     } catch (err) {
       console.error(err)
     } finally {
@@ -53,12 +57,15 @@ export function DeleteFormModal({
             <AlertTriangle />
           </AlertDialogMedia>
           <AlertDialogTitle>
-            Xác nhận xóa biểu mẫu?
+            {forms.length === 1 ? 'Xác nhận xóa biểu mẫu?' : `Xác nhận xóa ${forms.length} biểu mẫu?`}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc chắn muốn xóa biểu mẫu{' '}
-            <strong className="text-foreground font-semibold">&ldquo;{form.name}&rdquo;</strong>? Mọi dữ liệu cấu
-            trúc trường liên quan sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            {forms.length === 1 ? (
+              <>Bạn có chắc chắn muốn xóa biểu mẫu <strong className="text-foreground font-semibold">&ldquo;{forms[0].name}&rdquo;</strong>?</>
+            ) : (
+              <>Bạn có chắc chắn muốn xóa {forms.length} biểu mẫu đã chọn?</>
+            )}{' '}
+            Mọi dữ liệu cấu trúc trường liên quan sẽ bị xóa vĩnh viễn và không thể khôi phục.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -78,7 +85,7 @@ export function DeleteFormModal({
                 Đang xóa...
               </>
             ) : (
-              'Xác nhận xóa'
+              forms.length === 1 ? 'Xác nhận xóa' : `Xóa ${forms.length} biểu mẫu`
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
