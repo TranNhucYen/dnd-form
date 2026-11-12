@@ -2,8 +2,8 @@ import { and, eq, inArray, or } from 'drizzle-orm'
 import bcrypt from 'bcrypt'
 import { db } from '..'
 import { permission, role, rolePermission, user } from '../schema'
-import { PERMISSIONS, ROLE_PERMISSION_CODES } from '@/shared/auth/permissions'
-import { UserRole } from '@/shared/types/user.type'
+import { PERMISSIONS, ROLE_PERMISSION_CODES } from '../../shared/auth/permissions'
+import { UserRole } from '../../shared/types/user.type'
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
