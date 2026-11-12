@@ -34,12 +34,16 @@ export type CalculateResizeParams = {
 
 
 export function rectanglesOverlap(first: Rect, second: Rect): boolean {
-  return (
-    first.left < second.left + second.width &&
-    first.left + first.width > second.left &&
-    first.top < second.top + second.height &&
-    first.top + first.height > second.top
-  );
+  // DOM layout and unit conversion can produce subpixel edges. Ignore overlap
+  // smaller than half a CSS pixel so touching fields do not report collisions.
+  const overlapX =
+    Math.min(first.left + first.width, second.left + second.width) -
+    Math.max(first.left, second.left);
+  const overlapY =
+    Math.min(first.top + first.height, second.top + second.height) -
+    Math.max(first.top, second.top);
+
+  return overlapX > 0.5 && overlapY > 0.5;
 }
 
 export function calculateResizeBounds({

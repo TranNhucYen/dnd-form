@@ -34,9 +34,11 @@ export function useActiveToolbarState() {
       if (ed.isActive("bold")) formats.push("bold");
       if (ed.isActive("italic")) formats.push("italic");
       if (ed.isActive("underline")) formats.push("underline");
+      const cellAlign = ed.getAttributes("tableCell").align ?? ed.getAttributes("tableHeader").align ?? "left";
       return {
         isFocused: ed.isFocused,
         formats,
+        cellAlign,
       };
     },
   });
@@ -80,7 +82,11 @@ export function useActiveToolbarState() {
 
   const fontFamily = selectedField?.style?.fontFamily || "Times New Roman";
   const fontSize = selectedField?.style?.fontSize || "14";
-  const textAlign = selectedField?.style?.textAlign || "left";
+  const textAlign =
+    isTiptapActive && selectedField?.type === "datatable"
+      ? ((tiptapState?.cellAlign as "left" | "center" | "right" | "justify") ||
+        "left")
+      : selectedField?.style?.textAlign || "left";
   const textColor = (getScopedStyle("Color") as string) || "#000000";
   const bgColor = selectedField?.style?.backgroundColor || "transparent";
 
@@ -131,7 +137,9 @@ export function useActiveToolbarState() {
   };
 
   const setTextAlign = (val: "left" | "center" | "right" | "justify") => {
-    if (selectedField) {
+    if (isTiptapActive && selectedField?.type === "datatable" && editor) {
+      editor.chain().focus().setCellAttribute("align", val).run();
+    } else if (selectedField) {
       updateFieldStyle(selectedField.id, { textAlign: val });
     }
   };

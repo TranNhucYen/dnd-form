@@ -58,7 +58,7 @@ export function FieldContextMenu({
         {children}
       </ContextMenuTrigger>
 
-      <ContextMenuContent className="w-52">
+      <ContextMenuContent className="w-60">
         <ContextMenuItem
           variant="destructive"
           onClick={() => removeField(fieldId)}
@@ -107,24 +107,28 @@ function TableTool() {
       >
         <Plus className="size-3.5" />
         <span>{FORM_BUILDER_LABELS.canvasMenu.addRowAbove}</span>
+        <ContextMenuShortcut>Alt+Shift+↑</ContextMenuShortcut>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().addRowAfter().run()}
       >
         <Plus className="size-3.5" />
         <span>{FORM_BUILDER_LABELS.canvasMenu.addRowBelow}</span>
+        <ContextMenuShortcut>Alt+Shift+↓</ContextMenuShortcut>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().addColumnBefore().run()}
       >
         <Plus className="size-3.5" />
         <span>{FORM_BUILDER_LABELS.canvasMenu.addColumnLeft}</span>
+        <ContextMenuShortcut>Alt+Shift+←</ContextMenuShortcut>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().addColumnAfter().run()}
       >
         <Plus className="size-3.5" />
         <span>{FORM_BUILDER_LABELS.canvasMenu.addColumnRight}</span>
+        <ContextMenuShortcut>Alt+Shift+→</ContextMenuShortcut>
       </ContextMenuItem>
       <ContextMenuItem
         onClick={() => editor.chain().focus().mergeOrSplit().run()}

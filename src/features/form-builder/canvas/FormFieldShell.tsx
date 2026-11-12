@@ -145,8 +145,8 @@ export function FormFieldShell({
               : undefined,
           outlineOffset: "2px",
           width: controlledSize?.width,
-          // Datatable tự co giãn chiều cao theo số hàng, các field khác cố định theo controlledSize
-          height: type === "datatable" ? undefined : controlledSize?.height,
+          // Chiều cao datatable được đo lại từ nội dung và đồng bộ vào controlledSize.
+          height: controlledSize?.height,
           boxSizing: "border-box",
         }}
       >

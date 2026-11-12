@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { EditorContent, Node, useEditor } from "@tiptap/react";
+import { EditorContent, Extension, Node, useEditor } from "@tiptap/react";
 import { closeHistory } from "@tiptap/pm/history";
 import type { EditorState } from "@tiptap/pm/state";
 import type { FieldProps, DatatableFieldData } from "../types/field.types";
@@ -17,6 +17,25 @@ const TableDocument = Node.create({
   name: "doc",
   topNode: true,
   content: "table",
+});
+
+const TableKeyboardShortcuts = Extension.create({
+  name: "tableKeyboardShortcuts",
+  addKeyboardShortcuts() {
+    const runIfAvailable = (command: () => boolean) =>
+      this.editor.isActive("table") && command();
+
+    return {
+      "Alt-Shift-ArrowUp": () =>
+        runIfAvailable(() => this.editor.commands.addRowBefore()),
+      "Alt-Shift-ArrowDown": () =>
+        runIfAvailable(() => this.editor.commands.addRowAfter()),
+      "Alt-Shift-ArrowLeft": () =>
+        runIfAvailable(() => this.editor.commands.addColumnBefore()),
+      "Alt-Shift-ArrowRight": () =>
+        runIfAvailable(() => this.editor.commands.addColumnAfter()),
+    };
+  },
 });
 
 /**
@@ -70,6 +89,7 @@ export function DatatableField({
           lastColumnResizable: false, // Không kéo mép ngoài cùng để tránh vượt tổng width
         },
       }),
+      TableKeyboardShortcuts,
     ],
     immediatelyRender: false,
     editable: true,
