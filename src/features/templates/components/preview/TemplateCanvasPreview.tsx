@@ -145,7 +145,7 @@ export function TemplateCanvasPreview({
           transform: `scale(${effectiveScale})`,
           transformOrigin: 'top left',
         }}
-        className="relative bg-white shadow-xs border border-slate-200 pointer-events-none"
+        className="relative bg-white text-black shadow-xs border border-slate-200 pointer-events-none"
       >
         {/* Nền PDF trang 1 */}
         {firstPagePdfBlobUrl ? (
@@ -160,18 +160,18 @@ export function TemplateCanvasPreview({
         ) : (
           schema?.backgroundPdf && (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none bg-neutral-50/70 z-0">
-              <div className="flex flex-col items-center gap-2.5 p-4 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/40 text-muted-foreground max-w-[85%] shadow-xs">
+              <div className="flex flex-col items-center gap-2.5 p-4 rounded-lg border border-dashed border-slate-400/50 bg-slate-100/70 text-slate-600 max-w-[85%] shadow-xs">
                 {isLoadingPdf ? (
                   <Loader2 className="size-8 text-primary animate-spin" />
                 ) : (
-                  <FileText className="size-8 text-muted-foreground/60" />
+                  <FileText className="size-8 text-slate-500/70" />
                 )}
                 <span className="text-xs font-medium truncate max-w-[200px]">
                   {isLoadingPdf
                     ? 'Đang tải trang 1...'
                     : schema.backgroundPdf.fileName || 'Tài liệu mẫu PDF'}
                 </span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-[11px] text-slate-600">
                   {schema.backgroundPdf.totalPages || schema.pages?.length || 1} trang • Nhấn để xem toàn bộ
                 </span>
               </div>
