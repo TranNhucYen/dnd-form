@@ -1,6 +1,7 @@
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   ToolbarCheckbox,
   ToolbarClearButton,
@@ -34,15 +35,15 @@ export function DateToolbar({
   onDataChange,
 }: FieldToolbarProps<DateFieldData>) {
   const fieldData = { ...DEFAULT_FIELD_DATA.date, ...data };
-  const { label, value, showDateLabels, showDottedLine } = fieldData;
+  const { label, value, showLabel, showDateLabels, showDottedLine, dateDisplayFormat } = fieldData;
 
   return (
     <ToolbarPopover
       icon={CalendarDays}
-      label={value ? `${label ? `${label}, ` : ""}${value}` : label || FORM_BUILDER_LABELS.fields.date.fallback}
+      label={value ? `${showLabel && label ? `${label}, ` : ""}${value}` : (showLabel && label) || FORM_BUILDER_LABELS.fields.date.fallback}
       title={FORM_BUILDER_LABELS.fields.date.configure}
     >
-      <ToolbarField label={FORM_BUILDER_LABELS.fields.date.location}>
+      <ToolbarField label={FORM_BUILDER_LABELS.fields.common.fieldLabel}>
         <Input
           value={label}
           onChange={(e) => onDataChange({ label: e.target.value })}
@@ -53,15 +54,49 @@ export function DateToolbar({
 
       <div className="flex flex-col gap-0.5 border-y border-border py-1.5 my-0.5">
         <ToolbarCheckbox
-          label={FORM_BUILDER_LABELS.fields.date.dateLabels}
-          checked={showDateLabels}
-          onCheckedChange={(checked) => onDataChange({ showDateLabels: checked })}
+          label={FORM_BUILDER_LABELS.fields.common.showLabel}
+          checked={showLabel ?? true}
+          onCheckedChange={(checked) => onDataChange({ showLabel: checked })}
         />
         <ToolbarCheckbox
           label={FORM_BUILDER_LABELS.fields.common.showDottedLine}
           checked={showDottedLine}
           onCheckedChange={(checked) => onDataChange({ showDottedLine: checked })}
         />
+        <ToolbarField label={FORM_BUILDER_LABELS.fields.date.dateFormat}>
+          <RadioGroup
+            aria-label={FORM_BUILDER_LABELS.fields.date.dateFormat}
+            value={!showDateLabels ? "slots" : dateDisplayFormat ?? "labels"}
+            onValueChange={(format) => {
+              if (format === "slots") {
+                onDataChange({ showDateLabels: false, dateDisplayFormat: undefined });
+                return;
+              }
+              onDataChange({
+                showDateLabels: true,
+                dateDisplayFormat: format === "labels" ? undefined : format as "dd/mm/yyyy" | "dd-mm-yyyy",
+              });
+            }}
+            className="gap-1"
+          >
+            <label className="flex cursor-pointer items-center gap-2 py-1 text-xs">
+              <RadioGroupItem value="labels" />
+              {FORM_BUILDER_LABELS.fields.date.dateWordsFormat}
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 py-1 text-xs">
+              <RadioGroupItem value="dd/mm/yyyy" />
+              {FORM_BUILDER_LABELS.fields.date.dateSlashFormat}
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 py-1 text-xs">
+              <RadioGroupItem value="dd-mm-yyyy" />
+              {FORM_BUILDER_LABELS.fields.date.dateHyphenFormat}
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 py-1 text-xs">
+              <RadioGroupItem value="slots" />
+              {FORM_BUILDER_LABELS.fields.date.dateSlotsFormat}
+            </label>
+          </RadioGroup>
+        </ToolbarField>
       </div>
 
       {!showDateLabels && (

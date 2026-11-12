@@ -48,7 +48,8 @@ function DateNormalLayout({
   onDataChange,
 }: FieldProps<DateFieldData>) {
   const fieldData = data;
-  const { showDateLabels, showDottedLine } = fieldData;
+  const { showDateLabels, showDottedLine, dateDisplayFormat } = fieldData;
+  const showLabel = fieldData.showLabel ?? true;
 
   const labelCustomStyle = getFieldPartStyle(style, "label");
   const valueCustomStyle = getFieldPartStyle(style, "value");
@@ -69,45 +70,47 @@ function DateNormalLayout({
   const [day, month, year] = fieldData.value?.split("/") ?? [];
 
   const isCompletelyEmptyAndHidden =
-    !showDottedLine && !locationText && !day && !month && !year;
+    !showDottedLine && (!showLabel || !locationText) && !day && !month && !year;
 
   return (
     <span
       style={width !== undefined ? { width: "100%" } : undefined}
-      onDoubleClick={handleDoubleClick}
+      onDoubleClick={showLabel ? handleDoubleClick : undefined}
       className={`
         relative inline-flex items-center whitespace-nowrap overflow-hidden select-none ${isEditing ? "cursor-text" : "cursor-move"}
         ${width === undefined ? "w-max min-w-16" : "w-full"}
       `}
     >
       {/* Vùng địa điểm dạng chấm (Giá trị - Value) */}
-      <FieldScopeSlot
-        fieldId={id}
-        scope="value"
-        isEditing={isEditing}
-        className="relative inline-block h-[1lh] min-w-6 flex-1 overflow-hidden leading-[1.25]"
-      >
-        {showDottedLine && <DotDecoration />}
-        {locationText && (
-          <span
-            style={valueCustomStyle}
-            className={`relative z-10 select-none p-0 leading-[1.25] ${
-              isEditing ? "invisible" : ""
-            }`}
-          >
-            {locationText}
-          </span>
-        )}
-        {isEditing && (
-          <InputOverlay
-            value={locationText}
-            onChange={setLocationText}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            inputRef={inputRef}
-          />
-        )}
-      </FieldScopeSlot>
+      {showLabel && (
+        <FieldScopeSlot
+          fieldId={id}
+          scope="label"
+          isEditing={isEditing}
+          className="relative inline-block h-[1lh] min-w-6 flex-1 overflow-hidden leading-[1.25]"
+        >
+          {showDottedLine && <DotDecoration />}
+          {locationText && (
+            <span
+              style={labelCustomStyle}
+              className={`relative z-10 select-none p-0 leading-[1.25] ${
+                isEditing ? "invisible" : ""
+              }`}
+            >
+              {locationText}
+            </span>
+          )}
+          {isEditing && (
+            <InputOverlay
+              value={locationText}
+              onChange={setLocationText}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              inputRef={inputRef}
+            />
+          )}
+        </FieldScopeSlot>
+      )}
 
       {/* Placeholder gợi ý khi ẩn hết và chưa có giá trị */}
       {isCompletelyEmptyAndHidden && (
@@ -118,7 +121,7 @@ function DateNormalLayout({
 
       {/* Phần ngày tháng năm */}
       <span className="shrink-0 inline-flex items-center leading-[1.25]">
-        {showDateLabels ? (
+        {dateDisplayFormat ? null : showDateLabels ? (
           <FieldScopeSlot
             fieldId={id}
             scope="label"
@@ -137,7 +140,9 @@ function DateNormalLayout({
           showDottedLine={showDottedLine}
           style={valueCustomStyle}
         />
-        {showDateLabels ? (
+        {dateDisplayFormat ? (
+          <span className="px-0.5">{dateDisplayFormat === "dd/mm/yyyy" ? "/" : "-"}</span>
+        ) : showDateLabels ? (
           <FieldScopeSlot
             fieldId={id}
             scope="label"
@@ -156,7 +161,9 @@ function DateNormalLayout({
           showDottedLine={showDottedLine}
           style={valueCustomStyle}
         />
-        {showDateLabels ? (
+        {dateDisplayFormat ? (
+          <span className="px-0.5">{dateDisplayFormat === "dd/mm/yyyy" ? "/" : "-"}</span>
+        ) : showDateLabels ? (
           <FieldScopeSlot
             fieldId={id}
             scope="label"
@@ -181,9 +188,10 @@ function DateNormalLayout({
 }
 
 export function DateField(props: FieldProps<DateFieldData>) {
-  if (!props.data.showDateLabels) {
-    return <DateSlotsLayout {...props} />;
+  const data = { ...props.data, showLabel: props.data.showLabel ?? true };
+  if (!data.showDateLabels) {
+    return <DateSlotsLayout {...props} data={data} />;
   }
 
-  return <DateNormalLayout {...props} />;
+  return <DateNormalLayout {...props} data={data} />;
 }

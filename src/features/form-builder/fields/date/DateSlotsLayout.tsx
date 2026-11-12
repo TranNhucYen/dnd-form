@@ -35,15 +35,19 @@ const SLOT_CONFIGS: Array<{
 /**
  * Tính toán vị trí mặc định chia đều các ô trong khung chứa
  */
-export function getDefaultDateSlots(containerWidth: number = 300): DateFieldSlots {
-  const totalSlotsWidth =
-    SLOT_WIDTHS.location + SLOT_WIDTHS.day + SLOT_WIDTHS.month + SLOT_WIDTHS.year;
+export function getDefaultDateSlots(
+  containerWidth: number = 300,
+  showLocation = true,
+): DateFieldSlots {
+  const totalSlotsWidth = showLocation
+    ? SLOT_WIDTHS.location + SLOT_WIDTHS.day + SLOT_WIDTHS.month + SLOT_WIDTHS.year
+    : SLOT_WIDTHS.day + SLOT_WIDTHS.month + SLOT_WIDTHS.year;
   const w = Math.max(containerWidth, totalSlotsWidth);
   const remainingSpace = Math.max(0, w - totalSlotsWidth);
-  const gap = Math.floor(remainingSpace / 3);
+  const gap = Math.floor(remainingSpace / (showLocation ? 3 : 2));
 
   const locX = 0;
-  const dayX = locX + SLOT_WIDTHS.location + gap;
+  const dayX = showLocation ? locX + SLOT_WIDTHS.location + gap : 0;
   const monthX = dayX + SLOT_WIDTHS.day + gap;
   const yearX = monthX + SLOT_WIDTHS.month + gap;
 
@@ -64,8 +68,10 @@ export function DateSlotsLayout({
   const selectedFieldId = useFormBuilderStore((state) => state.selectedFieldId);
   const setSelectedFieldId = useFormBuilderStore((state) => state.setSelectedFieldId);
   const isFieldSelected = Boolean(id && selectedFieldId === id);
+  const showLabel = data.showLabel ?? true;
 
   const valueCustomStyle = getFieldPartStyle(style, "value");
+  const labelCustomStyle = getFieldPartStyle(style, "label");
   const [measuredWidth, setMeasuredWidth] = useState<number>(width || 300);
 
   useEffect(() => {
@@ -76,7 +82,7 @@ export function DateSlotsLayout({
     }
   }, [width]);
 
-  const defaultSlots = getDefaultDateSlots(measuredWidth);
+  const defaultSlots = getDefaultDateSlots(measuredWidth, showLabel);
   const slots: DateFieldSlots = {
     location: data.slots?.location ?? defaultSlots.location,
     day: data.slots?.day ?? defaultSlots.day,
@@ -211,6 +217,8 @@ export function DateSlotsLayout({
       )}
     >
       {SLOT_CONFIGS.map(({ key, title, placeholder, align }) => {
+        if (key === "location" && !showLabel) return null;
+
         const xPos = slots[key];
         const slotWidth = SLOT_WIDTHS[key];
         const val = slotValues[key];
@@ -233,7 +241,7 @@ export function DateSlotsLayout({
               if (isDraggingRef.current) return;
               if (id) {
                 e.stopPropagation();
-                setSelectedFieldId(id, "value");
+                setSelectedFieldId(id, key === "location" ? "label" : "value");
               }
             }}
             onDoubleClick={(e) => {
@@ -262,7 +270,7 @@ export function DateSlotsLayout({
             {/* Giá trị chữ hiển thị */}
             {val ? (
               <span
-                style={valueCustomStyle}
+                style={key === "location" ? labelCustomStyle : valueCustomStyle}
                 className={cn(
                   "relative z-10 leading-[1.25] truncate",
                   align === "center"

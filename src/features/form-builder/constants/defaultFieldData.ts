@@ -20,6 +20,7 @@ export const DEFAULT_FIELD_DATA: Readonly<FieldDataMap> = {
   date: {
     label: "",
     value: undefined,
+    showLabel: true,
     showDateLabels: true,
     showDottedLine: true,
   },
