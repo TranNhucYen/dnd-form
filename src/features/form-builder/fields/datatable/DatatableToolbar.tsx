@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -20,7 +21,12 @@ import { useEditorStore } from "../../store/useEditorStore";
 import type { FieldToolbarProps, DatatableFieldData } from "../types/field.types";
 import { FORM_BUILDER_LABELS } from "../../constants/labels";
 
-type MenuAction = { label: string; run: () => void; destructive?: boolean };
+type MenuAction = {
+  label: string;
+  run: () => void;
+  shortcut?: string;
+  destructive?: boolean;
+};
 
 const TOOLBAR_BUTTON_CLASS =
   "h-7 gap-1 px-1.5 text-xs font-normal hover:bg-neutral-100";
@@ -65,10 +71,11 @@ function TableMenu({
         onMouseDown={(e) => e.preventDefault()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        {addActions.map(({ label, run }) => (
+        {addActions.map(({ label, run, shortcut }) => (
           <DropdownMenuItem key={label} onClick={() => runOnEditor(editor, run)}>
             <Plus className="mr-1.5 size-3" />
             <span>{label}</span>
+            {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
@@ -113,8 +120,8 @@ export function DatatableToolbar({}: FieldToolbarProps<DatatableFieldData>) {
         label={FORM_BUILDER_LABELS.fields.datatable.row}
         title={FORM_BUILDER_LABELS.fields.datatable.rowActions}
         addActions={[
-          { label: FORM_BUILDER_LABELS.fields.datatable.addRowAbove, run: () => editor.chain().addRowBefore().run() },
-          { label: FORM_BUILDER_LABELS.fields.datatable.addRowBelow, run: () => editor.chain().addRowAfter().run() },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addRowAbove, run: () => editor.chain().addRowBefore().run(), shortcut: "Alt+Shift+↑" },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addRowBelow, run: () => editor.chain().addRowAfter().run(), shortcut: "Alt+Shift+↓" },
         ]}
         deleteAction={{ label: FORM_BUILDER_LABELS.fields.datatable.deleteRow, run: () => editor.chain().deleteRow().run() }}
       />
@@ -125,8 +132,8 @@ export function DatatableToolbar({}: FieldToolbarProps<DatatableFieldData>) {
         label={FORM_BUILDER_LABELS.fields.datatable.column}
         title={FORM_BUILDER_LABELS.fields.datatable.columnActions}
         addActions={[
-          { label: FORM_BUILDER_LABELS.fields.datatable.addColumnLeft, run: () => editor.chain().addColumnBefore().run() },
-          { label: FORM_BUILDER_LABELS.fields.datatable.addColumnRight, run: () => editor.chain().addColumnAfter().run() },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addColumnLeft, run: () => editor.chain().addColumnBefore().run(), shortcut: "Alt+Shift+←" },
+          { label: FORM_BUILDER_LABELS.fields.datatable.addColumnRight, run: () => editor.chain().addColumnAfter().run(), shortcut: "Alt+Shift+→" },
         ]}
         deleteAction={{ label: FORM_BUILDER_LABELS.fields.datatable.deleteColumn, run: () => editor.chain().deleteColumn().run() }}
       />

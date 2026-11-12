@@ -92,7 +92,13 @@ export function useFieldResize({
     }
 
     const measure = () => {
-      onMeasure({ width: element.offsetWidth, height: element.offsetHeight });
+      const content = element.querySelector<HTMLElement>(
+        ".datatable-field-editor",
+      );
+      onMeasure({
+        width: element.offsetWidth,
+        height: content?.offsetHeight ?? element.offsetHeight,
+      });
     };
 
     measure();
@@ -102,7 +108,21 @@ export function useFieldResize({
     });
     observer.observe(element);
 
-    return () => observer.disconnect();
+    const observeDatatableContent = () => {
+      const content = element.querySelector<HTMLElement>(
+        ".datatable-field-editor",
+      );
+      if (content) observer.observe(content);
+    };
+    observeDatatableContent();
+
+    const mutationObserver = new MutationObserver(observeDatatableContent);
+    mutationObserver.observe(element, { childList: true, subtree: true });
+
+    return () => {
+      mutationObserver.disconnect();
+      observer.disconnect();
+    };
   }, [id, onMeasure, elementRef]);
 
   const handlePointerMove = useEffectEvent((event: PointerEvent) => {

@@ -32,40 +32,33 @@
   box-sizing: border-box;
 }
 
-/* Cắt chữ gọn (nowrap) để việc resize cột không làm rớt dòng gây thay đổi chiều cao (h) của bảng */
+/* Cho phép nội dung xuống dòng để ô và field tăng chiều cao theo nội dung. */
 .datatable-field-editor p {
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .datatable-field-editor th {
   border: 1px solid black;
   padding: 0;
   text-align: left;
-  font-size: 0.75rem;
-  line-height: 1rem;
   font-weight: normal;
   position: relative;
   user-select: text;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
   box-sizing: border-box;
 }
 
 .datatable-field-editor td {
   border: 1px solid black;
   padding: 0;
-  font-size: 0.75rem;
-  line-height: 1rem;
   position: relative;
   min-width: 40px;
   user-select: text;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
   box-sizing: border-box;
 }
 
