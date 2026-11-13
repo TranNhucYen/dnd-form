@@ -142,7 +142,7 @@ export function TemplateZoomModal({
           <div className="flex-1 min-h-0 overflow-auto bg-neutral-100/90 dark:bg-neutral-900/90 p-4 sm:p-8 flex justify-center">
             <div className="relative self-start flex items-start gap-4 m-auto">
               {/* Vùng Canvas phóng to/thu nhỏ */}
-              <div className="relative shadow-xl rounded-sm">
+              <div className="light relative shadow-xl rounded-sm">
                 <div
                   style={{
                     transform: `scale(${currentScale})`,
