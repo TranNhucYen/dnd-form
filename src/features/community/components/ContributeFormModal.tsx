@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import {
   Dialog,
@@ -44,6 +45,7 @@ export function ContributeFormModal({
   userForms,
   onSubmitContribution,
 }: ContributeFormModalProps) {
+  const { t } = useTranslation()
   const [selectedFormId, setSelectedFormId] = useState<string>('')
   const [title, setTitle] = useState('')
   const [categoryId, setCategoryId] = useState<string>('')
@@ -126,9 +128,9 @@ export function ContributeFormModal({
               <UploadCloud className="size-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg">Đóng góp biểu mẫu vào cộng đồng</DialogTitle>
+              <DialogTitle className="text-lg">{t('community.generated.dongGopBieuMauVaoCongDong')}</DialogTitle>
               <DialogDescription className="text-xs mt-0.5">
-                Chia sẻ biểu mẫu hữu ích của bạn để mọi người cùng sử dụng
+                {t('community.generated.chiaSeBieuMauHuuIchCuaBanDe')}
               </DialogDescription>
             </div>
           </div>
@@ -140,9 +142,9 @@ export function ContributeFormModal({
               <CheckCircle2 className="size-6" />
             </div>
             <div>
-              <h3 className="font-semibold text-base">Gửi đóng góp thành công!</h3>
+              <h3 className="font-semibold text-base">{t('community.generated.guiDongGopThanhCong')}</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                Biểu mẫu của bạn đang ở trạng thái chờ xét duyệt bởi ban quản trị.
+                {t('community.generated.bieuMauCuaBanDangOTrangThaiCho')}
               </p>
             </div>
           </div>
@@ -153,18 +155,18 @@ export function ContributeFormModal({
               <Alert className="bg-muted/50 border-muted">
                 <Info className="size-4" />
                 <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-                  <span className="font-semibold text-foreground">Quy tắc cộng đồng:</span> Template sẽ được tạo từ bản sao độc lập, hoàn toàn không ảnh hưởng đến biểu mẫu cá nhân và dữ liệu phản hồi của bạn.
+                  <span className="font-semibold text-foreground">{t('community.generated.quyTacCongDong')}</span> {t('community.generated.templateSeDuocTaoTuBanSaoDocLap')}
                 </AlertDescription>
               </Alert>
 
               {/* Select Form from My Forms */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="source-form" className="text-xs font-semibold">
-                  Chọn biểu mẫu của bạn <span className="text-destructive">*</span>
+                  {t('community.generated.chonBieuMauCuaBan')} <span className="text-destructive">*</span>
                 </Label>
                 <Select value={selectedFormId} onValueChange={handleFormSelect}>
                   <SelectTrigger id="source-form" className="w-full text-xs">
-                    <SelectValue placeholder="Chọn biểu mẫu muốn chia sẻ..." />
+                    <SelectValue placeholder={t('community.generated.chonBieuMauMuonChiaSe')} />
                   </SelectTrigger>
                   <SelectContent>
                     {userForms.map((f) => (
@@ -179,13 +181,13 @@ export function ContributeFormModal({
               {/* Form Title in Community */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="community-title" className="text-xs font-semibold">
-                  Tên hiển thị trên cộng đồng <span className="text-destructive">*</span>
+                  {t('community.generated.tenHienThiTrenCongDong')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="community-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Nhập tên biểu mẫu rõ ràng, dễ tìm kiếm..."
+                  placeholder={t('community.generated.nhapTenBieuMauRoRangDeTimKiem')}
                   className="text-xs"
                   required
                 />
@@ -194,11 +196,11 @@ export function ContributeFormModal({
               {/* Category Select */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="community-category" className="text-xs font-semibold">
-                  Danh mục phù hợp <span className="text-destructive">*</span>
+                  {t('community.generated.danhMucPhuHop')} <span className="text-destructive">*</span>
                 </Label>
                 <Select value={categoryId} onValueChange={setCategoryId}>
                   <SelectTrigger id="community-category" className="w-full text-xs">
-                    <SelectValue placeholder="Chọn danh mục..." />
+                    <SelectValue placeholder={t('community.generated.chonDanhMuc')} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((c) => (
@@ -213,13 +215,13 @@ export function ContributeFormModal({
               {/* Section 1: Description */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="community-description" className="text-xs font-semibold">
-                  Mô tả biểu mẫu
+                  {t('community.generated.moTaBieuMau')}
                 </Label>
                 <Textarea
                   id="community-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Mô tả mục đích sử dụng, ngữ cảnh áp dụng của biểu mẫu..."
+                  placeholder={t('community.generated.moTaMucDichSuDungNguCanhAp')}
                   className="text-xs min-h-20 max-h-24 resize-none overflow-y-auto leading-relaxed shadow-none"
                 />
               </div>
@@ -229,10 +231,10 @@ export function ContributeFormModal({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-0.5">
                     <Label className="text-xs font-semibold text-foreground">
-                      Hướng dẫn sử dụng (Tùy chọn)
+                      {t('community.generated.huongDanSuDungTuyChon')}
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      Thiết lập các bước chỉ dẫn để người khác điền đúng dữ liệu.
+                      {t('community.generated.thietLapCacBuocChiDanDeNguoiKhac')}
                     </p>
                   </div>
                   <Button
@@ -244,7 +246,7 @@ export function ContributeFormModal({
                     className="text-xs h-7 px-2.5 gap-1 shrink-0 cursor-pointer shadow-none"
                   >
                     <Plus className="size-3" />
-                    Thêm bước
+                    {t('community.generated.themBuoc')}
                   </Button>
                 </div>
 
@@ -259,7 +261,7 @@ export function ContributeFormModal({
                         <Input
                           value={step}
                           onChange={(e) => handleUpdateStep(index, e.target.value)}
-                          placeholder={`Nhập hướng dẫn bước ${index + 1}...`}
+                            placeholder={t('community.stepPlaceholder', { number: index + 1 })}
                           className="text-xs h-8 flex-1 shadow-none"
                           disabled={isSubmitting}
                         />
@@ -270,7 +272,7 @@ export function ContributeFormModal({
                           onClick={() => handleRemoveStep(index)}
                           disabled={isSubmitting || (guidelines.length === 1 && !step)}
                           className="size-8 p-0 text-muted-foreground hover:text-destructive cursor-pointer shrink-0"
-                          title="Xóa bước này"
+                          title={t('community.generated.xoaBuocNay')}
                         >
                           <Trash2 className="size-3.5" />
                         </Button>
@@ -291,7 +293,7 @@ export function ContributeFormModal({
                 disabled={isSubmitting}
                 className="text-xs cursor-pointer"
               >
-                Hủy bỏ
+                {t('community.generated.huyBo')}
               </Button>
               <Button
                 type="submit"
@@ -302,10 +304,10 @@ export function ContributeFormModal({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin mr-1.5" />
-                    Đang gửi...
+                    {t('community.generated.dangGui')}
                   </>
                 ) : (
-                  'Gửi xét duyệt'
+                  t('community.submitForReview')
                 )}
               </Button>
             </DialogFooter>

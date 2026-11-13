@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -60,6 +61,7 @@ function ShareFormDialog({
   onOpenChange,
   onUpdateSharing,
 }: ShareFormDialogProps) {
+  const { t } = useTranslation()
   const {
     isPublic,
     shareToken,
@@ -94,10 +96,10 @@ function ShareFormDialog({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <Shield className="size-5 text-foreground" />
-            Chia sẻ biểu mẫu
+            {t('myForm.generated.chiaSeBieuMau')}
           </DialogTitle>
           <DialogDescription className="truncate" title={form.name}>
-            Biểu mẫu: <span className="font-semibold text-foreground">{form.name}</span>
+            {t('myForm.generated.bieuMau2')} <span className="font-semibold text-foreground">{form.name}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -120,12 +122,12 @@ function ShareFormDialog({
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-foreground">
-                  Chia sẻ bằng liên kết
+                  {t('myForm.generated.chiaSeBangLienKet')}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
                   {isPublic
-                    ? 'Bất kỳ ai có liên kết đều có thể xem biểu mẫu này'
-                    : 'Chỉ những người được cấp quyền mới có thể truy cập'}
+                    ? t('myForm.generated.batKyAiCoLienKetDeuCoThe')
+                    : t('myForm.generated.chiNhungNguoiDuocCapQuyenMoiCoThe')}
                 </span>
               </div>
             </div>
@@ -137,7 +139,7 @@ function ShareFormDialog({
               onClick={handleTogglePublic}
               className="text-xs h-8 cursor-pointer"
             >
-              {isPublic ? 'Đang bật' : 'Đang tắt'}
+              {isPublic ? t('myForm.generated.dangBat') : t('myForm.generated.dangTat')}
             </Button>
           </div>
 
@@ -163,12 +165,12 @@ function ShareFormDialog({
               {copied ? (
                 <>
                   <Check data-icon="inline-start" className="text-emerald-600" />
-                  <span>Đã sao chép</span>
+                  <span>{t('myForm.generated.daSaoChep')}</span>
                 </>
               ) : (
                 <>
                   <Copy data-icon="inline-start" />
-                  <span>Sao chép link</span>
+                  <span>{t('myForm.generated.saoChepLink')}</span>
                 </>
               )}
             </Button>
@@ -179,13 +181,13 @@ function ShareFormDialog({
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <UserPlus className="size-4 text-muted-foreground" />
-            Mời thành viên theo Email
+            {t('myForm.generated.moiThanhVienTheoEmail')}
           </h4>
 
           <form onSubmit={handleAddUser} className="flex gap-2">
             <Input
               type="email"
-              placeholder="Nhập địa chỉ email người nhận..."
+              placeholder={t('myForm.generated.nhapDiaChiEmailNguoiNhan')}
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               className="flex-1 text-xs h-9"
@@ -201,10 +203,10 @@ function ShareFormDialog({
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value={ShareRole.VIEW} className="text-xs">
-                    Viewer (Xem)
+                    {t('myForm.generated.viewerXem')}
                   </SelectItem>
                   <SelectItem value={ShareRole.EDIT} className="text-xs">
-                    Editor (Sửa)
+                    {t('myForm.generated.editorSua')}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -216,7 +218,7 @@ function ShareFormDialog({
               disabled={!newEmail.trim() || !newEmail.includes('@')}
               className="text-xs h-9 cursor-pointer"
             >
-              Mời
+              {t('myForm.generated.moi')}
             </Button>
           </form>
         </div>
@@ -224,7 +226,7 @@ function ShareFormDialog({
         {/* Shared Members List */}
         <div className="flex flex-col gap-2">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Danh sách có quyền truy cập
+            {t('myForm.generated.danhSachCoQuyenTruyCap')}
           </span>
 
           <div className="max-h-[160px] overflow-y-auto flex flex-col gap-2 pr-1">
@@ -241,13 +243,13 @@ function ShareFormDialog({
                 </Avatar>
                 <div className="flex flex-col min-w-0">
                   <span className="font-semibold text-foreground truncate">
-                    Bạn (Chủ sở hữu)
+                    {t('myForm.generated.banChuSoHuu')}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">Toàn quyền quản trị</span>
+                  <span className="text-[10px] text-muted-foreground">{t('myForm.generated.toanQuyenQuanTri')}</span>
                 </div>
               </div>
               <Badge variant="outline" className="text-[10px]">
-                Owner
+                {t('myForm.generated.owner')}
               </Badge>
             </div>
 
@@ -282,10 +284,10 @@ function ShareFormDialog({
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value={ShareRole.VIEW} className="text-xs">
-                          Viewer (Xem)
+                          {t('myForm.generated.viewerXem')}
                         </SelectItem>
                         <SelectItem value={ShareRole.EDIT} className="text-xs">
-                          Editor (Sửa)
+                          {t('myForm.generated.editorSua')}
                         </SelectItem>
                       </SelectGroup>
                     </SelectContent>
@@ -306,7 +308,7 @@ function ShareFormDialog({
 
             {sharedUsers.length === 0 && !isPublic && (
               <p className="text-xs text-muted-foreground italic py-2 text-center">
-                Biểu mẫu này hiện đang ở chế độ riêng tư, chưa chia sẻ với ai.
+                {t('myForm.generated.bieuMauNayHienDangOCheDoRieng')}
               </p>
             )}
           </div>
@@ -320,10 +322,10 @@ function ShareFormDialog({
             onClick={handleCancel}
             disabled={isSaving}
           >
-            Hủy
+            {t('myForm.generated.huy')}
           </Button>
           <Button type="button" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+            {isSaving ? t('myForm.generated.dangLuu') : t('myForm.generated.luuThayDoi')}
           </Button>
         </DialogFooter>
       </DialogContent>

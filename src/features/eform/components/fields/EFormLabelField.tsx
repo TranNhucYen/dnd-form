@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
 import type { LabelFieldData, FieldStyle } from "@/features/form-builder/types/formBuilder.types";
 
 interface EFormLabelFieldProps {
@@ -6,6 +9,7 @@ interface EFormLabelFieldProps {
 }
 
 export function EFormLabelField({ data, style }: EFormLabelFieldProps) {
+  const { t } = useTranslation()
   return (
     <div
       style={{
@@ -18,7 +22,7 @@ export function EFormLabelField({ data, style }: EFormLabelFieldProps) {
       }}
       className="w-full py-1 text-neutral-800 leading-relaxed break-words"
     >
-      {data.value || "Tiêu đề biểu mẫu"}
+      {data.value || t('eform.labelFallback')}
     </div>
   );
 }

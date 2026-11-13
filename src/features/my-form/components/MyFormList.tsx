@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -29,6 +30,7 @@ import { Download, Trash2 } from 'lucide-react'
 import { useExportFormPdf } from '../hooks/useExportFormPdf'
 
 export default function MyFormList() {
+  const { t } = useTranslation()
   const {
     forms,
     rawForms,
@@ -86,9 +88,9 @@ export default function MyFormList() {
         sm:items-center w-full border-b border-border pb-3.5 gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Biểu mẫu của tôi</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('myForm.generated.bieuMauCuaToi')}</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Quản lý, chỉnh sửa, phân quyền chia sẻ và theo dõi các biểu mẫu của bạn.
+            {t('myForm.generated.quanLyChinhSuaPhanQuyenChiaSeVa')}
           </p>
         </div>
 
@@ -97,7 +99,7 @@ export default function MyFormList() {
           className="cursor-pointer shrink-0"
         >
           <Plus data-icon="inline-start" />
-          Tạo biểu mẫu mới
+          {t('myForm.generated.taoBieuMauMoi')}
         </Button>
       </div>
 
@@ -105,7 +107,7 @@ export default function MyFormList() {
       <div className="shrink-0 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <SearchInput
           wrapperClassName="w-full sm:w-96"
-          placeholder="Tìm kiếm theo tên hoặc mô tả biểu mẫu..."
+          placeholder={t('myForm.generated.timKiemTheoTenHoacMoTaBieuMau')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -114,16 +116,18 @@ export default function MyFormList() {
             <div className="flex shrink-0 items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleDownloadSelected} disabled={isExporting} className="h-8 gap-1 px-2 text-[11px] cursor-pointer">
                 <Download className="size-3" />
-                {selectedForms.length > 1 ? `Tải ZIP (${selectedForms.length})` : 'Tải PDF'}
+                {selectedForms.length > 1
+                  ? t('myForm.downloadZip', { count: selectedForms.length })
+                  : t('myForm.generated.taiPdf')}
               </Button>
               <Button variant="destructive" size="sm" onClick={() => setDeleteModalForms(selectedForms)} className="h-8 gap-1 px-2 text-[11px] cursor-pointer">
                 <Trash2 className="size-3" />
-                Xóa ({selectedForms.length})
+                {t('myForm.generated.xoa')}{selectedForms.length})
               </Button>
             </div>
           )}
           <span className="whitespace-nowrap text-xs text-muted-foreground">
-            Tổng số: <strong className="font-semibold text-foreground">{totalItems}</strong> biểu mẫu
+            {t('myForm.generated.tongSo')} <strong className="font-semibold text-foreground">{totalItems}</strong> {t('myForm.generated.bieuMau')}
           </span>
         </div>
       </div>
@@ -161,11 +165,11 @@ export default function MyFormList() {
         <EmptyState
           className="flex-1 min-h-[260px] py-12"
           icon={FolderOpen}
-          title={searchTerm ? 'Không tìm thấy biểu mẫu phù hợp' : 'Chưa có biểu mẫu nào'}
+          title={searchTerm ? t('myForm.generated.khongTimThayBieuMauPhuHop') : t('myForm.generated.chuaCoBieuMauNao')}
           description={
             searchTerm
-              ? `Không tìm thấy kết quả khớp với "${searchTerm}". Hãy thử kiểm tra lại từ khóa.`
-              : 'Bạn chưa tạo biểu mẫu nào. Hãy bắt đầu tạo biểu mẫu đầu tiên của bạn!'
+              ? t('myForm.noMatchingResults', { search: searchTerm })
+              : t('myForm.generated.banChuaTaoBieuMauNaoHayBatDau')
           }
           action={
             !searchTerm ? (
@@ -175,7 +179,7 @@ export default function MyFormList() {
                 onClick={() => setCreateModalOpen(true)}
               >
                 <Plus data-icon="inline-start" />
-                Tạo biểu mẫu mới
+                {t('myForm.generated.taoBieuMauMoi')}
               </Button>
             ) : undefined
           }
@@ -216,7 +220,7 @@ export default function MyFormList() {
               justify-between gap-3 pt-1 text-xs text-muted-foreground"
             >
               <span>
-                Hiển thị{' '}
+                {t('myForm.generated.hienThi')}{' '}
                 <strong className="font-semibold text-foreground">
                   {(currentPage - 1) * pageSize + 1}
                 </strong>
@@ -224,11 +228,11 @@ export default function MyFormList() {
                 <strong className="font-semibold text-foreground">
                   {Math.min(currentPage * pageSize, totalItems)}
                 </strong>{' '}
-                trên tổng số{' '}
+                {t('myForm.generated.trenTongSo')}{' '}
                 <strong className="font-semibold text-foreground">
                   {totalItems}
                 </strong>{' '}
-                biểu mẫu
+                {t('myForm.generated.bieuMau')}
               </span>
 
               <Pagination className="mx-0 w-auto">
@@ -240,7 +244,7 @@ export default function MyFormList() {
                         'cursor-pointer text-xs h-8',
                         currentPage === 1 && 'pointer-events-none opacity-50'
                       )}
-                      text="Trước"
+                      text={t('myForm.previous')}
                     />
                   </PaginationItem>
 
@@ -304,10 +308,10 @@ export default function MyFormList() {
             })),
           })
           if (!res.success) {
-            toast.error(res.error || 'Lưu cài đặt chia sẻ thất bại')
+            toast.error(res.error || t('myForm.shareSaveError'))
             throw new Error(res.error)
           }
-          toast.success('Đã cập nhật cài đặt chia sẻ thành công')
+          toast.success(t('myForm.generated.daCapNhatCaiDatChiaSeThanhCong'))
           refetch()
         }}
       />

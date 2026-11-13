@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, Loader2, ShieldAlert } from "lucide-react";
@@ -11,6 +12,7 @@ import { FormTitleInput } from "./FormTitleInput";
 
 /** Workspace nạp form cũ hoặc tạo mới */
 export function EditorWorkspace() {
+  const { t } = useTranslation()
   const router = useRouter();
   const {
     isLoading,
@@ -26,18 +28,18 @@ export function EditorWorkspace() {
   // Đồng bộ tiêu đề tab trình duyệt theo tên biểu mẫu đang mở
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = `${title} | DragForm`;
+    document.title = t('editor.documentTitle', { title });
     return () => {
       document.title = previousTitle;
     };
-  }, [title]);
+  }, [t, title]);
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-20 text-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="size-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Đang tải biểu mẫu...</p>
+          <p className="text-sm text-muted-foreground">{t('editor.generated.dangTaiBieuMau')}</p>
         </div>
       </div>
     );
@@ -51,13 +53,13 @@ export function EditorWorkspace() {
           <div className="size-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
             <ShieldAlert className="size-6" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Không có quyền truy cập</h2>
+          <h2 className="text-xl font-bold text-foreground">{t('editor.generated.khongCoQuyenTruyCap')}</h2>
           <p className="text-sm text-muted-foreground">{accessError}</p>
           <Button
             onClick={() => router.push(ROUTES.MY_FORM)}
             className="mt-2 cursor-pointer"
           >
-            Quay lại biểu mẫu của tôi
+            {t('editor.generated.quayLaiBieuMauCuaToi')}
           </Button>
         </div>
       </div>
@@ -70,7 +72,7 @@ export function EditorWorkspace() {
       {isReadOnly && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-xs">
           <Eye className="size-3.5 shrink-0" />
-          <span>Chế độ chỉ xem — Bạn không có quyền chỉnh sửa biểu mẫu này.</span>
+          <span>{t('editor.generated.cheDoChiXemBanKhongCoQuyenChinh')}</span>
         </div>
       )}
 

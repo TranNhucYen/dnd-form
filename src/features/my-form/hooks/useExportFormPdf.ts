@@ -2,18 +2,20 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { slugify } from '@/lib/slug'
 
 /**
  * Hook tải file PDF của biểu mẫu người dùng từ server.
  */
 export function useExportFormPdf() {
+  const { t } = useTranslation()
   const [isExporting, setIsExporting] = useState(false)
 
   const downloadPdf = useCallback(async (id: number | string, name?: string) => {
     if (!id) return
 
-    const toastId = toast.loading('Đang tải xuống file PDF...')
+    const toastId = toast.loading(t('common.downloadPdfLoading'))
 
     try {
       setIsExporting(true)
@@ -36,19 +38,19 @@ export function useExportFormPdf() {
       document.body.removeChild(downloadLink)
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000)
 
-      toast.success('Đã tải xuống file PDF thành công!', { id: toastId })
+      toast.success(t('common.downloadPdfSuccess'), { id: toastId })
     } catch (err) {
       console.error('Lỗi khi xuất PDF:', err)
-      toast.error(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tải xuống file PDF', { id: toastId })
+      toast.error(err instanceof Error ? err.message : t('common.downloadPdfError'), { id: toastId })
     } finally {
       setIsExporting(false)
     }
-  }, [])
+  }, [t])
 
   const downloadPdfsZip = useCallback(async (formIds: number[]) => {
     if (formIds.length < 2) return
 
-    const toastId = toast.loading('Đang tạo PDF và đóng gói file ZIP...')
+    const toastId = toast.loading(t('common.prepareZipLoading'))
     try {
       setIsExporting(true)
       const response = await fetch('/api/forms/export-pdf-zip', {
@@ -70,14 +72,14 @@ export function useExportFormPdf() {
       downloadLink.click()
       document.body.removeChild(downloadLink)
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000)
-      toast.success('Đã tải xuống file ZIP thành công!', { id: toastId })
+      toast.success(t('common.downloadZipSuccess'), { id: toastId })
     } catch (err) {
       console.error('Lỗi khi xuất ZIP PDF:', err)
-      toast.error(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tải file ZIP', { id: toastId })
+      toast.error(err instanceof Error ? err.message : t('common.downloadZipError'), { id: toastId })
     } finally {
       setIsExporting(false)
     }
-  }, [])
+  }, [t])
 
   return {
     isExporting,

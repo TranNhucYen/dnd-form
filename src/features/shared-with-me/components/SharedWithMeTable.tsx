@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { SharedWithMeItem } from '../types/shared-with-me.type'
 import { getInitials } from '@/shared/utils'
+import { useTranslation } from 'react-i18next'
 
 interface SharedWithMeTableProps {
   forms: SharedWithMeItem[]
@@ -21,6 +22,7 @@ interface SharedWithMeTableProps {
 
 export function SharedWithMeTable({ forms }: SharedWithMeTableProps) {
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <div className="flex-1 min-h-[260px] rounded-lg border border-border bg-card overflow-hidden shadow-xs flex flex-col">
@@ -29,13 +31,13 @@ export function SharedWithMeTable({ forms }: SharedWithMeTableProps) {
           <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur-xs shadow-xs">
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-xs font-bold text-foreground py-3.5 pl-4">
-                Tên biểu mẫu
+                {t('sharedWithMe.formName')}
               </TableHead>
               <TableHead className="w-[280px] text-xs font-bold text-foreground">
-                Được chia sẻ bởi
+                {t('sharedWithMe.sharedBy')}
               </TableHead>
               <TableHead className="w-[180px] text-xs font-bold text-foreground pr-4">
-                Ngày chia sẻ
+                {t('sharedWithMe.sharedDate')}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -46,7 +48,7 @@ export function SharedWithMeTable({ forms }: SharedWithMeTableProps) {
                 key={item.id}
                 onDoubleClick={() => router.push(`/editor?formId=${item.id}`)}
                 className="hover:bg-muted/80 transition-colors group cursor-pointer select-none"
-                title="Nhấp đúp chuột để mở biểu mẫu"
+                title={t('sharedWithMe.generated.nhapDupChuotDeMoBieuMau')}
               >
                 {/* Cột 1: Tên biểu mẫu */}
                 <TableCell className="py-3.5 pl-4">
@@ -71,25 +73,25 @@ export function SharedWithMeTable({ forms }: SharedWithMeTableProps) {
                           {item.name}
                         </Link>
 
-                        {item.permission === 'edit' ? (
+                        {item.permission === "edit" ? (
                           <span
                             className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700
                             dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border border-amber-200/80
                             dark:border-amber-800/80 px-1.5 py-0.5 rounded shrink-0"
-                            title="Bạn có quyền chỉnh sửa biểu mẫu này"
+                            title={t('sharedWithMe.generated.banCoQuyenChinhSuaBieuMauNay')}
                           >
                             <Edit3 className="size-2.5" />
-                            Chỉnh sửa
+                            {t('sharedWithMe.edit')}
                           </span>
                         ) : (
                           <span
                             className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700
                             dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 border border-blue-200/80
                             dark:border-blue-800/80 px-1.5 py-0.5 rounded shrink-0"
-                            title="Bạn có quyền xem biểu mẫu này"
+                            title={t('sharedWithMe.generated.banCoQuyenXemBieuMauNay')}
                           >
                             <Eye className="size-2.5" />
-                            Chỉ xem
+                            {t('sharedWithMe.view')}
                           </span>
                         )}
                       </div>
@@ -113,7 +115,7 @@ export function SharedWithMeTable({ forms }: SharedWithMeTableProps) {
                       className="size-8 rounded-full bg-primary/10 text-primary
                       flex items-center justify-center text-xs font-bold shrink-0 border border-primary/20"
                     >
-                      {getInitials(item.ownerName) || 'U'}
+                      {getInitials(item.ownerName) || "U"}
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span

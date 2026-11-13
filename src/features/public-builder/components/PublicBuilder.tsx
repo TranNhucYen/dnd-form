@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { DragDropProvider } from '@dnd-kit/react'
 import { Input } from '@/components/ui/input'
@@ -28,8 +29,9 @@ function clearPublicBuilderState() {
 }
 
 export function PublicBuilder() {
+  const { t } = useTranslation()
   const [isReady, setIsReady] = useState(false)
-  const [title, setTitle] = useState('Biểu mẫu chưa đặt tên')
+  const [title, setTitle] = useState(() => t('publicBuilder.untitledForm'))
   const [isDraggingOverField, setIsDraggingOverField] = useState(false)
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function PublicBuilder() {
   }, [])
 
   if (!isReady) {
-    return <div className="flex h-full min-h-96 items-center justify-center text-sm text-muted-foreground">Đang mở Form Builder...</div>
+    return <div className="flex h-full min-h-96 items-center justify-center text-sm text-muted-foreground">{t('publicBuilder.generated.dangMoFormBuilder')}</div>
   }
 
   return (
@@ -50,7 +52,7 @@ export function PublicBuilder() {
       <div className="flex h-full min-h-[600px] flex-col overflow-hidden bg-neutral-100">
         <div className="flex min-h-14 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
           <Input
-            aria-label="Tên biểu mẫu tạm thời"
+            aria-label={t('publicBuilder.generated.tenBieuMauTamThoi')}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             maxLength={150}

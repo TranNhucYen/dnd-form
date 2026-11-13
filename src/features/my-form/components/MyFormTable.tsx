@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Table,
   TableBody,
@@ -64,6 +65,7 @@ export function MyFormTable({
   onOpenDelete,
   onOpenDuplicate,
 }: MyFormTableProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const { isExporting, downloadPdf } = useExportFormPdf()
   const allVisibleSelected = forms.length > 0 && forms.every((form) => selectedIds.has(form.id))
@@ -81,10 +83,10 @@ export function MyFormTable({
           className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800
             bg-emerald-50/70 hover:bg-emerald-100/70 px-2 py-0.5 rounded-md
             transition-colors cursor-pointer border border-emerald-200/60"
-          title={`Công khai và đã chia sẻ với ${form.sharedWith.length} người`}
+          title={t('myForm.publicAndShared', { count: form.sharedWith.length })}
         >
           <Globe className="size-3.5 shrink-0" />
-          <span className="truncate max-w-[120px]">Công khai ({form.sharedWith.length})</span>
+          <span className="truncate max-w-[120px]">{t('myForm.generated.congKhai2')}{form.sharedWith.length})</span>
         </button>
       )
     }
@@ -101,10 +103,10 @@ export function MyFormTable({
           className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800
             bg-emerald-50/70 hover:bg-emerald-100/70 px-2 py-0.5 rounded-md
             transition-colors cursor-pointer border border-emerald-200/60"
-          title="Bất kỳ ai có liên kết"
+          title={t('myForm.generated.batKyAiCoLienKet')}
         >
           <Globe className="size-3.5 shrink-0" />
-          <span className="truncate max-w-[110px]">Công khai</span>
+          <span className="truncate max-w-[110px]">{t('myForm.generated.congKhai')}</span>
         </button>
       )
     }
@@ -121,10 +123,10 @@ export function MyFormTable({
           className="flex items-center gap-1.5 text-xs text-indigo-700 hover:text-indigo-800
             bg-indigo-50/70 hover:bg-indigo-100/70 px-2 py-0.5 rounded-md
             transition-colors cursor-pointer border border-indigo-200/60"
-          title={`Chia sẻ với ${form.sharedWith.length} người`}
+          title={t('myForm.sharedWith', { count: form.sharedWith.length })}
         >
           <Users className="size-3.5 shrink-0" />
-          <span>{form.sharedWith.length} người</span>
+          <span>{form.sharedWith.length} {t('myForm.generated.nguoi')}</span>
         </button>
       )
     }
@@ -140,10 +142,10 @@ export function MyFormTable({
         className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground
           bg-muted hover:bg-muted/80 px-2 py-0.5 rounded-md
           transition-colors cursor-pointer border border-border"
-        title="Chỉ mình bạn"
+        title={t('myForm.generated.chiMinhBan')}
       >
         <Lock className="size-3.5 shrink-0" />
-        <span>Riêng tư</span>
+        <span>{t('myForm.generated.riengTu')}</span>
       </button>
     )
   }
@@ -156,25 +158,25 @@ export function MyFormTable({
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-10 pl-4">
                 <Checkbox
-                  aria-label="Chọn tất cả biểu mẫu đang hiển thị"
+                  aria-label={t('myForm.generated.chonTatCaBieuMauDangHienThi')}
                   checked={allVisibleSelected}
                   onCheckedChange={(checked) => onToggleVisibleForms(checked === true)}
                 />
               </TableHead>
               <TableHead className="text-xs font-bold text-foreground py-3.5 pl-4">
-                Tên biểu mẫu
+                {t('myForm.generated.tenBieuMau')}
               </TableHead>
               <TableHead className="w-[125px] text-xs font-bold text-foreground">
-                Ngày tạo
+                {t('myForm.generated.ngayTao')}
               </TableHead>
               <TableHead className="w-[130px] text-xs font-bold text-foreground">
-                Ngày cập nhật
+                {t('myForm.generated.ngayCapNhat')}
               </TableHead>
               <TableHead className="w-[130px] text-xs font-bold text-foreground">
-                Quyền truy cập
+                {t('myForm.generated.quyenTruyCap')}
               </TableHead>
               <TableHead className="w-[60px] text-right text-xs font-bold text-foreground pr-4">
-                Thao tác
+                {t('myForm.generated.thaoTac')}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -185,11 +187,11 @@ export function MyFormTable({
                 key={form.id}
                 onDoubleClick={() => router.push(`/editor?formId=${form.id}`)}
                 className={`hover:bg-muted/80 transition-colors group cursor-pointer select-none ${selectedIds.has(form.id) ? 'bg-muted/50' : ''}`}
-                title="Nhấp đúp chuột để chỉnh sửa biểu mẫu"
+                title={t('myForm.generated.nhapDupChuotDeChinhSuaBieuMau')}
               >
                 <TableCell className="pl-4" onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
                   <Checkbox
-                    aria-label={`Chọn biểu mẫu ${form.name}`}
+                    aria-label={t('myForm.selectForm', { name: form.name })}
                     checked={selectedIds.has(form.id)}
                     onCheckedChange={(checked) => onToggleForm(form.id, checked === true)}
                   />
@@ -227,7 +229,7 @@ export function MyFormTable({
                         <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                           <Sparkles className="size-3 text-amber-500 shrink-0" />
                           <span className="truncate">
-                            Từ mẫu: {form.sourceTemplateName}
+                            {t('myForm.generated.tuMau')} {form.sourceTemplateName}
                           </span>
                         </div>
                       )}
@@ -270,21 +272,21 @@ export function MyFormTable({
                         className="size-8 cursor-pointer text-muted-foreground hover:text-foreground"
                       >
                         <MoreHorizontal />
-                        <span className="sr-only">Menu</span>
+                        <span className="sr-only">{t('myForm.generated.menu')}</span>
                       </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end" className="w-52 text-xs">
                       <DropdownMenuGroup>
                         <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
-                          Thao tác
+                          {t('myForm.generated.thaoTac')}
                         </DropdownMenuLabel>
 
                         {/* Edit */}
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <Link href={`/editor?formId=${form.id}`}>
                             <Pencil />
-                            <span>Chỉnh sửa form</span>
+                            <span>{t('myForm.generated.chinhSuaForm')}</span>
                           </Link>
                         </DropdownMenuItem>
 
@@ -294,7 +296,7 @@ export function MyFormTable({
                           className="cursor-pointer"
                         >
                           <Inbox className="text-emerald-600" />
-                          <span>Thu thập qua E-Form</span>
+                          <span>{t('myForm.generated.thuThapQuaEForm')}</span>
                         </DropdownMenuItem>
 
                         {/* Preview */}
@@ -303,7 +305,7 @@ export function MyFormTable({
                           className="cursor-pointer"
                         >
                           <Eye />
-                          <span>Xem trước</span>
+                          <span>{t('myForm.generated.xemTruoc')}</span>
                         </DropdownMenuItem>
 
                         {/* Share */}
@@ -312,7 +314,7 @@ export function MyFormTable({
                           className="cursor-pointer"
                         >
                           <Share2 />
-                          <span>Chia sẻ & Phân quyền</span>
+                          <span>{t('myForm.generated.chiaSePhanQuyen')}</span>
                         </DropdownMenuItem>
 
                         {/* Duplicate & Redirect to Editor */}
@@ -321,7 +323,7 @@ export function MyFormTable({
                           className="cursor-pointer"
                         >
                           <Copy />
-                          <span>Nhân bản biểu mẫu</span>
+                          <span>{t('myForm.generated.nhanBanBieuMau')}</span>
                         </DropdownMenuItem>
 
                         {/* Tải xuống PDF */}
@@ -331,7 +333,7 @@ export function MyFormTable({
                           className="cursor-pointer"
                         >
                           <Download />
-                          <span>Tải xuống (PDF)</span>
+                          <span>{t('myForm.generated.taiXuongPdf')}</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
 
@@ -344,7 +346,7 @@ export function MyFormTable({
                           className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                         >
                           <Trash2 />
-                          <span>Xóa biểu mẫu</span>
+                          <span>{t('myForm.generated.xoaBieuMau')}</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
                     </DropdownMenuContent>

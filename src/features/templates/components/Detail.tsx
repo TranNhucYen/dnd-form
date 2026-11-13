@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,6 +32,7 @@ export interface DetailProps {
 }
 
 export function Detail({ id, publicView = false }: DetailProps) {
+  const { t } = useTranslation()
   const templatesRoute = publicView ? ROUTES.PUBLIC_TEMPLATES : ROUTES.TEMPLATES
   const { template, isLoading, isCopying, error, createFormCopy, refetch } = useTemplateDetail(Number(id), publicView)
   const { isExporting, downloadPdf } = useExportTemplatePdf()
@@ -51,7 +53,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
               className="text-muted-foreground hover:text-foreground gap-1.5 pl-2 cursor-pointer"
             >
               <ArrowLeft className="size-4" />
-              Quay lại danh sách
+              {t('templates.generated.quayLaiDanhSach')}
             </Button>
           </Link>
         </div>
@@ -59,10 +61,10 @@ export function Detail({ id, publicView = false }: DetailProps) {
         <div className="flex flex-col items-center justify-center p-8 bg-destructive/10 border border-destructive/20 rounded-lg text-center">
           <AlertCircle className="size-12 text-destructive mb-3" />
           <h2 className="text-lg font-bold text-destructive">
-            {error || "Không tìm thấy biểu mẫu"}
+            {error || t('templates.generated.khongTimThayBieuMau')}
           </h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-md">
-            Biểu mẫu bạn đang tìm kiếm có thể đã bị xóa hoặc đường dẫn không hợp lệ.
+            {t('templates.generated.bieuMauBanDangTimKiemCoTheDa')}
           </p>
           <div className="flex gap-3 mt-6">
             <Button
@@ -72,11 +74,11 @@ export function Detail({ id, publicView = false }: DetailProps) {
               className="gap-1.5 cursor-pointer"
             >
               <RefreshCw className="size-3.5" />
-              Thử lại
+              {t('templates.generated.thuLai')}
             </Button>
             <Link href={templatesRoute}>
               <Button size="sm" className="cursor-pointer">
-                Xem tất cả biểu mẫu
+                {t('templates.generated.xemTatCaBieuMau')}
               </Button>
             </Link>
           </div>
@@ -86,7 +88,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
   }
 
   const isPaid = template.pricingType === TemplatePricingType.PAID
-  const formattedDate = formatDate(template.updatedAt, undefined, "Chưa cập nhật")
+  const formattedDate = formatDate(template.updatedAt, undefined, t('templates.notUpdated'))
 
   return (
     <div className="w-full mx-auto flex flex-col gap-6">
@@ -99,7 +101,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
             className="text-muted-foreground hover:text-foreground gap-1.5 pl-2 cursor-pointer"
           >
             <ArrowLeft className="size-4" />
-            Quay lại danh sách
+            {t('templates.generated.quayLaiDanhSach')}
           </Button>
         </Link>
       </div>
@@ -120,11 +122,11 @@ export function Detail({ id, publicView = false }: DetailProps) {
                   : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-semibold px-2.5 py-0.5 rounded-md"
               }
             >
-              {isPaid ? "Trả phí" : "Miễn phí"}
+              {isPaid ? t('templates.generated.traPhi') : t('templates.generated.mienPhi')}
             </Badge>
           </div>
           <span className="text-sm text-muted-foreground font-medium">
-            {formatNumber(template.downloads)} lượt tải
+            {formatNumber(template.downloads)} {t('templates.generated.luotTai')}
           </span>
         </div>
 
@@ -141,7 +143,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
             ) : (
               <Download className="size-4" />
             )}
-            <span>{isExporting ? "Đang tạo PDF..." : "Tải xuống (PDF)"}</span>
+            <span>{isExporting ? t('templates.generated.dangTaoPdf') : t('templates.generated.taiXuongPdf')}</span>
           </Button>
           {!publicView && <Button
             onClick={createFormCopy}
@@ -153,7 +155,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
             ) : (
               <Copy className="size-4" />
             )}
-            {isCopying ? "Đang tạo bản sao..." : "Tạo bản sao chỉnh sửa"}
+            {isCopying ? t('templates.generated.dangTaoBanSao') : t('templates.generated.taoBanSaoChinhSua')}
           </Button>}
         </div>
       </div>
@@ -164,11 +166,11 @@ export function Detail({ id, publicView = false }: DetailProps) {
         <div className="lg:col-span-2 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Xem trước biểu mẫu
+              {t('templates.generated.xemTruocBieuMau')}
             </h3>
             {template.schemaContent?.pages && template.schemaContent.pages.length > 1 && (
               <Badge variant="outline" className="text-[11px] font-normal">
-                {template.schemaContent.pages.length} trang
+                {template.schemaContent.pages.length} {t('templates.generated.trang')}
               </Badge>
             )}
           </div>
@@ -195,10 +197,10 @@ export function Detail({ id, publicView = false }: DetailProps) {
           {/* General introduction */}
           <div className="flex flex-col gap-3">
             <h2 className="text-xl font-bold text-foreground">
-              Giới thiệu biểu mẫu
+              {t('templates.generated.gioiThieuBieuMau')}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {template.description || "Chưa có mô tả chi tiết cho biểu mẫu này."}
+              {template.description || t('templates.generated.chuaCoMoTaChiTietChoBieuMau')}
             </p>
           </div>
 
@@ -210,7 +212,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
               <Tag className="size-5 text-muted-foreground/70 shrink-0" />
               <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-muted-foreground uppercase font-semibold">
-                  Danh mục
+                  {t('templates.generated.danhMuc')}
                 </span>
                 <span className="text-sm font-semibold text-foreground truncate">
                   {template.categoryName}
@@ -222,7 +224,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
               <Calendar className="size-5 text-muted-foreground/70 shrink-0" />
               <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-muted-foreground uppercase font-semibold">
-                  Cập nhật lần cuối
+                  {t('templates.generated.capNhatLanCuoi')}
                 </span>
                 <span className="text-sm font-semibold text-foreground truncate">
                   {formattedDate}
@@ -234,7 +236,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
               <User className="size-5 text-muted-foreground/70 shrink-0" />
               <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-muted-foreground uppercase font-semibold">
-                  Tác giả
+                  {t('templates.generated.tacGia')}
                 </span>
                 <span className="text-sm font-semibold text-foreground truncate">
                   {template.ownerName}
@@ -248,7 +250,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
           {/* Instructions */}
           <div className="flex flex-col gap-3">
             <h3 className="text-base font-bold text-foreground">
-              Hướng dẫn điền biểu mẫu
+              {t('templates.generated.huongDanDienBieuMau')}
             </h3>
             {template.guideline && template.guideline.length > 0 ? (
               <ol className="flex flex-col gap-3">
@@ -266,7 +268,7 @@ export function Detail({ id, publicView = false }: DetailProps) {
               </ol>
             ) : (
               <p className="text-sm text-muted-foreground italic">
-                Chưa có hướng dẫn cụ thể cho biểu mẫu này.
+                {t('templates.generated.chuaCoHuongDanCuTheChoBieuMau')}
               </p>
             )}
           </div>

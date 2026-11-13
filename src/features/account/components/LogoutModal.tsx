@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
@@ -24,6 +25,7 @@ interface LogoutModalProps {
 }
 
 export function LogoutModal({ open, onOpenChange }: LogoutModalProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const queryClient = useQueryClient()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -55,7 +57,7 @@ export function LogoutModal({ open, onOpenChange }: LogoutModalProps) {
               <LogOut className="size-4" />
             </div>
             <AlertDialogTitle className="text-base">
-              Xác nhận đăng xuất
+              {t('account.generated.xacNhanDangXuat')}
             </AlertDialogTitle>
           </div>
           <AlertDialogDescription
@@ -63,13 +65,12 @@ export function LogoutModal({ open, onOpenChange }: LogoutModalProps) {
               'text-xs leading-relaxed text-muted-foreground pt-1'
             )}
           >
-            Bạn có chắc chắn muốn đăng xuất khỏi tài khoản DragForm trên thiết bị này? 
-            Bạn sẽ cần đăng nhập lại để tiếp tục chỉnh sửa biểu mẫu.
+            {t('account.logoutConfirmation')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoggingOut} className="text-xs">
-            Hủy
+            {t('account.generated.huy')}
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
@@ -80,10 +81,10 @@ export function LogoutModal({ open, onOpenChange }: LogoutModalProps) {
             {isLoggingOut ? (
               <>
                 <Loader2 className="size-3.5 animate-spin mr-1.5" />
-                Đang đăng xuất...
+                {t('account.generated.dangDangXuat')}
               </>
             ) : (
-              'Đăng xuất'
+              t('account.signOut')
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

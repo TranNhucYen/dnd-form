@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useFormBuilderStore } from "@/features/form-builder/store/useFormBuilderStore";
 import { ROUTES } from "@/shared/constants/routes";
 import { getFormDetailAction } from "../actions/editor.action";
@@ -13,6 +14,7 @@ import { useEditorDraft } from "./useEditorDraft";
  * Hook điều phối Editor: quản lý phân quyền, tải form và kết nối Lưu / Nháp.
  */
 export function useEditorWorkspace() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const formIdParam = searchParams.get("formId");
@@ -127,7 +129,7 @@ export function useEditorWorkspace() {
           setAccessError(
             res.error || "Không thể tải dữ liệu biểu mẫu hoặc bạn không có quyền truy cập.",
           );
-          toast.error(res.error || "Không thể tải dữ liệu biểu mẫu");
+          toast.error(res.error || t("editor.loadFormError"));
         }
       })
       .catch((err) => {
@@ -144,7 +146,7 @@ export function useEditorWorkspace() {
     return () => {
       isCurrent = false;
     };
-  }, [formIdParam, initNewFormDraft, handleServerFormLoaded, setFormId]);
+  }, [formIdParam, initNewFormDraft, handleServerFormLoaded, setFormId, t]);
 
   // Tạo biểu mẫu mới (dọn dẹp canvas & nháp)
   const handleNewForm = useCallback(() => {
@@ -165,8 +167,8 @@ export function useEditorWorkspace() {
     if (formIdParam) {
       router.push(ROUTES.EDITOR);
     }
-    toast.success("Đã tạo biểu mẫu mới");
-  }, [clearDraft, formId, formIdParam, initNewFormDraft, resetForm, router, setTitle, titleInputRef]);
+    toast.success(t("editor.formCreated"));
+  }, [clearDraft, formId, formIdParam, initNewFormDraft, resetForm, router, setTitle, t, titleInputRef]);
 
   // Đăng ký hành động tạo form mới vào store để NewFormTool trên Toolbar có thể gọi
   useEffect(() => {

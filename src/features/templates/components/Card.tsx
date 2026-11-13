@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -16,6 +19,7 @@ export interface CardProps {
 }
 
 export function Card({ template, publicView = false }: CardProps) {
+  const { t } = useTranslation()
   const isPaid = template.pricingType === TemplatePricingType.PAID
   const detailHref = publicView
     ? DYNAMIC_ROUTES.PUBLIC_TEMPLATE_DETAIL(template.id)
@@ -65,7 +69,7 @@ export function Card({ template, publicView = false }: CardProps) {
                     : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs font-semibold rounded-md"
                 }
               >
-                {isPaid ? "Trả phí" : "Miễn phí"}
+                {isPaid ? t('templates.generated.traPhi') : t('templates.generated.mienPhi')}
               </Badge>
               <span className="text-[11px] text-muted-foreground truncate font-medium">
                 {template.categoryName}
@@ -77,7 +81,7 @@ export function Card({ template, publicView = false }: CardProps) {
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Download className="size-3.5" />
               <span className="text-xs font-medium">
-                {formatNumber(template.downloads)} lượt tải
+                {formatNumber(template.downloads)} {t('templates.generated.luotTai')}
               </span>
             </div>
           </div>
@@ -93,12 +97,12 @@ export function Card({ template, publicView = false }: CardProps) {
           disabled={isExporting}
         >
           {isExporting ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
-          {isExporting ? 'Đang tải...' : 'Tải xuống'}
+          {isExporting ? t('templates.generated.dangTai') : t('templates.generated.taiXuong')}
         </Button>
         <Link href={detailHref} className="flex-1">
           <Button size="sm" className="w-full text-xs gap-1.5 cursor-pointer">
             {publicView ? <FileText className="size-3.5" /> : <Pencil className="size-3.5" />}
-            Chi tiết
+            {t('templates.generated.chiTiet')}
           </Button>
         </Link>
       </div>

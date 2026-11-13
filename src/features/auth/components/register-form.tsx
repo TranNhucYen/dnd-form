@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from 'react-i18next'
 import React, { useState } from 'react'
 import Link from "next/link"
 import Image from "next/image"
@@ -10,6 +11,7 @@ import { ROUTES } from "@/shared/constants/routes"
 import { useRegister } from "../hooks/useRegister"
 
 export function RegisterForm() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [formData, setFormData] = useState({
     fullName: '',
@@ -38,7 +40,7 @@ export function RegisterForm() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-87.5 space-y-6 rounded-lg border bg-card p-6 shadow-sm">
         <div className="space-y-1.5 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Tạo tài khoản</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('auth.generated.taoTaiKhoan')}</h1>
           <div className="flex items-center justify-center gap-1.5 py-1">
             <Image
               src="/icon.svg"
@@ -49,7 +51,7 @@ export function RegisterForm() {
             />
             <span className="text-sm font-semibold tracking-tight">Dnd Form</span>
           </div>
-          <p className="text-sm text-muted-foreground">Nhập thông tin bên dưới để tạo tài khoản</p>
+          <p className="text-sm text-muted-foreground">{t('auth.generated.nhapThongTinBenDuoiDeTaoTaiKhoan')}</p>
         </div>
 
         {error && (
@@ -61,11 +63,11 @@ export function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Họ và tên</label>
+              <label className="text-sm font-medium">{t('auth.generated.hoVaTen')}</label>
               <Input
                 type="text"
                 name="fullName"
-                placeholder="Nguyễn Văn A"
+                placeholder={t('auth.generated.nguyenVanA')}
                 value={formData.fullName}
                 onChange={handleChange}
                 required
@@ -78,7 +80,7 @@ export function RegisterForm() {
               <Input
                 type="email"
                 name="email"
-                placeholder="name@example.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -87,7 +89,7 @@ export function RegisterForm() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Mật khẩu</label>
+              <label className="text-sm font-medium">{t('auth.generated.matKhau')}</label>
               <Input
                 type="password"
                 name="password"
@@ -100,7 +102,7 @@ export function RegisterForm() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Xác nhận mật khẩu</label>
+              <label className="text-sm font-medium">{t('auth.generated.xacNhanMatKhau')}</label>
               <Input
                 type="password"
                 name="confirmPassword"
@@ -114,19 +116,19 @@ export function RegisterForm() {
             </div>
           </div>
           <Button type="submit" disabled={isLoading} className="w-full h-9.5">
-            {isLoading ? "Đang xử lý..." : "Đăng ký"}
+            {isLoading ? t('auth.generated.dangXuLy') : t('auth.generated.dangKy')}
           </Button>
         </form>
         <div className="relative">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Hoặc</span></div>
+          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">{t('auth.generated.hoac')}</span></div>
         </div>
         <Button variant="outline" type="button" className="w-full h-9.5">
           Google
         </Button>
         <div className="text-center text-sm text-muted-foreground">
-          Đã có tài khoản?{" "}
-          <Link href={ROUTES.LOGIN} className="font-semibold text-primary hover:underline">Đăng nhập</Link>
+          {t('auth.generated.daCoTaiKhoan')}{" "}
+          <Link href={ROUTES.LOGIN} className="font-semibold text-primary hover:underline">{t('auth.generated.dangNhap')}</Link>
         </div>
       </div>
     </div>

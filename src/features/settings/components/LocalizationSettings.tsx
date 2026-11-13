@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Languages, Clock, Calendar } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useLocale } from '@/i18n/use-locale'
 import { LocalizationSettings as ILocalizationSettings } from '../types/settings.type'
 
 interface LocalizationSettingsProps {
@@ -27,12 +29,14 @@ export function LocalizationSettings({
   settings,
   onChange,
 }: LocalizationSettingsProps) {
+  const { t } = useTranslation()
+  const { locale, setLocale } = useLocale()
   return (
     <Card className="border-border/80 shadow-xs">
       <CardHeader>
-        <CardTitle className="text-base font-bold">Cá nhân hóa & Ngôn ngữ</CardTitle>
+        <CardTitle className="text-base font-bold">{t('settings.localizationTitle')}</CardTitle>
         <CardDescription className="text-xs">
-          Thiết lập ngôn ngữ giao diện, định dạng hiển thị ngày giờ và múi giờ làm việc
+          {t('settings.localizationDescription')}
         </CardDescription>
       </CardHeader>
 
@@ -44,26 +48,29 @@ export function LocalizationSettings({
               <Languages className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Ngôn ngữ hiển thị (Language)</Label>
+              <Label className="text-xs font-semibold">{t('settings.languageLabel')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Chọn ngôn ngữ sử dụng cho toàn bộ giao diện DragForm
+                {t('settings.languageDescription')}
               </p>
             </div>
           </div>
 
           <Select
-            value={settings.language}
-            onValueChange={(val: 'vi' | 'en') => onChange({ language: val })}
+            value={locale}
+            onValueChange={(val: 'vi' | 'en') => {
+              setLocale(val)
+              onChange({ language: val })
+            }}
           >
             <SelectTrigger className="w-full sm:w-48 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="vi" className="text-xs">
-                Tiếng Việt (Mặc định)
+                {t('settings.vietnamese')}
               </SelectItem>
               <SelectItem value="en" className="text-xs">
-                English (US)
+                {t('settings.english')}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -76,9 +83,9 @@ export function LocalizationSettings({
               <Calendar className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Định dạng ngày tháng</Label>
+              <Label className="text-xs font-semibold">{t('settings.dateFormatLabel')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Kiểu hiển thị thời gian trong danh sách biểu mẫu và báo cáo
+                {t('settings.dateFormatDescription')}
               </p>
             </div>
           </div>
@@ -113,9 +120,9 @@ export function LocalizationSettings({
               <Clock className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Múi giờ (Timezone)</Label>
+              <Label className="text-xs font-semibold">{t('settings.timezoneLabel')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Múi giờ dùng để ghi nhận thời điểm gửi phản hồi và tạo biểu mẫu
+                {t('settings.timezoneDescription')}
               </p>
             </div>
           </div>
@@ -129,7 +136,7 @@ export function LocalizationSettings({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Asia/Ho_Chi_Minh" className="text-xs">
-                GMT+07:00 (Hà Nội, TP.HCM)
+                {t('settings.generated.gmt0700HaNoiTpHcm')}
               </SelectItem>
               <SelectItem value="UTC" className="text-xs">
                 GMT+00:00 (UTC)

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useCallback, useEffect, useState } from "react";
 import {
   Check,
@@ -42,6 +43,7 @@ export function CollectFormModal({
   open,
   onOpenChange,
 }: CollectFormModalProps) {
+  const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isCollecting, setIsCollecting] = useState(false);
@@ -57,7 +59,7 @@ export function CollectFormModal({
     try {
       const res = await getFormCollectionConfigAction(formId);
       if (!res.success || !res.data) {
-        toast.error(res.error || "Không thể tải cấu hình thu thập.");
+        toast.error(res.error || t('eform.generated.khongTheTaiCauHinhThuThap'));
         return;
       }
       setIsCollecting(res.data.isCollecting);
@@ -65,11 +67,11 @@ export function CollectFormModal({
       setResolvedName(res.data.formName);
       setSubmissions(res.data.submissions);
     } catch {
-      toast.error("Lỗi khi tải dữ liệu thu thập.");
+      toast.error(t('eform.generated.loiKhiTaiDuLieuThuThap'));
     } finally {
       setIsLoading(false);
     }
-  }, [formId]);
+  }, [formId, t]);
 
   useEffect(() => {
     if (open && formId) {
@@ -84,7 +86,7 @@ export function CollectFormModal({
       ? `${window.location.origin}/collect/${collectToken}`
       : collectToken
         ? `/collect/${collectToken}`
-        : "Bật thu thập để tạo liên kết công khai";
+        : t('eform.generated.batThuThapDeTaoLienKetCongKhai');
 
   const handleToggle = async () => {
     if (isToggling) return;
@@ -93,18 +95,18 @@ export function CollectFormModal({
       const nextState = !isCollecting;
       const res = await toggleFormCollectionAction(formId, nextState);
       if (!res.success || !res.data) {
-        toast.error(res.error || "Không thể cập nhật trạng thái thu thập.");
+        toast.error(res.error || t('eform.generated.khongTheCapNhatTrangThaiThuThap'));
         return;
       }
       setIsCollecting(res.data.isCollecting);
       setCollectToken(res.data.collectToken);
       toast.success(
         res.data.isCollecting
-          ? "Đã bật nhận điền biểu mẫu"
-          : "Đã tắt nhận điền biểu mẫu",
+          ? t('eform.generated.daBatNhanDienBieuMau')
+          : t('eform.generated.daTatNhanDienBieuMau'),
       );
     } catch {
-      toast.error("Đã xảy ra lỗi khi thay đổi trạng thái.");
+      toast.error(t('eform.generated.daXayRaLoiKhiThayDoiTrangThai'));
     } finally {
       setIsToggling(false);
     }
@@ -115,10 +117,10 @@ export function CollectFormModal({
     try {
       await navigator.clipboard.writeText(collectUrl);
       setCopied(true);
-      toast.success("Đã sao chép liên kết!");
+      toast.success(t('eform.generated.daSaoChepLienKet'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Không thể sao chép liên kết.");
+      toast.error(t('eform.generated.khongTheSaoChepLienKet'));
     }
   };
 
@@ -128,13 +130,13 @@ export function CollectFormModal({
     try {
       const res = await deleteFormSubmissionAction(formId, submissionId);
       if (!res.success) {
-        toast.error(res.error || "Không thể xóa bản ghi này.");
+        toast.error(res.error || t('eform.generated.khongTheXoaBanGhiNay'));
         return;
       }
       setSubmissions((prev) => prev.filter((s) => s.id !== submissionId));
-      toast.success("Đã xóa bản điền.");
+      toast.success(t('eform.generated.daXoaBanDien'));
     } catch {
-      toast.error("Lỗi khi xóa bản điền.");
+      toast.error(t('eform.generated.loiKhiXoaBanDien'));
     } finally {
       setDeletingId(null);
     }
@@ -148,10 +150,10 @@ export function CollectFormModal({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <Inbox className="size-5 text-foreground" />
-            Thu thập qua E-Form
+            {t('eform.generated.thuThapQuaEForm')}
           </DialogTitle>
           <DialogDescription className="truncate" title={displayTitle}>
-            Biểu mẫu:{" "}
+            {t('eform.generated.bieuMau2')}{" "}
             <span className="font-semibold text-foreground">{displayTitle}</span>
           </DialogDescription>
         </DialogHeader>
@@ -181,12 +183,12 @@ export function CollectFormModal({
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-foreground">
-                      Nhận phản hồi bằng liên kết
+                      {t('eform.generated.nhanPhanHoiBangLienKet')}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
                       {isCollecting
-                        ? "Bất kỳ ai có liên kết đều có thể điền biểu mẫu này"
-                        : "Hiện đang ngừng nhận điền biểu mẫu"}
+                        ? t('eform.generated.batKyAiCoLienKetDeuCoThe')
+                        : t('eform.generated.hienDangNgungNhanDienBieuMau')}
                     </span>
                   </div>
                 </div>
@@ -199,7 +201,7 @@ export function CollectFormModal({
                   onClick={handleToggle}
                   className="text-xs h-8 cursor-pointer"
                 >
-                  {isCollecting ? "Đang bật" : "Đang tắt"}
+                  {isCollecting ? t('eform.generated.dangBat') : t('eform.generated.dangTat')}
                 </Button>
               </div>
 
@@ -228,12 +230,12 @@ export function CollectFormModal({
                         data-icon="inline-start"
                         className="text-emerald-600"
                       />
-                      <span>Đã sao chép</span>
+                      <span>{t('eform.generated.daSaoChep')}</span>
                     </>
                   ) : (
                     <>
                       <Copy data-icon="inline-start" />
-                      <span>Sao chép link</span>
+                      <span>{t('eform.generated.saoChepLink')}</span>
                     </>
                   )}
                 </Button>
@@ -243,7 +245,7 @@ export function CollectFormModal({
             {/* Submissions List — đồng bộ cấu trúc với ShareFormModal */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Danh sách đã điền ({submissions.length})
+                {t('eform.generated.danhSachDaDien')}{submissions.length})
               </span>
 
               <div className="max-h-[180px] overflow-y-auto flex flex-col gap-2 pr-1">
@@ -254,7 +256,7 @@ export function CollectFormModal({
                   >
                     <div className="flex flex-col min-w-0">
                       <span className="font-semibold text-foreground truncate">
-                        Bản điền #{submissions.length - index}
+                        {t('eform.generated.banDien')}{submissions.length - index}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
                         {sub.formattedCreatedAt}
@@ -272,7 +274,7 @@ export function CollectFormModal({
                         className="h-7 text-[11px] gap-1.5 cursor-pointer"
                       >
                         <Printer className="size-3.5" />
-                        <span>xem & tải xuống</span>
+                        <span>{t('eform.generated.xemTaiXuong')}</span>
                       </Button>
 
                       <Button
@@ -295,7 +297,7 @@ export function CollectFormModal({
 
                 {submissions.length === 0 && (
                   <p className="text-xs text-muted-foreground italic py-2 text-center">
-                    Chưa có bản điền nào được gửi về.
+                    {t('eform.generated.chuaCoBanDienNaoDuocGuiVe')}
                   </p>
                 )}
               </div>
@@ -309,7 +311,7 @@ export function CollectFormModal({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Đóng
+            {t('eform.generated.dong')}
           </Button>
         </DialogFooter>
       </DialogContent>

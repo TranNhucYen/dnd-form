@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,17 +32,18 @@ export function DeleteSubmissionDialog({
   onOpenChange,
   onConfirm,
 }: DeleteSubmissionDialogProps) {
+  const { t } = useTranslation()
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xóa bản ghi phản hồi?</AlertDialogTitle>
+          <AlertDialogTitle>{t('eform.generated.xoaBanGhiPhanHoi')}</AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này không thể hoàn tác. Bản ghi phản hồi này sẽ bị xóa vĩnh viễn khỏi hệ thống.
+            {t('eform.generated.hanhDongNayKhongTheHoanTacBanGhi')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">Hủy</AlertDialogCancel>
+          <AlertDialogCancel className="cursor-pointer">{t('eform.generated.huy')}</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground cursor-pointer"
             onClick={() => {
@@ -51,7 +53,7 @@ export function DeleteSubmissionDialog({
               }
             }}
           >
-            Xác nhận xóa
+            {t('eform.generated.xacNhanXoa')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

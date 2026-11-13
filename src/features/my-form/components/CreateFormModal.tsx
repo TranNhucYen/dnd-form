@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -30,6 +31,7 @@ export function CreateFormModal({
   onOpenChange,
   onCreateBlank,
 }: CreateFormModalProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const [step, setStep] = useState<Step>('choose_mode')
   const [name, setName] = useState('')
@@ -58,7 +60,7 @@ export function CreateFormModal({
       handleClose()
       router.push(`/editor?formId=${created.id}`)
     } catch (err) {
-      console.error('Lỗi khi tạo biểu mẫu:', err)
+      console.error(t('myForm.generated.loiKhiTaoBieuMau'), err)
     } finally {
       setIsSubmitting(false)
     }
@@ -67,14 +69,14 @@ export function CreateFormModal({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
-        {step === 'choose_mode' && (
+        {step === "choose_mode" && (
           <>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
-                Tạo biểu mẫu mới
+                {t('myForm.generated.taoBieuMauMoi')}
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-xs">
-                Chọn phương thức bạn muốn bắt đầu để tạo biểu mẫu.
+                {t('myForm.generated.chonPhuongThucBanMuonBatDauDeTao')}
               </DialogDescription>
             </DialogHeader>
 
@@ -100,7 +102,7 @@ export function CreateFormModal({
                       className="font-semibold text-foreground text-sm
                       group-hover:text-primary transition-colors"
                     >
-                      Tạo biểu mẫu từ đầu
+                      {t('myForm.generated.taoBieuMauTuDau')}
                     </h4>
                     <ArrowRight
                       className="size-4 text-muted-foreground
@@ -108,7 +110,7 @@ export function CreateFormModal({
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Bắt đầu với một trang biểu mẫu trắng và tự kéo thả các thành phần theo ý muốn.
+                    {t('myForm.generated.batDauVoiMotTrangBieuMauTrangVa')}
                   </p>
                 </div>
               </button>
@@ -134,7 +136,7 @@ export function CreateFormModal({
                       className="font-semibold text-foreground text-sm
                       group-hover:text-primary transition-colors"
                     >
-                      Tạo từ Form mẫu có sẵn
+                      {t('myForm.generated.taoTuFormMauCoSan')}
                     </h4>
                     <ArrowRight
                       className="size-4 text-muted-foreground
@@ -142,7 +144,7 @@ export function CreateFormModal({
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Khám phá kho biểu mẫu chuẩn (Đơn từ, Hợp đồng, Đánh giá...) để tiết kiệm thời gian.
+                    {t('myForm.generated.khamPhaKhoBieuMauChuanDonTuHop')}
                   </p>
                 </div>
               </Link>
@@ -151,25 +153,25 @@ export function CreateFormModal({
         )}
 
         {/* Step: Blank form input */}
-        {step === 'blank_form' && (
+        {step === "blank_form" && (
           <form onSubmit={handleCreateBlankSubmit}>
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
-                Thông tin biểu mẫu mới
+                {t('myForm.generated.thongTinBieuMauMoi')}
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-xs">
-                Nhập tên và mô tả ban đầu cho biểu mẫu của bạn.
+                {t('myForm.generated.nhapTenVaMoTaBanDauChoBieu')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="flex flex-col gap-4 py-4">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="form-name" className="text-xs font-semibold">
-                  Tên biểu mẫu <span className="text-destructive">*</span>
+                  {t('myForm.generated.tenBieuMau')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="form-name"
-                  placeholder="Ví dụ: Phiếu bàn giao thiết bị làm việc..."
+                  placeholder={t('myForm.generated.viDuPhieuBanGiaoThietBiLamViec')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
@@ -180,11 +182,11 @@ export function CreateFormModal({
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="form-desc" className="text-xs font-semibold">
-                  Mô tả ngắn (tùy chọn)
+                  {t('myForm.generated.moTaNganTuyChon')}
                 </Label>
                 <Input
                   id="form-desc"
-                  placeholder="Ví dụ: Dùng để ghi nhận danh sách tài sản..."
+                  placeholder={t('myForm.generated.viDuDungDeGhiNhanDanhSachTai')}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="text-xs h-9"
@@ -201,7 +203,7 @@ export function CreateFormModal({
                 disabled={isSubmitting}
                 className="cursor-pointer text-xs"
               >
-                Quay lại
+                {t('myForm.generated.quayLai')}
               </Button>
               <Button
                 type="submit"
@@ -212,10 +214,10 @@ export function CreateFormModal({
                 {isSubmitting ? (
                   <>
                     <Loader2 data-icon="inline-start" className="animate-spin" />
-                    Đang tạo...
+                    {t('myForm.generated.dangTao')}
                   </>
                 ) : (
-                  'Bắt đầu thiết kế'
+                  t('myForm.startDesigning')
                 )}
               </Button>
             </DialogFooter>

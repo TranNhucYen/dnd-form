@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -34,8 +35,9 @@ function DuplicateFormContent({
   onOpenChange,
   onConfirmDuplicate,
 }: DuplicateFormContentProps) {
+  const { t } = useTranslation()
   const router = useRouter()
-  const [name, setName] = useState(() => `${form.name} (Bản sao)`)
+  const [name, setName] = useState(() => t('myForm.copyName', { name: form.name }))
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +52,7 @@ function DuplicateFormContent({
         router.push(`/editor?formId=${cloned.id}`)
       }
     } catch (err) {
-      console.error('Lỗi khi nhân bản biểu mẫu:', err)
+      console.error(t('myForm.generated.loiKhiNhanBanBieuMau'), err)
     } finally {
       setIsSubmitting(false)
     }
@@ -66,27 +68,27 @@ function DuplicateFormContent({
           <Copy className="size-4.5" />
         </div>
         <DialogTitle className="text-lg font-bold text-foreground">
-          Nhân bản biểu mẫu
+          {t('myForm.generated.nhanBanBieuMau')}
         </DialogTitle>
         <DialogDescription className="text-muted-foreground text-xs leading-relaxed">
-          Tạo bản sao độc lập từ biểu mẫu{' '}
+          {t('myForm.generated.taoBanSaoDocLapTuBieuMau')}{' '}
           <strong className="text-foreground font-semibold">
             &ldquo;{form.name}&rdquo;
           </strong>
-          . Bạn có thể thay đổi tên cho bản sao mới.
+          {t('myForm.generated.banCoTheThayDoiTenChoBanSao')}
         </DialogDescription>
       </DialogHeader>
 
       <div className="flex flex-col gap-4 py-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="dup-name" className="text-xs font-semibold">
-            Tên biểu mẫu mới <span className="text-destructive">*</span>
+            {t('myForm.generated.tenBieuMauMoi')} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="dup-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nhập tên biểu mẫu bản sao..."
+            placeholder={t('myForm.generated.nhapTenBieuMauBanSao')}
             autoFocus
             required
             className="text-xs h-9"
@@ -103,7 +105,7 @@ function DuplicateFormContent({
           disabled={isSubmitting}
           className="cursor-pointer text-xs"
         >
-          Hủy bỏ
+          {t('myForm.generated.huyBo')}
         </Button>
         <Button
           type="submit"
@@ -114,10 +116,10 @@ function DuplicateFormContent({
           {isSubmitting ? (
             <>
               <Loader2 data-icon="inline-start" className="animate-spin" />
-              Đang nhân bản...
+              {t('myForm.generated.dangNhanBan')}
             </>
           ) : (
-            'Tạo bản sao & Thiết kế'
+            t('myForm.duplicateAction')
           )}
         </Button>
       </DialogFooter>

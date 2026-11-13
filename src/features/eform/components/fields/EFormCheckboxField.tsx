@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
 import type { CheckboxFieldData, FieldStyle } from "@/features/form-builder/types/formBuilder.types";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -8,6 +11,7 @@ interface EFormCheckboxFieldProps {
 }
 
 export function EFormCheckboxField({ data, style, onChange }: EFormCheckboxFieldProps) {
+  const { t } = useTranslation()
   return (
     <label className="flex items-center gap-2.5 py-1.5 cursor-pointer select-none">
       <Checkbox
@@ -22,7 +26,7 @@ export function EFormCheckboxField({ data, style, onChange }: EFormCheckboxField
         }}
         className="text-xs md:text-sm text-neutral-800"
       >
-        {data.label || "Tùy chọn"}
+        {data.label || t('eform.optionFallback')}
       </span>
     </label>
   );

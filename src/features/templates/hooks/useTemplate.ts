@@ -8,6 +8,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Template } from '../types/template.type'
 import {
   getTemplatesAction,
@@ -126,6 +127,7 @@ export function useTemplateList(publicView = false) {
 }
 
 export function useTemplateDetail(id: number, publicView = false) {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [isCopying, setIsCopying] = useState(false)
   const router = useRouter()
@@ -158,7 +160,7 @@ export function useTemplateDetail(id: number, publicView = false) {
         // Dùng mẫu tạo ra biểu mẫu mới trong "Biểu mẫu của tôi"
         void queryClient.invalidateQueries({ queryKey: ['my-form'] })
         void queryClient.invalidateQueries({ queryKey: ['home'] })
-        toast.success('Tạo bản sao biểu mẫu thành công')
+        toast.success(t('templates.copySuccess'))
         router.push(`/editor?formId=${res.data.formId}`)
       } else {
         if (res.code === 'ACCOUNT_BLOCKED' || res.code === 'UNAUTHORIZED') {
@@ -167,7 +169,7 @@ export function useTemplateDetail(id: number, publicView = false) {
         toast.error(res.error)
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Đã có lỗi xảy ra khi tạo bản sao')
+      toast.error(err instanceof Error ? err.message : t('templates.copyError'))
     } finally {
       setIsCopying(false)
     }

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocale } from '@/i18n/use-locale'
 import { Button } from '@/components/ui/button'
 import { Settings, Save, Check, Loader2 } from 'lucide-react'
 import { AppSettings } from '../types/settings.type'
@@ -23,6 +25,8 @@ const DEFAULT_SETTINGS: AppSettings = {
 }
 
 export function SettingsView() {
+  const { t } = useTranslation()
+  const { setLocale } = useLocale()
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
   const [isSaving, setIsSaving] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
@@ -51,6 +55,7 @@ export function SettingsView() {
 
   const handleResetDefaults = () => {
     setSettings(DEFAULT_SETTINGS)
+    setLocale('vi')
   }
 
   return (
@@ -62,10 +67,10 @@ export function SettingsView() {
             <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Settings className="size-4" />
             </div>
-            <h1 className="text-xl font-bold text-foreground">Cài đặt hệ thống</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('settings.title')}</h1>
           </div>
           <p className="text-xs text-muted-foreground">
-            Tùy biến giao diện, ngôn ngữ, múi giờ và cấu hình thông báo ứng dụng
+            {t('settings.description')}
           </p>
         </div>
 
@@ -76,7 +81,7 @@ export function SettingsView() {
             onClick={handleResetDefaults}
             className="text-xs h-9"
           >
-            Khôi phục mặc định
+            {t('settings.reset')}
           </Button>
 
           <Button
@@ -88,17 +93,17 @@ export function SettingsView() {
             {isSaving ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                Đang lưu...
+                {t('settings.saving')}
               </>
             ) : savedSuccess ? (
               <>
                 <Check className="size-3.5" />
-                Đã lưu cài đặt!
+                {t('settings.saved')}
               </>
             ) : (
               <>
                 <Save className="size-3.5" />
-                Lưu cài đặt
+                {t('settings.save')}
               </>
             )}
           </Button>

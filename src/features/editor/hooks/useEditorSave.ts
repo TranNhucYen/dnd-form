@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { saveFormAction } from "../actions/editor.action";
 import { useFormBuilderStore } from "@/features/form-builder/store/useFormBuilderStore";
 import type { FormSchemaJson } from "@/features/form-builder/types/formBuilder.types";
@@ -20,6 +21,7 @@ export function useEditorSave(
   isReadOnly = false,
   options?: UseEditorSaveOptions,
 ) {
+  const { t } = useTranslation();
   const [formId, setFormId] = useState<number | null>(initialFormId ?? null);
   const [title, setTitle] = useState<string>("Biểu mẫu chưa đặt tên");
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -40,7 +42,7 @@ export function useEditorSave(
 
   const handleSave = useCallback(
     async (schema: FormSchemaJson) => {
-      const toastId = toast.loading("Đang lưu biểu mẫu...");
+      const toastId = toast.loading(t("editor.saving"));
 
       // Đọc tiêu đề trực tiếp từ input ref khi lưu, fallback về title state
       const rawTitle = titleInputRef.current?.value.trim() || title.trim();
@@ -55,11 +57,11 @@ export function useEditorSave(
         const res = await saveFormAction({ formId, title: finalTitle, schema });
 
         if (!res.success || !res.data) {
-          toast.error(res.error || "Lưu biểu mẫu thất bại", { id: toastId });
+          toast.error(res.error || t("editor.saveFailed"), { id: toastId });
           return;
         }
 
-        toast.success("Đã lưu biểu mẫu thành công", { id: toastId });
+        toast.success(t("editor.saveSuccess"), { id: toastId });
 
         // Danh sách biểu mẫu/trang chủ đã thay đổi nên cần nạp lại ở lần mở kế tiếp
         void queryClient.invalidateQueries({ queryKey: ["my-form"] });
@@ -94,10 +96,10 @@ export function useEditorSave(
         }
       } catch (error) {
         console.error("Lỗi khi lưu biểu mẫu:", error);
-        toast.error(error instanceof Error ? error.message : "Đã xảy ra lỗi khi lưu", { id: toastId });
+        toast.error(error instanceof Error ? error.message : t("editor.saveError"), { id: toastId });
       }
     },
-    [formId, title, clearHistory, setIsDirty, queryClient],
+    [formId, title, clearHistory, setIsDirty, queryClient, t],
   );
 
   const handleSaveRef = useRef(handleSave);

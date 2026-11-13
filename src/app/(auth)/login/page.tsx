@@ -3,7 +3,7 @@ import { LoginForm } from "@/features/auth"
 
 export const metadata: Metadata = {
   title: "Đăng nhập",
-  description: "Đăng nhập tài khoản DragForm để bắt đầu thiết kế biểu mẫu chuyên nghiệp.",
+  description: "Đăng nhập tài khoản Dnd Form để bắt đầu thiết kế biểu mẫu chuyên nghiệp.",
 }
 
 export default function LoginPage() {

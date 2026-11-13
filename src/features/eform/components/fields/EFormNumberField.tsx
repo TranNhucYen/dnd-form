@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
 import type { NumberFieldData, FieldStyle } from "@/features/form-builder/types/formBuilder.types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +12,7 @@ interface EFormNumberFieldProps {
 }
 
 export function EFormNumberField({ data, style, onChange }: EFormNumberFieldProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex w-full flex-col gap-1.5">
       <Label
@@ -19,7 +23,7 @@ export function EFormNumberField({ data, style, onChange }: EFormNumberFieldProp
         }}
         className="text-xs md:text-sm font-medium text-neutral-700"
       >
-        {data.label || "Số lượng / Giá trị"}
+        {data.label || t('eform.numberFallback')}
       </Label>
       <Input
         type="number"

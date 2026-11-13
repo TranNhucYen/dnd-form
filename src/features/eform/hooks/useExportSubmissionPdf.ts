@@ -2,19 +2,21 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { slugify } from "@/lib/slug";
 
 /**
  * Hook tải file PDF của bản ghi nộp biểu mẫu từ server qua Puppeteer.
  */
 export function useExportSubmissionPdf() {
+  const { t } = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
 
   const downloadSubmissionPdf = useCallback(
     async (submissionId: number | string, formName?: string) => {
       if (!submissionId) return;
 
-      const toastId = toast.loading("Đang chuẩn bị file PDF bản nộp...");
+      const toastId = toast.loading(t('eform.submissionPdfLoading'));
 
       try {
         setIsExporting(true);
@@ -37,27 +39,27 @@ export function useExportSubmissionPdf() {
         document.body.removeChild(downloadLink);
         setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
 
-        toast.success("Đã tải xuống file PDF thành công!", { id: toastId });
+        toast.success(t('common.downloadPdfSuccess'), { id: toastId });
       } catch (err) {
         console.error("Lỗi khi xuất PDF bản nộp:", err);
         toast.error(
           err instanceof Error
             ? err.message
-            : "Đã xảy ra lỗi khi tải xuống file PDF",
+            : t('eform.submissionPdfError'),
           { id: toastId }
         );
       } finally {
         setIsExporting(false);
       }
     },
-    []
+    [t]
   );
 
   const downloadSubmissionPdfsZip = useCallback(
     async (submissionIds: number[], formName?: string) => {
       if (submissionIds.length < 2) return;
 
-      const toastId = toast.loading("Đang tạo PDF và đóng gói file ZIP...");
+      const toastId = toast.loading(t('eform.submissionZipLoading'));
 
       try {
         setIsExporting(true);
@@ -82,18 +84,18 @@ export function useExportSubmissionPdf() {
         document.body.removeChild(downloadLink);
         setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
 
-        toast.success("Đã tải xuống file ZIP thành công!", { id: toastId });
+        toast.success(t('common.downloadZipSuccess'), { id: toastId });
       } catch (err) {
         console.error("Lỗi khi xuất ZIP PDF:", err);
         toast.error(
-          err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải file ZIP",
+          err instanceof Error ? err.message : t('eform.submissionZipError'),
           { id: toastId },
         );
       } finally {
         setIsExporting(false);
       }
     },
-    [],
+    [t],
   );
 
   return {

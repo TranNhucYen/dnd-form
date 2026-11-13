@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState, useMemo } from 'react'
 import {
   Card,
@@ -30,6 +31,7 @@ interface ChangePasswordFormProps {
 }
 
 export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps) {
+  const { t } = useTranslation()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -49,13 +51,13 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
     if (/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword)) score += 1
 
     if (score <= 1) {
-      return { score: 1, label: 'Yếu', color: 'bg-destructive', text: 'text-destructive' }
+      return { score: 1, label: t('account.generated.yeu'), color: 'bg-destructive', text: 'text-destructive' }
     }
     if (score <= 3) {
-      return { score: 2, label: 'Trung bình', color: 'bg-primary/60', text: 'text-muted-foreground' }
+      return { score: 2, label: t('account.generated.trungBinh'), color: 'bg-primary/60', text: 'text-muted-foreground' }
     }
-    return { score: 3, label: 'Mạnh', color: 'bg-primary', text: 'text-primary' }
-  }, [newPassword])
+    return { score: 3, label: t('account.generated.manh'), color: 'bg-primary', text: 'text-primary' }
+  }, [newPassword, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,25 +65,25 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
     setSuccessMessage(null)
 
     if (newPassword.length < 6) {
-      setErrorMessage('Mật khẩu mới phải có tối thiểu 6 ký tự.')
+      setErrorMessage(t('account.generated.matKhauMoiPhaiCoToiThieu6Ky'))
       return
     }
 
     if (newPassword !== confirmPassword) {
-      setErrorMessage('Xác nhận mật khẩu mới không khớp.')
+      setErrorMessage(t('account.generated.xacNhanMatKhauMoiKhongKhop'))
       return
     }
 
     setIsSubmitting(true)
     try {
       await onChangePassword({ currentPassword, newPassword, confirmPassword })
-      setSuccessMessage('Đổi mật khẩu thành công! Sử dụng mật khẩu mới cho lần đăng nhập sau.')
+      setSuccessMessage(t('account.generated.doiMatKhauThanhCongSuDungMatKhau'))
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
       setTimeout(() => setSuccessMessage(null), 4000)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Không thể đổi mật khẩu.'
+      const msg = err instanceof Error ? err.message : t('account.generated.khongTheDoiMatKhau')
       setErrorMessage(msg)
     } finally {
       setIsSubmitting(false)
@@ -96,9 +98,9 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
             <KeyRound className="size-4" />
           </div>
           <div>
-            <CardTitle className="text-sm font-bold">Đổi mật khẩu</CardTitle>
+            <CardTitle className="text-sm font-bold">{t('account.generated.doiMatKhau')}</CardTitle>
             <CardDescription className="text-xs mt-0.5">
-              Cập nhật mật khẩu định kỳ để bảo vệ tài khoản của bạn
+              {t('account.generated.capNhatMatKhauDinhKyDeBaoVe')}
             </CardDescription>
           </div>
         </div>
@@ -131,7 +133,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
                 htmlFor="current-pwd"
                 className="text-xs font-semibold flex items-center gap-1"
               >
-                <span>Mật khẩu hiện tại</span>
+                <span>{t('account.generated.matKhauHienTai')}</span>
                 <span className="text-destructive">*</span>
               </Label>
             </div>
@@ -139,7 +141,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 id="current-pwd"
-                type={showCurrent ? 'text' : 'password'}
+                type={showCurrent ? "text" : 'password'}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="••••••••"
@@ -153,7 +155,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
                   'absolute right-3 top-1/2 -translate-y-1/2',
                   'text-muted-foreground hover:text-foreground transition-colors'
                 )}
-                title={showCurrent ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                title={showCurrent ? t('account.generated.anMatKhau') : t('account.generated.hienMatKhau')}
               >
                 {showCurrent ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
               </button>
@@ -167,12 +169,12 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
                 htmlFor="new-pwd"
                 className="text-xs font-semibold flex items-center gap-1"
               >
-                <span>Mật khẩu mới</span>
+                <span>{t('account.generated.matKhauMoi')}</span>
                 <span className="text-destructive">*</span>
               </Label>
               {strength.label && (
                 <span className={cn('text-xs font-semibold', strength.text)}>
-                  Độ mạnh: {strength.label}
+                  {t('account.generated.doManh')} {strength.label}
                 </span>
               )}
             </div>
@@ -180,10 +182,10 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 id="new-pwd"
-                type={showNew ? 'text' : 'password'}
+                type={showNew ? "text" : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Tối thiểu 6 ký tự..."
+                placeholder={t('account.generated.toiThieu6KyTu')}
                 className="pl-9 pr-9 text-xs"
                 required
               />
@@ -194,7 +196,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
                   'absolute right-3 top-1/2 -translate-y-1/2',
                   'text-muted-foreground hover:text-foreground transition-colors'
                 )}
-                title={showNew ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                title={showNew ? t('account.generated.anMatKhau') : t('account.generated.hienMatKhau')}
               >
                 {showNew ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
               </button>
@@ -225,7 +227,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
             )}
 
             <p className="text-xs text-muted-foreground">
-              Mật khẩu mạnh là mật khẩu có tối thiểu 8 ký tự, kết hợp chữ hoa, chữ thường, số và ký tự đặc biệt.
+              {t('account.generated.matKhauManhLaMatKhauCoToiThieu')}
             </p>
           </div>
 
@@ -236,7 +238,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
                 htmlFor="confirm-pwd"
                 className="text-xs font-semibold flex items-center gap-1"
               >
-                <span>Xác nhận mật khẩu mới</span>
+                <span>{t('account.generated.xacNhanMatKhauMoi')}</span>
                 <span className="text-destructive">*</span>
               </Label>
             </div>
@@ -247,7 +249,7 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Nhập lại mật khẩu mới..."
+                placeholder={t('account.generated.nhapLaiMatKhauMoi')}
                 className="pl-9 text-xs"
                 required
               />
@@ -265,10 +267,10 @@ export function ChangePasswordForm({ onChangePassword }: ChangePasswordFormProps
             {isSubmitting ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                Đang xử lý...
+                {t('account.generated.dangXuLy')}
               </>
             ) : (
-              'Cập nhật mật khẩu'
+              t('account.updatePassword')
             )}
           </Button>
         </CardFooter>

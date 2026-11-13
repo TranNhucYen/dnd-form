@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -57,6 +58,7 @@ import { useSubmissionSort } from "./useSubmissionSort";
  * - Xem tóm tắt, in trang in mẫu thật hoặc xuất file PDF
  */
 export function CollectionStatsView() {
+  const { t } = useTranslation()
   const {
     forms,
     selectedFormId,
@@ -127,10 +129,10 @@ export function CollectionStatsView() {
     try {
       await navigator.clipboard.writeText(collectUrl);
       setCopied(true);
-      toast.success("Đã sao chép liên kết thu thập!");
+      toast.success(t('eform.generated.daSaoChepLienKetThuThap'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Không thể sao chép liên kết.");
+      toast.error(t('eform.generated.khongTheSaoChepLienKet'));
     }
   };
 
@@ -187,11 +189,11 @@ export function CollectionStatsView() {
   const latestSubmission = config?.submissions?.[0];
 
   // Mô tả khi bảng phản hồi rỗng (dùng if/else thay thế toán tử 3 ngôi lồng nhau)
-  let emptyStateDescription = "Biểu mẫu này hiện đang tắt nhận phản hồi. Hãy bật thu thập để nhận câu trả lời.";
+  let emptyStateDescription = t('eform.generated.bieuMauNayHienDangTatNhanPhanHoi');
   if (submissionSearch) {
-    emptyStateDescription = `Không có kết quả khớp với "${submissionSearch}". Hãy thử từ khóa khác.`;
+    emptyStateDescription = t('eform.noMatchingResults', { search: submissionSearch });
   } else if (config?.isCollecting) {
-    emptyStateDescription = "Biểu mẫu này đang mở nhận phản hồi nhưng chưa có ai nộp. Hãy gửi liên kết cho người điền!";
+    emptyStateDescription = t('eform.collectingEmptyDescription');
   }
 
   return (
@@ -201,10 +203,10 @@ export function CollectionStatsView() {
         <div>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Inbox className="size-6 text-primary" />
-            <span>Thống kê thu thập</span>
+            <span>{t('eform.generated.thongKeThuThap')}</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Theo dõi số lượng phản hồi và quản lý các bản nộp E-Form của bạn.
+            {t('eform.generated.theoDoiSoLuongPhanHoiVaQuanLy')}
           </p>
         </div>
 
@@ -230,7 +232,7 @@ export function CollectionStatsView() {
               onClick={() => refetchSubmissions()}
               disabled={isLoadingSubmissions}
               className="shrink-0 size-10 cursor-pointer"
-              title="Tải lại dữ liệu"
+              title={t('eform.generated.taiLaiDuLieu')}
             >
               <RefreshCw
                 className={`size-4 ${isLoadingSubmissions ? "animate-spin" : ""}`}
@@ -245,12 +247,12 @@ export function CollectionStatsView() {
         <EmptyState
           className="min-h-[300px] py-16"
           icon={FileSpreadsheet}
-          title="Chưa có biểu mẫu nào"
-          description="Bạn chưa tạo biểu mẫu nào để bắt đầu thu thập dữ liệu. Hãy tạo biểu mẫu đầu tiên của bạn!"
+          title={t('eform.generated.chuaCoBieuMauNao')}
+          description={t('eform.generated.banChuaTaoBieuMauNaoDeBatDau')}
           action={
             <Link href="/my-form">
               <Button size="sm" className="cursor-pointer">
-                Đến trang Biểu mẫu của tôi
+                {t('eform.generated.denTrangBieuMauCuaToi')}
               </Button>
             </Link>
           }
@@ -273,7 +275,7 @@ export function CollectionStatsView() {
           <div className="shrink-0 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
             <SearchInput
               wrapperClassName="w-full sm:w-80"
-              placeholder="Tìm kiếm nội dung phản hồi, thời gian..."
+              placeholder={t('eform.generated.timKiemNoiDungPhanHoiThoiGian')}
               value={submissionSearch}
               onChange={(e) => setSubmissionSearch(e.target.value)}
             />
@@ -288,8 +290,8 @@ export function CollectionStatsView() {
                   className="h-8 text-xs gap-1.5 cursor-pointer"
                   title={
                     selectedSubmissions.length > 1
-                      ? "Tải các bản nộp đã chọn dưới dạng ZIP"
-                      : "Tải bản nộp đã chọn dưới dạng PDF"
+                      ? t('eform.generated.taiCacBanNopDaChonDuoiDangZip')
+                      : t('eform.generated.taiBanNopDaChonDuoiDangPdf')
                   }
                 >
                   {isDownloadingPdf ? (
@@ -310,17 +312,17 @@ export function CollectionStatsView() {
                     size="sm"
                     onClick={handleCopyLink}
                     className="h-8 text-xs gap-1.5 cursor-pointer"
-                    title="Sao chép link điền"
+                    title={t('eform.generated.saoChepLinkDien')}
                   >
                     {copied ? (
                       <>
                         <Check className="size-3.5 text-emerald-600" />
-                        <span>Đã chép</span>
+                        <span>{t('eform.generated.daChep')}</span>
                       </>
                     ) : (
                       <>
                         <Copy className="size-3.5 text-muted-foreground" />
-                        <span>Link điền</span>
+                        <span>{t('eform.generated.linkDien')}</span>
                       </>
                     )}
                   </Button>
@@ -330,20 +332,20 @@ export function CollectionStatsView() {
                     size="sm"
                     onClick={() => window.open(collectUrl, "_blank")}
                     className="h-8 text-xs gap-1.5 cursor-pointer"
-                    title="Mở trang điền trên tab mới"
+                    title={t('eform.generated.moTrangDienTrenTabMoi')}
                   >
                     <ExternalLink className="size-3.5 text-muted-foreground" />
-                    <span>Mở trang điền</span>
+                    <span>{t('eform.generated.moTrangDien')}</span>
                   </Button>
                 </>
               )}
 
               <span className="text-xs text-muted-foreground pl-1">
-                Hiển thị:{" "}
+                {t('eform.generated.hienThi')}{" "}
                 <strong className="font-semibold text-foreground">
                   {filteredSubmissions.length}
                 </strong>{" "}
-                / {config?.submissions?.length ?? 0} bản nộp
+                / {config?.submissions?.length ?? 0} {t('eform.generated.banNop')}
               </span>
             </div>
           </div>
@@ -367,7 +369,7 @@ export function CollectionStatsView() {
             <EmptyState
               className="min-h-[220px] py-12"
               icon={Inbox}
-              title={submissionSearch ? "Không tìm thấy phản hồi phù hợp" : "Chưa có phản hồi nào"}
+              title={submissionSearch ? t('eform.generated.khongTimThayPhanHoiPhuHop') : t('eform.generated.chuaCoPhanHoiNao')}
               description={emptyStateDescription}
               action={
                 !submissionSearch && config?.isCollecting && collectUrl ? (
@@ -377,7 +379,7 @@ export function CollectionStatsView() {
                     className="text-xs cursor-pointer gap-1.5"
                   >
                     <Copy className="size-3.5" />
-                    Sao chép link nộp
+                    {t('eform.generated.saoChepLinkNop')}
                   </Button>
                 ) : undefined
               }
@@ -390,7 +392,7 @@ export function CollectionStatsView() {
                     <TableRow className="bg-muted/40">
                       <TableHead className="w-10 pl-4">
                         <Checkbox
-                          aria-label="Chọn tất cả bản nộp đang hiển thị"
+                          aria-label={t('eform.generated.chonTatCaBanNopDangHienThi')}
                           checked={
                             allVisibleSelected
                               ? true
@@ -409,9 +411,9 @@ export function CollectionStatsView() {
                           type="button"
                           onClick={() => handleToggleSort("stt")}
                           className="flex items-center gap-1.5 hover:text-foreground cursor-pointer select-none"
-                          title="Sắp xếp theo STT"
+                          title={t('eform.generated.sapXepTheoStt')}
                         >
-                          <span>STT</span>
+                          <span>{t('eform.generated.stt')}</span>
                           {renderSortIcon("stt")}
                         </button>
                       </TableHead>
@@ -422,16 +424,16 @@ export function CollectionStatsView() {
                           type="button"
                           onClick={() => handleToggleSort("createdAt")}
                           className="flex items-center gap-1.5 hover:text-foreground cursor-pointer select-none"
-                          title="Sắp xếp theo thời gian nộp"
+                          title={t('eform.generated.sapXepTheoThoiGianNop')}
                         >
-                          <span>Thời gian nộp</span>
+                          <span>{t('eform.generated.thoiGianNop')}</span>
                           {renderSortIcon("createdAt")}
                         </button>
                       </TableHead>
 
                       {/* Cột 3: Các trường đã điền */}
                       <TableHead className="w-44 font-semibold">
-                        Các trường đã điền
+                        {t('eform.generated.cacTruongDaDien')}
                       </TableHead>
 
                       {/* Các cột trường tùy chọn do người dùng chọn */}
@@ -450,7 +452,7 @@ export function CollectionStatsView() {
                               }
                             >
                               <SelectTrigger className="h-8 text-xs bg-background flex-1 min-w-[130px] font-normal cursor-pointer">
-                                <SelectValue placeholder="Chọn trường..." />
+                                <SelectValue placeholder={t('eform.generated.chonTruong')} />
                               </SelectTrigger>
                               <SelectContent
                                 position="popper"
@@ -460,7 +462,7 @@ export function CollectionStatsView() {
                               >
                                 {availableFields.length === 0 ? (
                                   <div className="p-2 text-xs text-muted-foreground text-center">
-                                    Không có trường nào
+                                    {t('eform.generated.khongCoTruongNao')}
                                   </div>
                                 ) : (
                                   availableFields.map((f) => (
@@ -484,7 +486,7 @@ export function CollectionStatsView() {
                                 size="icon"
                                 onClick={() => handleToggleSort(col.fieldId)}
                                 className="size-7 cursor-pointer shrink-0 text-muted-foreground hover:text-foreground"
-                                title="Sắp xếp theo trường này"
+                                title={t('eform.generated.sapXepTheoTruongNay')}
                               >
                                 {renderSortIcon(col.fieldId)}
                               </Button>
@@ -500,7 +502,7 @@ export function CollectionStatsView() {
                                   handleRemoveOrClearCustomColumn(col.id)
                                 }
                                 className="size-7 text-muted-foreground hover:text-destructive cursor-pointer shrink-0"
-                                title={col.fieldId ? "Xóa lựa chọn (trở về Chọn trường...)" : "Xóa cột này"}
+                                title={col.fieldId ? t('eform.generated.xoaLuaChonTroVeChonTruong') : t('eform.generated.xoaCotNay')}
                               >
                                 <X className="size-3.5" />
                               </Button>
@@ -514,7 +516,7 @@ export function CollectionStatsView() {
                                 size="icon"
                                 onClick={handleAddCustomColumn}
                                 className="size-7 cursor-pointer shrink-0 border-dashed hover:border-primary text-muted-foreground hover:text-primary"
-                                title="Thêm một cột tùy chọn khác"
+                                title={t('eform.generated.themMotCotTuyChonKhac')}
                               >
                                 <Plus className="size-3.5" />
                               </Button>
@@ -525,7 +527,7 @@ export function CollectionStatsView() {
 
                       {/* Cột Thao tác */}
                       <TableHead className="w-56 text-right font-semibold pr-4">
-                        Thao tác
+                        {t('eform.generated.thaoTac')}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -545,7 +547,7 @@ export function CollectionStatsView() {
                         >
                           <TableCell className="pl-4">
                             <Checkbox
-                              aria-label={`Chọn bản nộp ${orderNumber}`}
+                              aria-label={t('eform.selectSubmission', { number: orderNumber })}
                               checked={selectedSubmissionIds.has(sub.id)}
                               onCheckedChange={(checked) =>
                                 handleToggleSubmission(sub.id, checked === true)
@@ -567,10 +569,10 @@ export function CollectionStatsView() {
                             <div className="flex items-center gap-2">
                               <span
                                 className={`size-2 rounded-full shrink-0 ${isComplete ? "bg-emerald-500" : "bg-amber-500"}`}
-                                title={isComplete ? "Đã điền đầy đủ" : "Chưa điền xong"}
+                                title={isComplete ? t('eform.generated.daDienDayDu') : t('eform.generated.chuaDienXong')}
                               />
                               <span>
-                                {filledCount}/{totalCount} trường
+                                {filledCount}/{totalCount} {t('eform.generated.truong')}
                               </span>
                             </div>
                           </TableCell>
@@ -597,7 +599,7 @@ export function CollectionStatsView() {
                                   key={col.id}
                                   className="text-xs text-muted-foreground italic"
                                 >
-                                  (Trống)
+                                  {t('eform.generated.trong')}
                                 </TableCell>
                               );
                             }
@@ -638,11 +640,11 @@ export function CollectionStatsView() {
                                 size="sm"
                                 onClick={() => setDetailSubmission(sub)}
                                 className="h-8 px-2 text-xs gap-1 cursor-pointer text-muted-foreground hover:text-foreground"
-                                title="Xem tóm tắt các trường đã điền"
+                                title={t('eform.generated.xemTomTatCacTruongDaDien')}
                               >
                                 <Eye className="size-3.5" />
                                 <span className="hidden sm:inline">
-                                  Chi tiết
+                                  {t('eform.generated.chiTiet')}
                                 </span>
                               </Button>
 
@@ -658,11 +660,11 @@ export function CollectionStatsView() {
                                   )
                                 }
                                 className="h-8 px-2.5 text-xs gap-1.5 cursor-pointer"
-                                title="Mở trang xem & in"
+                                title={t('eform.generated.moTrangXemIn')}
                               >
                                 <Printer className="size-3.5 text-neutral-600" />
                                 <span className="hidden sm:inline">
-                                  Xem/In
+                                  {t('eform.generated.xemIn')}
                                 </span>
                               </Button>
 
@@ -674,7 +676,7 @@ export function CollectionStatsView() {
                                 disabled={deletingId === sub.id}
                                 onClick={() => setConfirmDeleteId(sub.id)}
                                 className="size-8 text-muted-foreground hover:text-destructive cursor-pointer"
-                                title="Xóa phản hồi này"
+                                title={t('eform.generated.xoaPhanHoiNay')}
                               >
                                 <Trash2 className="size-3.5" />
                               </Button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from "react";
 import type { SignatureFieldData, FieldStyle } from "@/features/form-builder/types/formBuilder.types";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ interface EFormSignatureFieldProps {
 }
 
 export function EFormSignatureField({ data, style, onChange }: EFormSignatureFieldProps) {
+  const { t } = useTranslation()
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
   // Lưu các nét vẽ theo toạ độ chuẩn hoá (0..1) để vẽ lại vừa khít khi đổi kích thước canvas
@@ -119,7 +121,7 @@ export function EFormSignatureField({ data, style, onChange }: EFormSignatureFie
           }}
           className="text-xs md:text-sm font-medium text-neutral-700"
         >
-          {data.label || "Chữ ký"}
+          {data.label || t('eform.signatureFallback')}
         </Label>
         {hasDrawn && (
           <Button
@@ -130,7 +132,7 @@ export function EFormSignatureField({ data, style, onChange }: EFormSignatureFie
             className="h-6 gap-1 px-2 text-xs"
           >
             <Eraser className="size-3" />
-            <span>Xóa</span>
+            <span>{t('eform.generated.xoa')}</span>
           </Button>
         )}
       </div>
@@ -147,7 +149,7 @@ export function EFormSignatureField({ data, style, onChange }: EFormSignatureFie
         />
         {!hasDrawn && (
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-neutral-400 select-none">
-            Ký tên tại đây
+            {t('eform.generated.kyTenTaiDay')}
           </span>
         )}
       </div>

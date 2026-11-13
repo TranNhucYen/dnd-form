@@ -11,8 +11,10 @@ import {
 } from 'lucide-react'
 import { useNotification } from '../hooks/useNotification'
 import { NotificationItem } from './NotificationItem'
+import { useTranslation } from 'react-i18next'
 
 export function NotificationList() {
+  const { t } = useTranslation()
   const {
     notifications,
     isLoading,
@@ -31,10 +33,10 @@ export function NotificationList() {
             <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Bell className="size-4" />
             </div>
-            <h1 className="text-xl font-bold text-foreground">Trung tâm thông báo</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('notifications.title')}</h1>
           </div>
           <p className="text-xs text-muted-foreground">
-            Theo dõi chia sẻ biểu mẫu, thông báo hệ thống và kết quả xét duyệt cộng đồng
+            {t('notifications.description')}
           </p>
 
         </div>
@@ -46,10 +48,10 @@ export function NotificationList() {
             onClick={() => refetch()}
             disabled={isLoading}
             className="text-xs h-8 gap-1.5"
-            title="Tải lại thông báo"
+            title={t('notifications.refreshTitle')}
           >
-            <RefreshCw className={`size-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            Làm mới
+            <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ''}`} />
+            {t('notifications.refresh')}
           </Button>
 
           {notifications.length > 0 && (
@@ -60,7 +62,7 @@ export function NotificationList() {
               className="text-xs h-8 gap-1.5 text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="size-3.5" />
-              Xóa tất cả
+              {t('notifications.clearAll')}
             </Button>
           )}
         </div>
@@ -89,7 +91,7 @@ export function NotificationList() {
           <AlertCircle className="size-8 mb-2" />
           <h3 className="font-semibold text-sm">{error}</h3>
           <Button size="sm" variant="outline" onClick={() => refetch()} className="mt-4 text-xs">
-            Thử lại
+            {t('notifications.retry')}
           </Button>
         </div>
       ) : notifications.length === 0 ? (
@@ -101,9 +103,9 @@ export function NotificationList() {
           <div className="size-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground mb-3">
             <Inbox className="size-6" />
           </div>
-          <h3 className="font-semibold text-sm">Không có thông báo nào</h3>
+          <h3 className="font-semibold text-sm">{t('notifications.emptyTitle')}</h3>
           <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-            Hiện tại bạn chưa nhận được thông báo nào.
+            {t('notifications.emptyDescription')}
           </p>
         </div>
       ) : (

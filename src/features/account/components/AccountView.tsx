@@ -28,8 +28,10 @@ import { formatNumber } from '@/shared/utils'
 import { ProfileForm } from './ProfileForm'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { LogoutModal } from './LogoutModal'
+import { useTranslation } from 'react-i18next'
 
 export function AccountView() {
+  const { t } = useTranslation()
   const { profile, isLoading, updateProfile, changePassword } = useAccount()
   const [logoutModalOpen, setLogoutModalOpen] = useState(false)
 
@@ -85,7 +87,7 @@ export function AccountView() {
             <Avatar className="size-16 sm:size-18 border-2 border-primary/20 shadow-xs">
               <AvatarImage src={profile.avatarUrl} alt={profile.name} />
               <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
-                {initials || 'U'}
+                {initials || "U"}
               </AvatarFallback>
             </Avatar>
             <button
@@ -95,7 +97,7 @@ export function AccountView() {
                 'bg-primary text-primary-foreground shadow-sm',
                 'hover:scale-105 transition-transform cursor-pointer'
               )}
-              title="Thay đổi ảnh đại diện"
+              title={t('account.changeAvatar')}
             >
               <Camera className="size-3" />
             </button>
@@ -116,7 +118,7 @@ export function AccountView() {
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar className="size-3.5" />
-                Gia nhập {profile.joinedAt}
+                {t('account.joinedAt', { date: profile.joinedAt })}
               </span>
             </div>
           </div>
@@ -129,14 +131,14 @@ export function AccountView() {
               <FileSpreadsheet className="size-3.5 text-primary" />
               {formatNumber(profile.formsCount)}
             </span>
-            <span className="text-xs text-muted-foreground">Biểu mẫu</span>
+            <span className="text-xs text-muted-foreground">{t('account.forms')}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground flex items-center gap-1">
               <Globe className="size-3.5 text-primary" />
               {formatNumber(profile.contributionsCount)}
             </span>
-            <span className="text-xs text-muted-foreground">Đóng góp</span>
+            <span className="text-xs text-muted-foreground">{t('account.contributions')}</span>
           </div>
         </div>
       </div>
@@ -160,9 +162,9 @@ export function AccountView() {
               <ShieldCheck className="size-4" />
             </div>
             <div>
-              <CardTitle className="text-sm font-bold">Trạng thái tài khoản</CardTitle>
+              <CardTitle className="text-sm font-bold">{t('account.accountStatus')}</CardTitle>
               <CardDescription className="text-xs mt-0.5">
-                Thông tin và trạng thái hoạt động tài khoản
+                {t('account.accountStatusDescription')}
               </CardDescription>
             </div>
           </div>
@@ -171,27 +173,27 @@ export function AccountView() {
         <CardContent className="pt-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 rounded-lg border bg-muted/20 flex flex-col gap-1.5">
-              <span className="text-muted-foreground text-xs">Trạng thái hoạt động</span>
+              <span className="text-muted-foreground text-xs">{t('account.activeStatus')}</span>
               <div className="flex items-center">
                 <Badge
                   variant="outline"
                   className="gap-1 border-primary/30 text-primary font-medium"
                 >
                   <CheckCircle2 className="size-3" />
-                  Đang hoạt động
+                  {t('account.active')}
                 </Badge>
               </div>
             </div>
 
             <div className="p-3 rounded-lg border bg-muted/20 flex flex-col gap-1.5">
-              <span className="text-muted-foreground text-xs">Xác thực email</span>
+              <span className="text-muted-foreground text-xs">{t('account.emailVerification')}</span>
               <div className="flex items-center">
                 <Badge
                   variant="outline"
                   className="gap-1 border-primary/30 text-primary font-medium"
                 >
                   <CheckCircle2 className="size-3" />
-                  Chính chủ
+                  {t('account.verified')}
                 </Badge>
               </div>
             </div>
@@ -208,9 +210,9 @@ export function AccountView() {
                 <LogOut className="size-4" />
               </div>
               <div>
-                <CardTitle className="text-sm font-bold text-foreground">Đăng xuất</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground">{t('account.logout')}</CardTitle>
                 <CardDescription className="text-xs mt-0.5">
-                  Đăng xuất khỏi phiên làm việc hiện tại trên thiết bị này
+                  {t('account.logoutDescription')}
                 </CardDescription>
               </div>
             </div>
@@ -221,7 +223,7 @@ export function AccountView() {
               className="text-xs gap-1.5 self-start sm:self-center shrink-0"
             >
               <LogOut className="size-3.5" />
-              Đăng xuất
+              {t('account.logout')}
             </Button>
           </div>
         </CardHeader>

@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { AppNotification } from '../types/notification.type'
 import {
   getNotificationsAction,
@@ -21,6 +22,7 @@ async function fetchNotifications(): Promise<AppNotification[]> {
 }
 
 export function useNotification() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
 
   const notificationsQuery = useQuery({
@@ -59,11 +61,11 @@ export function useNotification() {
         setNotifications(prevNotifications)
         toast.error(res.error)
       } else {
-        toast.success('Đã xóa thông báo.')
+        toast.success(t('notifications.deleteSuccess'))
       }
     } catch {
       setNotifications(prevNotifications)
-      toast.error('Lỗi khi xóa thông báo.')
+      toast.error(t('notifications.deleteError'))
     }
   }
 
@@ -79,11 +81,11 @@ export function useNotification() {
         setNotifications(prevNotifications)
         toast.error(res.error)
       } else {
-        toast.success('Đã xóa toàn bộ thông báo.')
+        toast.success(t('notifications.clearSuccess'))
       }
     } catch {
       setNotifications(prevNotifications)
-      toast.error('Lỗi khi xóa toàn bộ thông báo.')
+      toast.error(t('notifications.clearError'))
     }
   }
 

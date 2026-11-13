@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
 import type { EFormPage } from "../types/eform.types";
 import { EFormRowRenderer } from "./EFormRowRenderer";
 
@@ -12,15 +15,16 @@ export function EFormPageRenderer({
   totalPageCount,
   onValueChange,
 }: EFormPageRendererProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex w-full min-w-0 flex-col">
       {/* Hiển thị tiêu đề phân trang nếu biểu mẫu có nhiều trang */}
       {totalPageCount > 1 && (
         <div className="flex items-center gap-2 mb-4 pb-2 border-b border-neutral-200 min-w-0">
           <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-            Trang {page.pageNumber} / {totalPageCount}
+            {t('eform.generated.trang')} {page.pageNumber} / {totalPageCount}
           </span>
-          {page.name && page.name !== `Trang ${page.pageNumber}` && (
+          {page.name && page.name !== t('eform.defaultPageName', { number: page.pageNumber }) && (
             <span className="text-xs font-medium text-neutral-500 truncate">
               {page.name}
             </span>

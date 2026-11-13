@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import Link from "next/link";
 import {
   Calendar,
@@ -34,14 +35,15 @@ export function CollectionStatsOverview({
   latestSubmission,
   onToggleCollection,
 }: CollectionStatsOverviewProps) {
+  const { t } = useTranslation()
   const totalSubmissions = config?.submissions?.length ?? selectedForm.submissionsCount;
 
   // Nội dung nút Bật / Tắt thu thập (dùng if/else thay thế toán tử 3 ngôi lồng nhau)
-  let toggleButtonContent: React.ReactNode = "Bật thu thập";
+  let toggleButtonContent: React.ReactNode = t('eform.enableCollection');
   if (isToggling) {
     toggleButtonContent = <Loader2 className="size-3.5 animate-spin" />;
   } else if (config?.isCollecting) {
-    toggleButtonContent = "Tắt thu thập";
+    toggleButtonContent = t('eform.disableCollection');
   }
 
   return (
@@ -50,7 +52,7 @@ export function CollectionStatsOverview({
       <Card className="p-3.5 flex flex-row items-center justify-between gap-3">
         <div className="flex flex-col justify-center min-w-0">
           <span className="text-xs text-muted-foreground truncate">
-            Tổng số phản hồi
+            {t('eform.generated.tongSoPhanHoi')}
           </span>
           <span className="text-2xl font-bold text-foreground mt-0.5">
             {totalSubmissions}
@@ -65,13 +67,13 @@ export function CollectionStatsOverview({
       <Card className="p-3.5 flex flex-row items-center justify-between gap-3">
         <div className="flex flex-col justify-center min-w-0">
           <span className="text-xs text-muted-foreground truncate">
-            Trạng thái nhận
+            {t('eform.generated.trangThaiNhan')}
           </span>
           <div className="flex items-center gap-1.5 mt-1">
             {config?.isCollecting ? (
               <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-none text-[11px]">
                 <Globe className="size-3 mr-1" />
-                Đang nhận điền
+                {t('eform.generated.dangNhanDien')}
               </Badge>
             ) : (
               <Badge
@@ -79,7 +81,7 @@ export function CollectionStatsOverview({
                 className="text-[11px] text-muted-foreground"
               >
                 <Lock className="size-3 mr-1" />
-                Đang tạm tắt
+                {t('eform.generated.dangTamTat')}
               </Badge>
             )}
           </div>
@@ -99,10 +101,10 @@ export function CollectionStatsOverview({
       <Card className="p-3.5 flex flex-row items-center justify-between gap-3">
         <div className="flex flex-col justify-center min-w-0">
           <span className="text-xs text-muted-foreground truncate">
-            Phản hồi gần nhất
+            {t('eform.generated.phanHoiGanNhat')}
           </span>
           <span className="text-xs font-semibold text-foreground mt-1 truncate">
-            {latestSubmission ? latestSubmission.formattedCreatedAt : "Chưa có"}
+            {latestSubmission ? latestSubmission.formattedCreatedAt : t('eform.generated.chuaCo')}
           </span>
         </div>
         <div className="size-10 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
@@ -114,7 +116,7 @@ export function CollectionStatsOverview({
       <Card className="p-3.5 flex flex-row items-center justify-between gap-3">
         <div className="flex flex-col justify-center min-w-0">
           <span className="text-xs text-muted-foreground truncate">
-            Thiết kế mẫu
+            {t('eform.generated.thietKeMau')}
           </span>
           <span
             className="text-xs font-medium text-foreground truncate mt-0.5"
@@ -130,7 +132,7 @@ export function CollectionStatsOverview({
             className="h-8 text-xs gap-1 cursor-pointer"
           >
             <Pencil className="size-3.5" />
-            <span>Sửa mẫu</span>
+            <span>{t('eform.generated.suaMau')}</span>
           </Button>
         </Link>
       </Card>

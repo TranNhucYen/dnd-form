@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
 import type { EFormLayout } from "../types/eform.types";
 import { EFormPageRenderer } from "./EFormPageRenderer";
 
@@ -8,10 +11,11 @@ interface EFormViewerProps {
 }
 
 export function EFormViewer({ layout, title, onValueChange }: EFormViewerProps) {
+  const { t } = useTranslation()
   if (!layout.pages || layout.pages.length === 0) {
     return (
       <div className="flex min-h-[300px] w-full items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center text-sm text-neutral-400">
-        Biểu mẫu chưa có trường dữ liệu nào để hiển thị E-Form.
+        {t('eform.generated.bieuMauChuaCoTruongDuLieuNaoDe')}
       </div>
     );
   }
@@ -40,7 +44,7 @@ export function EFormViewer({ layout, title, onValueChange }: EFormViewerProps) 
               <div className="my-6 md:my-8 flex items-center gap-4">
                 <div className="h-px flex-1 bg-neutral-200" />
                 <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-                  Hết trang {page.pageNumber}
+                  {t('eform.generated.hetTrang')} {page.pageNumber}
                 </span>
                 <div className="h-px flex-1 bg-neutral-200" />
               </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState, useMemo } from 'react'
 import type { FormSchemaJson, CanvasField } from '@/features/form-builder/types/formBuilder.types'
 import { importSchemaFieldToCanvasField } from '@/features/form-builder/domain/transformers'
@@ -24,6 +25,7 @@ export function TemplateCanvasPreview({
   onZoomClick,
   showZoomHint = true,
 }: TemplateCanvasPreviewProps) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState<number>(0)
   const [firstPagePdfBlobUrl, setFirstPagePdfBlobUrl] = useState<string | null>(null)
@@ -54,7 +56,7 @@ export function TemplateCanvasPreview({
         }
       })
       .catch(() => {
-        console.warn('Không thể render trang 1 của PDF')
+        console.warn(t('templates.pdfPreviewWarning'))
       })
       .finally(() => {
         if (isMounted) setIsLoadingPdf(false)
@@ -66,7 +68,7 @@ export function TemplateCanvasPreview({
         URL.revokeObjectURL(createdUrl)
       }
     }
-  }, [schema?.backgroundPdf?.fileUrl])
+  }, [schema?.backgroundPdf?.fileUrl, t])
 
   // Tính toán kích thước canvas gốc theo chuẩn InternalUnit
   const { canvasWidth, canvasHeight } = useMemo(() => {
@@ -134,7 +136,7 @@ export function TemplateCanvasPreview({
       )}
       style={{
         width: controlledScale !== undefined ? `${renderedWidth}px` : undefined,
-        height: renderedHeight > 0 ? `${renderedHeight}px` : 'auto',
+        height: renderedHeight > 0 ? `${renderedHeight}px` : "auto",
       }}
     >
       {/* Khung Canvas gốc được scale theo tỷ lệ tính toán */}
@@ -151,7 +153,7 @@ export function TemplateCanvasPreview({
         {firstPagePdfBlobUrl ? (
           <img
             src={firstPagePdfBlobUrl}
-            alt="PDF Page 1 Preview"
+            alt={t('templates.generated.pdfPage1Preview')}
             className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
             style={{
               opacity: schema?.backgroundPdf?.opacity ?? 1,
@@ -168,11 +170,11 @@ export function TemplateCanvasPreview({
                 )}
                 <span className="text-xs font-medium truncate max-w-[200px]">
                   {isLoadingPdf
-                    ? 'Đang tải trang 1...'
-                    : schema.backgroundPdf.fileName || 'Tài liệu mẫu PDF'}
+                    ? t('templates.generated.dangTaiTrang1')
+                    : schema.backgroundPdf.fileName || t('templates.pdfSampleDocument')}
                 </span>
                 <span className="text-[11px] text-slate-600">
-                  {schema.backgroundPdf.totalPages || schema.pages?.length || 1} trang • Nhấn để xem toàn bộ
+                  {schema.backgroundPdf.totalPages || schema.pages?.length || 1} {t('templates.generated.trangNhanDeXemToanBo')}
                 </span>
               </div>
             </div>
@@ -195,7 +197,7 @@ export function TemplateCanvasPreview({
             <div
               className="h-full w-full"
               style={{
-                fontFamily: field.style?.fontFamily || 'Times New Roman',
+                fontFamily: field.style?.fontFamily || "Times New Roman",
                 fontSize: field.style?.fontSize ? `${field.style.fontSize}px` : undefined,
                 fontWeight: field.style?.fontWeight,
                 fontStyle: field.style?.fontStyle,
@@ -226,7 +228,7 @@ export function TemplateCanvasPreview({
         <button
           type="button"
           onClick={onZoomClick}
-          aria-label="Phóng to bản xem trước"
+          aria-label={t('templates.generated.phongToBanXemTruoc')}
           className="absolute inset-0 z-20 flex items-center justify-center hover:bg-black/10 cursor-zoom-in"
         >
           <div
@@ -235,7 +237,7 @@ export function TemplateCanvasPreview({
               gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-white text-xs shadow-md transition-opacity"
           >
             <ZoomIn className="size-3.5" />
-            <span>Phóng to xem chi tiết</span>
+            <span>{t('templates.generated.phongToXemChiTiet')}</span>
           </div>
         </button>
       )}

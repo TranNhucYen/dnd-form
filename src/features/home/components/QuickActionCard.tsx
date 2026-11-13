@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { LucideIcon, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 interface QuickActionCardProps {
   title: string
@@ -23,8 +24,9 @@ export function QuickActionCard({
   iconBgClassName = 'bg-primary/10',
   href,
   onClick,
-  actionLabel = 'Bắt đầu',
+  actionLabel,
 }: QuickActionCardProps) {
+  const { t } = useTranslation()
   const innerCard = (
     <div
       onClick={onClick}
@@ -43,7 +45,7 @@ export function QuickActionCard({
           <Icon className="size-5" />
         </div>
         <span className="text-xs font-semibold text-muted-foreground group-hover:text-primary flex items-center gap-1 transition-colors">
-          {actionLabel}
+          {actionLabel || t('home.defaultAction')}
           <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
         </span>
       </div>

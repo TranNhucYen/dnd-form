@@ -14,44 +14,44 @@ import {
 import { ROUTES } from "@/shared/constants/routes"
 
 export interface NavItem {
-  title: string
+  titleKey: string
   url: string
   icon: LucideIcon
 }
 
 export const mainNavItems: NavItem[] = [
   {
-    title: "Trang chủ",
+    titleKey: "nav.home",
     url: ROUTES.HOME,
     icon: Home,
   },
   {
-    title: "Biểu mẫu của tôi",
+    titleKey: "nav.myForms",
     url: ROUTES.MY_FORM,
     icon: FileText,
   },
   {
-    title: "Thống kê thu thập",
+    titleKey: "nav.collectionStats",
     url: ROUTES.COLLECTION_STATS,
     icon: BarChart3,
   },
   {
-    title: "Chia sẻ với tôi",
+    titleKey: "nav.sharedWithMe",
     url: ROUTES.SHARED_WITH_ME,
     icon: Users,
   },
   {
-    title: "Trình thiết kế",
+    titleKey: "nav.editor",
     url: ROUTES.EDITOR,
     icon: FileEdit,
   },
   {
-    title: "Form mẫu",
+    titleKey: "nav.templates",
     url: ROUTES.TEMPLATES,
     icon: LayoutTemplate,
   },
   {
-    title: "Kho cộng đồng",
+    titleKey: "nav.community",
     url: ROUTES.COMMUNITY,
     icon: Globe,
   },
@@ -59,17 +59,17 @@ export const mainNavItems: NavItem[] = [
 
 export const personalNavItems: NavItem[] = [
   {
-    title: "Thông báo",
+    titleKey: "nav.notifications",
     url: ROUTES.NOTIFICATIONS,
     icon: Bell,
   },
   {
-    title: "Cài đặt",
+    titleKey: "nav.settings",
     url: ROUTES.SETTINGS,
     icon: Settings,
   },
   {
-    title: "Tài khoản",
+    titleKey: "nav.account",
     url: ROUTES.ACCOUNT,
     icon: User,
   },

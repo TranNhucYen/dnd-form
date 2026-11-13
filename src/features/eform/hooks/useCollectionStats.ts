@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   deleteFormSubmissionAction,
   getFormCollectionConfigAction,
@@ -23,6 +24,7 @@ function configKey(formId: number) {
 }
 
 export function useCollectionStats() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -137,7 +139,7 @@ export function useCollectionStats() {
       const nextState = !config.isCollecting;
       const res = await toggleFormCollectionAction(selectedFormId, nextState);
       if (!res.success || !res.data) {
-        toast.error(res.error || "Không thể thay đổi trạng thái thu thập.");
+        toast.error(res.error || t('eform.collectionToggleError'));
         return;
       }
 
@@ -169,16 +171,16 @@ export function useCollectionStats() {
       );
 
       if (res.data.isCollecting) {
-        toast.success("Đã bật nhận điền biểu mẫu");
+        toast.success(t('eform.collectionEnabled'));
       } else {
-        toast.success("Đã tạm dừng nhận điền biểu mẫu");
+        toast.success(t('eform.collectionPaused'));
       }
     } catch {
-      toast.error("Lỗi khi cập nhật trạng thái thu thập.");
+      toast.error(t('eform.collectionUpdateError'));
     } finally {
       setIsToggling(false);
     }
-  }, [selectedFormId, config, isToggling, queryClient]);
+  }, [selectedFormId, config, isToggling, queryClient, t]);
 
   // Xóa một bản ghi nộp
   const handleDeleteSubmission = useCallback(
@@ -191,7 +193,7 @@ export function useCollectionStats() {
           submissionId,
         );
         if (!res.success) {
-          toast.error(res.error || "Không thể xóa bản ghi.");
+          toast.error(res.error || t('eform.deleteSubmissionError'));
           return;
         }
 
@@ -220,14 +222,14 @@ export function useCollectionStats() {
           }),
         );
 
-        toast.success("Đã xóa bản ghi phản hồi thành công.");
+        toast.success(t('eform.deleteSubmissionSuccess'));
       } catch {
-        toast.error("Lỗi khi xóa bản ghi phản hồi.");
+        toast.error(t('eform.deleteSubmissionFailed'));
       } finally {
         setDeletingId(null);
       }
     },
-    [selectedFormId, deletingId, queryClient],
+    [selectedFormId, deletingId, queryClient, t],
   );
 
   // Lọc phản hồi theo từ khóa tìm kiếm

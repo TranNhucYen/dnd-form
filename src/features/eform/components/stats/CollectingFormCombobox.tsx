@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown, FileText, Globe, Lock, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export function CollectingFormCombobox({
   onSelectForm,
   disabled = false,
 }: CollectingFormComboboxProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterActiveOnly, setFilterActiveOnly] = useState(false);
@@ -84,12 +86,12 @@ export function CollectingFormCombobox({
                 variant="secondary"
                 className="text-[10px] px-1.5 py-0 h-5 shrink-0 font-normal"
               >
-                {selectedForm.submissionsCount} phản hồi
+                {selectedForm.submissionsCount} {t('eform.generated.phanHoi')}
               </Badge>
             </div>
           ) : (
             <span className="text-muted-foreground text-xs sm:text-sm">
-              {forms.length === 0 ? "Chưa có biểu mẫu nào" : "Chọn biểu mẫu đã bật thu thập..."}
+              {forms.length === 0 ? t('eform.generated.chuaCoBieuMauNao') : t('eform.generated.chonBieuMauDaBatThuThap')}
             </span>
           )}
           <ChevronsUpDown className="size-4 shrink-0 opacity-50 ml-2" />
@@ -106,7 +108,7 @@ export function CollectingFormCombobox({
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Tìm theo tên biểu mẫu..."
+            placeholder={t('eform.generated.timTheoTenBieuMau')}
             className="text-xs h-8 pl-8 focus-visible:ring-1"
             autoFocus
           />
@@ -123,7 +125,7 @@ export function CollectingFormCombobox({
                 !filterActiveOnly ? "bg-primary text-primary-foreground font-medium" : "hover:bg-muted text-muted-foreground",
               )}
             >
-              Tất cả ({forms.length})
+              {t('eform.generated.tatCa')}{forms.length})
             </button>
             <button
               type="button"
@@ -134,7 +136,7 @@ export function CollectingFormCombobox({
               )}
             >
               <Globe className="size-3" />
-              Đang bật ({activeFormsCount})
+              {t('eform.generated.dangBat2')}{activeFormsCount})
             </button>
           </div>
         </div>
@@ -144,7 +146,7 @@ export function CollectingFormCombobox({
           {filteredForms.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground flex flex-col items-center gap-1">
               <FileText className="size-6 text-muted-foreground/50" />
-              <span>Không tìm thấy biểu mẫu phù hợp.</span>
+              <span>{t('eform.generated.khongTimThayBieuMauPhuHop')}</span>
             </div>
           ) : (
             <div className="flex flex-col gap-1 p-0.5">
@@ -185,7 +187,7 @@ export function CollectingFormCombobox({
                           variant="outline"
                           className="text-[9px] px-1 py-0 h-4 border-emerald-300 text-emerald-700 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-300"
                         >
-                          Đang bật
+                          {t('eform.generated.dangBat')}
                         </Badge>
                       ) : (
                         <Badge
@@ -193,7 +195,7 @@ export function CollectingFormCombobox({
                           className="text-[9px] px-1 py-0 h-4 text-muted-foreground"
                         >
                           <Lock className="size-2.5 mr-0.5" />
-                          Tắt
+                          {t('eform.generated.tat')}
                         </Badge>
                       )}
                       <Badge

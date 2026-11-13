@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Card,
   CardHeader,
@@ -43,6 +44,7 @@ export function CommunityContributions({
   contributions,
   onOpenContributeModal,
 }: CommunityContributionsProps) {
+  const { t } = useTranslation()
   const [selectedFeedbackItem, setSelectedFeedbackItem] = useState<ContributionItem | null>(null)
 
   const approvedCount = contributions.filter((c) => c.status === ContributionStatus.APPROVED).length
@@ -89,35 +91,35 @@ export function CommunityContributions({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="bg-card">
           <CardHeader className="pb-2">
-            <CardDescription className="text-xs">Tổng số đóng góp</CardDescription>
+            <CardDescription className="text-xs">{t('community.generated.tongSoDongGop')}</CardDescription>
             <CardTitle className="text-2xl font-bold">{contributions.length}</CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
-            Các biểu mẫu bạn đã gửi lên cộng đồng
+            {t('community.generated.cacBieuMauBanDaGuiLenCongDong')}
           </CardContent>
         </Card>
 
         <Card className="bg-card">
           <CardHeader className="pb-2">
-            <CardDescription className="text-xs">Đã được phê duyệt</CardDescription>
+            <CardDescription className="text-xs">{t('community.generated.daDuocPheDuyet')}</CardDescription>
             <CardTitle className="text-2xl font-bold text-emerald-600">
               {approvedCount}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
-            Đang công khai và cho phép người khác sử dụng
+            {t('community.generated.dangCongKhaiVaChoPhepNguoiKhacSu')}
           </CardContent>
         </Card>
 
         <Card className="bg-card">
           <CardHeader className="pb-2">
-            <CardDescription className="text-xs">Đang chờ xét duyệt</CardDescription>
+            <CardDescription className="text-xs">{t('community.generated.dangChoXetDuyet')}</CardDescription>
             <CardTitle className="text-2xl font-bold text-amber-600">
               {pendingCount}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
-            Ban quản trị đang xem xét tính hợp lệ
+            {t('community.generated.banQuanTriDangXemXetTinhHopLe')}
           </CardContent>
         </Card>
       </div>
@@ -126,8 +128,8 @@ export function CommunityContributions({
       {contributions.length === 0 ? (
         <EmptyState
           icon={UploadCloud}
-          title="Bạn chưa có đóng góp nào"
-          description="Hãy chia sẻ các biểu mẫu hữu ích của bạn để giúp đỡ cộng đồng và lan tỏa giá trị!"
+          title={t('community.generated.banChuaCoDongGopNao')}
+          description={t('community.generated.hayChiaSeCacBieuMauHuuIchCua')}
           action={
             <Button
               size="sm"
@@ -135,7 +137,7 @@ export function CommunityContributions({
               className="text-xs gap-1.5"
             >
               <FolderPlus className="size-3.5" />
-              Đóng góp biểu mẫu ngay
+              {t('community.generated.dongGopBieuMauNgay')}
             </Button>
           }
         />
@@ -143,9 +145,9 @@ export function CommunityContributions({
         <Card className="overflow-hidden border-border/80">
           <CardHeader className="py-4 px-5 border-b bg-muted/20 flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-bold">Lịch sử đóng góp biểu mẫu</CardTitle>
+              <CardTitle className="text-sm font-bold">{t('community.generated.lichSuDongGopBieuMau')}</CardTitle>
               <CardDescription className="text-xs mt-0.5">
-                Theo dõi tiến độ xét duyệt và phản hồi từ ban quản trị
+                {t('community.generated.theoDoiTienDoXetDuyetVaPhanHoi')}
               </CardDescription>
             </div>
             <Button
@@ -154,7 +156,7 @@ export function CommunityContributions({
               className="text-xs gap-1.5 h-8"
             >
               <UploadCloud className="size-3.5" />
-              Gửi biểu mẫu mới
+              {t('community.generated.guiBieuMauMoi')}
             </Button>
           </CardHeader>
 
@@ -162,11 +164,11 @@ export function CommunityContributions({
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="w-72">Tên biểu mẫu</TableHead>
-                  <TableHead className="w-32">Danh mục</TableHead>
-                  <TableHead className="w-28">Ngày gửi</TableHead>
-                  <TableHead className="w-36">Trạng thái</TableHead>
-                  <TableHead className="w-44">Phản hồi / Ghi chú</TableHead>
+                  <TableHead className="w-72">{t('community.generated.tenBieuMau')}</TableHead>
+                  <TableHead className="w-32">{t('community.generated.danhMuc')}</TableHead>
+                  <TableHead className="w-28">{t('community.generated.ngayGui')}</TableHead>
+                  <TableHead className="w-36">{t('community.generated.trangThai')}</TableHead>
+                  <TableHead className="w-44">{t('community.generated.phanHoiGhiChu')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -200,18 +202,18 @@ export function CommunityContributions({
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedFeedbackItem(item)}
-                          title="Nhấp để xem chi tiết lý do từ chối"
+                          title={t('community.generated.nhapDeXemChiTietLyDoTuChoi')}
                           className="
                             h-7 px-2.5 text-xs text-rose-700 bg-rose-50/70 border-rose-200 
                             hover:bg-rose-100 hover:text-rose-800 gap-1.5 cursor-pointer font-medium"
                         >
                           <MessageSquare className="size-3 text-rose-600 shrink-0" />
-                          <span>Xem lý do từ chối</span>
+                          <span>{t('community.generated.xemLyDoTuChoi')}</span>
                         </Button>
                       ) : item.status === ContributionStatus.APPROVED ? (
                         <span className="text-xs text-emerald-700 flex items-center gap-1 font-medium">
                           <CheckCircle2 className="size-3.5 shrink-0" />
-                          Đã phát hành ({item.clonesCount || 0} lượt dùng)
+                          {t('community.generated.daPhatHanh')}{item.clonesCount || 0} {t('community.generated.luotDung')}
                         </span>
                       ) : item.feedback ? (
                         <Button
@@ -222,12 +224,12 @@ export function CommunityContributions({
                           className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1.5 cursor-pointer"
                         >
                           <MessageSquare className="size-3 shrink-0" />
-                          <span>Xem ghi chú</span>
+                          <span>{t('community.generated.xemGhiChu')}</span>
                         </Button>
                       ) : (
                         <span className="text-xs text-muted-foreground italic flex items-center gap-1">
                           <Clock className="size-3 text-muted-foreground/70 shrink-0" />
-                          Đang chờ kiểm duyệt...
+                          {t('community.generated.dangChoKiemDuyet')}
                         </span>
                       )}
                     </TableCell>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useMemo, useRef } from "react";
 import type { DatatableFieldData } from "@/features/form-builder/types/formBuilder.types";
 import { getEFormTableData, injectCellsIntoTableHtml } from "../../engine/table-ast-parser";
@@ -10,6 +11,7 @@ interface EFormDatatableFieldProps {
 }
 
 export function EFormDatatableField({ data, onChange }: EFormDatatableFieldProps) {
+  const { t } = useTranslation()
   const tableData = useMemo(() => {
     return getEFormTableData(data.html);
   }, [data.html]);
@@ -19,7 +21,7 @@ export function EFormDatatableField({ data, onChange }: EFormDatatableFieldProps
   if (!tableData || tableData.rows.length === 0) {
     return (
       <div className="w-full border border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
-        Bảng không có dữ liệu
+        {t('eform.generated.bangKhongCoDuLieu')}
       </div>
     );
   }
@@ -99,7 +101,7 @@ export function EFormDatatableField({ data, onChange }: EFormDatatableFieldProps
                           rows={1}
                           defaultValue={cell.text}
                           onChange={(e) => handleCellChange(cell.id, e.target.value)}
-                          aria-label="Ô nhập liệu bảng"
+                          aria-label={t('eform.generated.oNhapLieuBang')}
                           placeholder="..."
                           className="block w-full resize-none bg-transparent border-0 p-0 text-xs md:text-sm text-neutral-800 placeholder:text-neutral-300 focus:outline-none [field-sizing:content]"
                         />
@@ -114,7 +116,7 @@ export function EFormDatatableField({ data, onChange }: EFormDatatableFieldProps
       </div>
       {/* Chỉ báo cuộn ngang trên màn hình nhỏ */}
       <div className="mt-1 block text-right text-[11px] text-neutral-400 md:hidden">
-        ↔ Vuốt ngang nếu bảng bị tràn
+        {t('eform.generated.vuotNgangNeuBangBiTran')}
       </div>
     </div>
   );

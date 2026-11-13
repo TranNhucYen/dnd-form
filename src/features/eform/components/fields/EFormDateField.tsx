@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useState } from "react";
 import type { DateFieldData, FieldStyle } from "@/features/form-builder/types/formBuilder.types";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ function toInputDateValue(raw?: string): string {
 }
 
 export function EFormDateField({ data, style, onChange }: EFormDateFieldProps) {
+  const { t } = useTranslation()
   const [location, setLocation] = useState("");
   const [date, setDate] = useState(() => toInputDateValue(data.value));
 
@@ -41,12 +43,12 @@ export function EFormDateField({ data, style, onChange }: EFormDateFieldProps) {
     <div className="flex w-full items-center gap-3">
       {(data.showLabel ?? true) && (
         <>
-          <Label className="sr-only">{data.label || "Địa điểm"}</Label>
+          <Label className="sr-only">{data.label || t('eform.locationFallback')}</Label>
           <Input
             type="text"
             value={location}
             onChange={(e) => updateLocation(e.target.value)}
-            placeholder={data.label || "Địa điểm"}
+            placeholder={data.label || t('eform.locationFallback')}
             style={{
               color: style?.parts?.label?.color || style?.color,
               fontSize: style?.parts?.label?.fontSize,
@@ -60,7 +62,7 @@ export function EFormDateField({ data, style, onChange }: EFormDateFieldProps) {
         type="date"
         value={date}
         onChange={(e) => updateDate(e.target.value)}
-        aria-label="Ngày tháng năm"
+        aria-label={t('eform.generated.ngayThangNam')}
         className="h-9 min-w-0 flex-1 bg-white text-xs text-neutral-700 md:text-sm"
       />
     </div>
