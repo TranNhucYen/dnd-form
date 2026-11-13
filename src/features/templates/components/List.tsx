@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,6 +11,7 @@ import { Card, CardSkeleton } from "./Card"
 import { useTemplateList } from "../hooks/useTemplate"
 
 export default function List({ publicView = false }: { publicView?: boolean }) {
+  const { t } = useTranslation()
   const {
     templates,
     categories,
@@ -58,16 +60,16 @@ export default function List({ publicView = false }: { publicView?: boolean }) {
         border-b border-border pb-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Các form mẫu</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('templates.generated.cacFormMau')}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Khám phá và sử dụng các mẫu biểu mẫu chuẩn có sẵn để bắt đầu nhanh chóng.
+            {t('templates.generated.khamPhaVaSuDungCacMauBieuMau')}
           </p>
         </div>
         {!publicView && (
           <Link href="/editor">
             <Button className="cursor-pointer">
               <Plus data-icon="inline-start" />
-              Tạo biểu mẫu mới
+              {t('templates.generated.taoBieuMauMoi')}
             </Button>
           </Link>
         )}
@@ -86,10 +88,10 @@ export default function List({ publicView = false }: { publicView?: boolean }) {
         >
           <TabsList className="flex flex-wrap h-auto md:h-9 bg-muted p-1 gap-0.5">
             <TabsTrigger value="all" className="text-xs cursor-pointer">
-              Tất cả
+              {t('templates.generated.tatCa')}
             </TabsTrigger>
             {categories
-              .filter((cat) => cat !== 'all')
+              .filter((cat) => cat !== "all")
               .map((cat) => (
                 <TabsTrigger
                   key={cat}
@@ -105,7 +107,7 @@ export default function List({ publicView = false }: { publicView?: boolean }) {
         {/* Search input */}
         <SearchInput
           wrapperClassName="w-full md:w-72"
-          placeholder="Tìm kiếm biểu mẫu theo tên hoặc mô tả..."
+          placeholder={t('templates.generated.timKiemBieuMauTheoTenHoacMoTa')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -126,11 +128,11 @@ export default function List({ publicView = false }: { publicView?: boolean }) {
       {/* Empty state */}
       {!isLoading && !error && templates.length === 0 && (
         <EmptyState
-          title="Không tìm thấy biểu mẫu phù hợp"
+          title={t('templates.generated.khongTimThayBieuMauPhuHop')}
           description={
             searchTerm
-              ? `Không có kết quả nào khớp với "${searchTerm}". Hãy thử từ khóa khác.`
-              : "Hiện tại chưa có biểu mẫu nào trong danh mục này."
+              ? t('templates.noMatchingResults', { search: searchTerm })
+              : t('templates.generated.hienTaiChuaCoBieuMauNaoTrongDanh')
           }
         />
       )}
@@ -155,7 +157,7 @@ export default function List({ publicView = false }: { publicView?: boolean }) {
           {/* End of list message */}
           {!hasMore && (
             <p className="text-center text-sm text-muted-foreground py-4">
-              Đã hiển thị tất cả biểu mẫu.
+              {t('templates.generated.daHienThiTatCaBieuMau')}
             </p>
           )}
         </>

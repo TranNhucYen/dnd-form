@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   Plus,
   FilePlus,
@@ -31,11 +32,12 @@ interface HomeViewProps {
 }
 
 export function HomeView({ user }: HomeViewProps) {
+  const { t } = useTranslation()
   const { recentForms, featuredTemplates, totalFormsCount, isLoading } = useHomeData()
   const queryClient = useQueryClient()
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
-  const displayName = user?.fullName || 'bạn'
+  const displayName = user?.fullName || t('nav.defaultUser')
 
   const handleCreateBlank = async (data: CreateBlankFormInput): Promise<MyForm> => {
     const res = await createBlankFormAction(data)
@@ -57,14 +59,14 @@ export function HomeView({ user }: HomeViewProps) {
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="gap-1 px-2 py-0.5 text-[11px] font-semibold bg-primary/10 text-primary border-border/40">
                 <Sparkles className="size-3" />
-                DragForm
+                Dnd Form
               </Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Xin chào, {displayName} 👋
+              {t('home.greeting', { name: displayName })}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Bắt đầu thiết kế biểu mẫu in ấn chuyên nghiệp hoặc tiếp tục hoàn thiện các dự án đang làm dở của bạn.
+              {t('home.introduction')}
             </p>
           </div>
 
@@ -74,7 +76,7 @@ export function HomeView({ user }: HomeViewProps) {
               className="gap-2 text-sm font-semibold shadow-xs cursor-pointer h-10 px-5"
             >
               <Plus className="size-4" />
-              Tạo biểu mẫu mới
+              {t('home.createForm')}
             </Button>
             <Link href={ROUTES.TEMPLATES}>
               <Button
@@ -82,7 +84,7 @@ export function HomeView({ user }: HomeViewProps) {
                 className="gap-2 text-sm font-semibold cursor-pointer h-10 px-4 bg-background/80 hover:bg-background"
               >
                 <LayoutTemplate className="size-4" />
-                Khám phá mẫu
+                {t('home.exploreTemplates')}
               </Button>
             </Link>
           </div>
@@ -92,34 +94,34 @@ export function HomeView({ user }: HomeViewProps) {
       {/* 2. Quick Starters Grid */}
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-          Bắt đầu nhanh
+          {t('home.quickStart')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <QuickActionCard
-            title="Tạo biểu mẫu trống"
-            description="Bắt đầu từ trang trắng khổ giấy A4 tiêu chuẩn và kéo thả tùy ý."
+            title={t('home.createBlankForm')}
+            description={t('home.createBlankFormDescription')}
             icon={FilePlus}
             iconBgClassName="bg-muted"
             iconColorClassName="text-foreground"
-            actionLabel="Tạo ngay"
+            actionLabel={t('home.createNow')}
             onClick={() => setCreateModalOpen(true)}
           />
           <QuickActionCard
-            title="Sử dụng mẫu sẵn"
-            description="Lựa chọn từ các mẫu biểu mẫu thông dụng đã chuẩn hóa quy chuẩn in ấn."
+            title={t('home.useTemplate')}
+            description={t('home.useTemplateDescription')}
             icon={LayoutTemplate}
             iconBgClassName="bg-muted"
             iconColorClassName="text-foreground"
-            actionLabel="Xem kho mẫu"
+            actionLabel={t('home.viewTemplateLibrary')}
             href={ROUTES.TEMPLATES}
           />
           <QuickActionCard
-            title="Đóng góp cộng đồng"
-            description="Chia sẻ các biểu mẫu hữu ích của bạn để mọi người cùng sử dụng."
+            title={t('home.contribute')}
+            description={t('home.contributeDescription')}
             icon={Users}
             iconBgClassName="bg-muted"
             iconColorClassName="text-foreground"
-            actionLabel="Khám phá"
+            actionLabel={t('home.exploreTemplates')}
             href={ROUTES.COMMUNITY}
           />
         </div>
@@ -129,7 +131,7 @@ export function HomeView({ user }: HomeViewProps) {
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-foreground">Biểu mẫu gần đây</h2>
+            <h2 className="text-lg font-bold text-foreground">{t('home.recentForms')}</h2>
             {totalFormsCount > 0 ? (
               <Badge variant="secondary" className="text-xs font-semibold px-2 py-0.5">
                 {totalFormsCount}
@@ -140,7 +142,7 @@ export function HomeView({ user }: HomeViewProps) {
             href={ROUTES.MY_FORM}
             className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
           >
-            Xem tất cả
+            {t('home.viewAll')}
             <ArrowRight className="size-3" />
           </Link>
         </div>
@@ -157,9 +159,9 @@ export function HomeView({ user }: HomeViewProps) {
               <FileText className="size-6" />
             </div>
             <div className="flex flex-col gap-1 max-w-sm">
-              <h3 className="font-semibold text-sm text-foreground">Bạn chưa có biểu mẫu nào</h3>
+              <h3 className="font-semibold text-sm text-foreground">{t('home.emptyFormsTitle')}</h3>
               <p className="text-xs text-muted-foreground">
-                Hãy bắt đầu tạo biểu mẫu đầu tiên hoặc chọn một mẫu từ thư viện để tiết kiệm thời gian.
+                {t('home.emptyFormsDescription')}
               </p>
             </div>
             <Button
@@ -168,7 +170,7 @@ export function HomeView({ user }: HomeViewProps) {
               className="gap-1.5 text-xs font-semibold mt-1 cursor-pointer"
             >
               <Plus className="size-3.5" />
-              Tạo biểu mẫu đầu tiên
+              {t('home.createFirstForm')}
             </Button>
           </div>
         ) : (
@@ -184,16 +186,16 @@ export function HomeView({ user }: HomeViewProps) {
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
-            <h2 className="text-lg font-bold text-foreground">Mẫu biểu mẫu nổi bật</h2>
+            <h2 className="text-lg font-bold text-foreground">{t('home.featuredTemplates')}</h2>
             <p className="text-xs text-muted-foreground">
-              Các mẫu được thiết kế sẵn theo quy chuẩn in ấn tối ưu
+              {t('home.featuredTemplatesDescription')}
             </p>
           </div>
           <Link
             href={ROUTES.TEMPLATES}
             className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
           >
-            Khám phá kho mẫu
+            {t('home.exploreTemplateLibrary')}
             <ArrowRight className="size-3" />
           </Link>
         </div>

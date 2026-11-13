@@ -7,6 +7,7 @@ import { QueryProvider } from "@/components/query-provider"
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { GlobalSelectionGuard } from "@/components/GlobalSelectionGuard";
+import { I18nProvider } from "@/components/i18n-provider";
 
 export const metadata: Metadata = {
   title: {
@@ -30,18 +31,20 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="vi"
       suppressHydrationWarning
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
       <body>
-        <ThemeProvider>
-          <QueryProvider>
-            <GlobalSelectionGuard />
-            {children}
-            <Toaster richColors position="top-right" />
-          </QueryProvider>
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider>
+            <QueryProvider>
+              <GlobalSelectionGuard />
+              {children}
+              <Toaster richColors position="top-right" />
+            </QueryProvider>
+          </ThemeProvider>
+        </I18nProvider>
       </body>
     </html>
   )

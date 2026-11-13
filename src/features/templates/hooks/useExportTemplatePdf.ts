@@ -2,18 +2,20 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { slugify } from '@/lib/slug'
 
 /**
  * Hook tải file PDF biểu mẫu từ server.
  */
 export function useExportTemplatePdf() {
+  const { t } = useTranslation()
   const [isExporting, setIsExporting] = useState(false)
 
   const downloadPdf = useCallback(async (id: number | string, name?: string) => {
     if (!id) return
 
-    const toastId = toast.loading('Đang tải file xuống PDF...')
+    const toastId = toast.loading(t('common.downloadPdfLoading'))
 
     try {
       setIsExporting(true)
@@ -36,14 +38,14 @@ export function useExportTemplatePdf() {
       document.body.removeChild(downloadLink)
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000)
 
-      toast.success('Đã tải xuống file PDF thành công!', { id: toastId })
+      toast.success(t('common.downloadPdfSuccess'), { id: toastId })
     } catch (err) {
       console.error('Lỗi khi xuất PDF:', err)
-      toast.error(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tải xuống file PDF', { id: toastId })
+      toast.error(err instanceof Error ? err.message : t('common.downloadPdfError'), { id: toastId })
     } finally {
       setIsExporting(false)
     }
-  }, [])
+  }, [t])
 
   return {
     isExporting,

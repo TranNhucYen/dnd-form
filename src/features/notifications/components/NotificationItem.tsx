@@ -11,21 +11,23 @@ import {
 } from 'lucide-react'
 import { AppNotification, NotificationType } from '../types/notification.type'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 interface NotificationItemProps {
   notification: AppNotification
   onDelete: (id: string) => void
 }
 
-function getRelativeTime(dateStr: Date | string): string {
+function getRelativeTime(dateStr: Date | string, t: TFunction): string {
   const date = new Date(dateStr)
   const now = new Date()
   const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-  if (diffSec < 60) return 'Vừa xong'
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} phút trước`
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} giờ trước`
-  return `${Math.floor(diffSec / 86400)} ngày trước`
+  if (diffSec < 60) return t('notifications.justNow')
+  if (diffSec < 3600) return t('notifications.minutesAgo', { count: Math.floor(diffSec / 60) })
+  if (diffSec < 86400) return t('notifications.hoursAgo', { count: Math.floor(diffSec / 3600) })
+  return t('notifications.daysAgo', { count: Math.floor(diffSec / 86400) })
 }
 
 export function NotificationItem({
@@ -33,6 +35,7 @@ export function NotificationItem({
   onDelete,
 }: NotificationItemProps) {
   const router = useRouter()
+  const { t } = useTranslation()
 
   const renderIcon = () => {
     switch (notification.type) {
@@ -95,7 +98,7 @@ export function NotificationItem({
 
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-muted-foreground">
-              {getRelativeTime(notification.createdAt)}
+              {getRelativeTime(notification.createdAt, t)}
             </span>
             <Button
               variant="ghost"
@@ -105,7 +108,7 @@ export function NotificationItem({
                 onDelete(notification.id)
               }}
               className="size-7 p-0 text-muted-foreground hover:text-destructive"
-              title="Xóa thông báo"
+              title={t('notifications.deleteTitle')}
             >
               <Trash2 className="size-3.5" />
             </Button>
@@ -118,7 +121,7 @@ export function NotificationItem({
 
         {rejectReason && (
           <div className="mt-1.5 p-2 rounded-md bg-destructive/10 text-destructive text-xs border border-destructive/20 leading-relaxed">
-            <span className="font-semibold">Lý do từ chối:</span> {rejectReason}
+            <span className="font-semibold">{t('notifications.rejectReason')}</span> {rejectReason}
           </div>
         )}
       </div>

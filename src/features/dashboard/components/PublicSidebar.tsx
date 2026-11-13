@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -15,19 +16,19 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
-const publicItems = [
-  { href: ROUTES.PUBLIC_TEMPLATES, label: 'Form mẫu', icon: LayoutTemplate },
-  { href: ROUTES.PUBLIC_BUILDER, label: 'Form Builder', icon: PanelsTopLeft },
-]
-
 export function PublicSidebar() {
+  const { t } = useTranslation()
   const pathname = usePathname()
+  const publicItems = [
+    { href: ROUTES.PUBLIC_TEMPLATES, label: t('dashboard.templates'), icon: LayoutTemplate },
+    { href: ROUTES.PUBLIC_BUILDER, label: t('dashboard.builder'), icon: PanelsTopLeft },
+  ]
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link href={ROUTES.PUBLIC_TEMPLATES} className="flex items-center gap-2 px-2 py-1.5">
-          <Image src="/icon.svg" alt="Dnd Form" width={24} height={24} className="size-6 rounded-sm" />
+          <Image src="/icon.svg" alt="Logo Dnd Form" width={24} height={24} className="size-6 rounded-sm" />
           <span className="font-semibold group-data-[collapsible=icon]:hidden">Dnd Form</span>
         </Link>
       </SidebarHeader>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -16,6 +17,7 @@ import { CommunityContributions } from './CommunityContributions'
 import { ContributeFormModal } from './ContributeFormModal'
 
 export function CommunityList() {
+  const { t } = useTranslation()
   const {
     contributions,
     categories,
@@ -37,10 +39,10 @@ export function CommunityList() {
             <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
               <Globe className="size-4" />
             </div>
-            <h1 className="text-xl font-bold text-foreground">Kho biểu mẫu cộng đồng</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('community.generated.khoBieuMauCongDong')}</h1>
           </div>
           <p className="text-xs text-muted-foreground">
-            Đóng góp biểu mẫu cá nhân của bạn vào kho cộng đồng và theo dõi trạng thái xét duyệt
+            {t('community.generated.dongGopBieuMauCaNhanCuaBanVao')}
           </p>
         </div>
 
@@ -51,10 +53,10 @@ export function CommunityList() {
             onClick={() => refetch()}
             disabled={isLoading}
             className="text-xs h-9 gap-1.5"
-            title="Làm mới dữ liệu"
+            title={t('community.generated.lamMoiDuLieu')}
           >
-            <RefreshCw className={`size-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-            Làm mới
+            <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ''}`} />
+            {t('community.generated.lamMoi')}
           </Button>
 
           <Button
@@ -63,7 +65,7 @@ export function CommunityList() {
             className="text-xs h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
           >
             <UploadCloud className="size-4" />
-            Đóng góp biểu mẫu
+            {t('community.generated.dongGopBieuMau')}
           </Button>
         </div>
       </div>
@@ -71,9 +73,9 @@ export function CommunityList() {
       {/* Rules Banner (Quy tắc kho cộng đồng theo README) */}
       <Alert className="bg-primary/5 border-primary/20 text-foreground">
         <ShieldCheck className="size-4 text-primary" />
-        <AlertTitle className="text-xs font-semibold">Quy tắc kho biểu mẫu cộng đồng</AlertTitle>
+        <AlertTitle className="text-xs font-semibold">{t('community.generated.quyTacKhoBieuMauCongDong')}</AlertTitle>
         <AlertDescription className="text-xs text-muted-foreground mt-1 leading-relaxed">
-          Biểu mẫu chia sẻ vào cộng đồng được tạo từ bản sao độc lập của biểu mẫu gốc và không ảnh hưởng đến dữ liệu cá nhân của bạn. Sau khi được ban quản trị xét duyệt (Approved), người dùng khác có thể sử dụng mẫu để tạo biểu mẫu mới.
+          {t('community.generated.bieuMauChiaSeVaoCongDongDuocTao')}
         </AlertDescription>
       </Alert>
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { DragDropProvider } from '@dnd-kit/react'
 import { FormCanvas } from '@/features/form-builder/canvas/FormCanvas'
@@ -14,6 +15,7 @@ interface PublicFormViewerProps {
 }
 
 export function PublicFormViewer({ form }: PublicFormViewerProps) {
+  const { t } = useTranslation()
   const loadFormSchema = useFormBuilderStore((state) => state.loadFormSchema)
   const resetForm = useFormBuilderStore((state) => state.resetForm)
   const setIsReadOnly = useFormBuilderStore((state) => state.setIsReadOnly)
@@ -52,7 +54,7 @@ export function PublicFormViewer({ form }: PublicFormViewerProps) {
             className="cursor-pointer gap-2 shrink-0"
           >
             <Printer className="size-4" />
-            <span>In / Lưu PDF</span>
+            <span>{t('myForm.generated.inLuuPdf')}</span>
           </Button>
         </header>
 

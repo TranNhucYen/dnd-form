@@ -1,0 +1,26 @@
+export const editorDynamicLabels = {
+  vi: {
+    documentTitle: '{{title}} | Dnd Form',
+    untitledForm: 'Biểu mẫu chưa đặt tên',
+    loadFormError: 'Không thể tải dữ liệu biểu mẫu',
+    formCreated: 'Đã tạo biểu mẫu mới',
+    saving: 'Đang lưu biểu mẫu...',
+    saveFailed: 'Lưu biểu mẫu thất bại',
+    saveSuccess: 'Đã lưu biểu mẫu thành công',
+    saveError: 'Đã xảy ra lỗi khi lưu',
+    draftRestored: 'Đã khôi phục bản nháp chưa lưu',
+    previousDraftRestored: 'Đã khôi phục bản nháp chưa lưu từ phiên trước',
+  },
+  en: {
+    documentTitle: '{{title}} | Dnd Form',
+    untitledForm: 'Untitled form',
+    loadFormError: 'Unable to load form data',
+    formCreated: 'New form created',
+    saving: 'Saving form...',
+    saveFailed: 'Failed to save the form',
+    saveSuccess: 'Form saved successfully',
+    saveError: 'An error occurred while saving',
+    draftRestored: 'Unsaved draft restored',
+    previousDraftRestored: 'Unsaved draft from the previous session restored',
+  },
+} as const;

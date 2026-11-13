@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useMemo } from "react";
 import {
   Dialog,
@@ -27,6 +28,7 @@ export function SubmissionDetailDialog({
   open,
   onOpenChange,
 }: SubmissionDetailDialogProps) {
+  const { t } = useTranslation()
   const { totalCount, filledCount, fields } = useMemo(() => {
     return parseSubmissionFields(submission);
   }, [submission]);
@@ -42,20 +44,20 @@ export function SubmissionDetailDialog({
         {/* Header: Tên biểu mẫu, thời gian nộp và tiến độ điền */}
         <DialogHeader className="space-y-1.5 pb-3 border-b border-border text-left">
           <DialogTitle className="text-lg font-bold text-foreground">
-            {formName || "Biểu mẫu"}
+            {formName || t('eform.formFallback')}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
             <span>
-              Thời gian nộp:{" "}
+              {t('eform.generated.thoiGianNop2')}{" "}
               <strong className="text-foreground font-medium">
                 {submission.formattedCreatedAt}
               </strong>
             </span>
             <span>•</span>
             <span>
-              Số trường đã điền:{" "}
+              {t('eform.generated.soTruongDaDien')}{" "}
               <strong className="text-foreground font-medium">
-                {filledCount}/{totalCount} trường
+                {filledCount}/{totalCount} {t('eform.generated.truong')}
               </strong>
             </span>
           </DialogDescription>
@@ -65,7 +67,7 @@ export function SubmissionDetailDialog({
         <ScrollArea className="flex-1 max-h-[55vh] pr-3 my-2">
           {filledFields.length === 0 ? (
             <p className="text-xs text-muted-foreground py-8 text-center italic">
-              Bản ghi này chưa có trường nào được điền.
+              {t('eform.generated.banGhiNayChuaCoTruongNaoDuocDien')}
             </p>
           ) : (
             <div className="flex flex-col gap-1.5 text-xs sm:text-sm py-1">
@@ -90,7 +92,7 @@ export function SubmissionDetailDialog({
             onClick={() => onOpenChange(false)}
             className="cursor-pointer text-xs px-4"
           >
-            Đóng
+            {t('eform.generated.dong')}
           </Button>
         </DialogFooter>
       </DialogContent>

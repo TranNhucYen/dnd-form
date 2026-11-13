@@ -5,12 +5,14 @@ import { FileText, Pencil, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DYNAMIC_ROUTES } from '@/shared/constants/routes'
 import type { MyForm } from '@/features/my-form/types/my-form.type'
+import { useTranslation } from 'react-i18next'
 
 interface RecentFormCardProps {
   form: MyForm
 }
 
 export function RecentFormCard({ form }: RecentFormCardProps) {
+  const { t } = useTranslation()
   const editUrl = DYNAMIC_ROUTES.FORM_EDIT(form.id)
 
   return (
@@ -32,22 +34,22 @@ export function RecentFormCard({ form }: RecentFormCardProps) {
           </Link>
           <p className="text-xs text-muted-foreground line-clamp-1">
             {form.sourceTemplateName
-              ? `Từ mẫu: ${form.sourceTemplateName}`
-              : form.description || 'Biểu mẫu tùy chỉnh'}
+              ? t('home.sourceTemplate', { name: form.sourceTemplateName })
+              : form.description || t('home.customForm')}
           </p>
         </div>
       </div>
 
       <div className="pt-3 mt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-        <div className="flex items-center gap-1.5" title="Thời gian cập nhật">
+        <div className="flex items-center gap-1.5" title={t('home.updatedAtTitle')}>
           <Clock className="size-3.5 shrink-0" />
-          <span>Cập nhật: {form.formattedUpdatedAt || 'Gần đây'}</span>
+          <span>{t('home.updatedAt', { time: form.formattedUpdatedAt || t('home.recently') })}</span>
         </div>
 
         <Link href={editUrl}>
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1 text-primary hover:text-primary cursor-pointer">
             <Pencil className="size-3" />
-            Sửa
+            {t('home.edit')}
           </Button>
         </Link>
       </div>

@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import type {
   UserProfile,
   UpdateProfileInput,
@@ -18,6 +19,7 @@ import {
 export const ACCOUNT_PROFILE_KEY = ['account', 'profile'] as const
 
 export function useAccount() {
+  const { t } = useTranslation()
   const router = useRouter()
   const queryClient = useQueryClient()
 
@@ -52,7 +54,7 @@ export function useAccount() {
       throw new Error(errorMsg)
     }
     queryClient.setQueryData<UserProfile | null>(ACCOUNT_PROFILE_KEY, res.data)
-    toast.success('Cập nhật hồ sơ thành công!')
+    toast.success(t('account.profileUpdated'))
     router.refresh()
   }
 

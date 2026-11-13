@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export function PreviewFormModal({
   open,
   onOpenChange,
 }: PreviewFormModalProps) {
+  const { t } = useTranslation()
   const { isExporting, downloadPdf } = useExportFormPdf()
   if (!form) return null
 
@@ -51,12 +53,12 @@ export function PreviewFormModal({
                 variant="outline"
                 className="text-xs font-semibold"
               >
-                {form.isPublic ? 'Công khai' : 'Riêng tư'}
+                {form.isPublic ? t('myForm.generated.congKhai') : t('myForm.generated.riengTu')}
               </Badge>
             </div>
           </div>
           <DialogDescription className="text-muted-foreground text-xs">
-            Xem trước giao diện biểu mẫu trên khung thiết kế dạng giấy (Paper Canvas).
+            {t('myForm.generated.xemTruocGiaoDienBieuMauTrenKhungThiet')}
           </DialogDescription>
         </DialogHeader>
 
@@ -73,7 +75,7 @@ export function PreviewFormModal({
             <div className="flex flex-col gap-2">
               <h2 className="text-xl font-bold text-foreground">{form.name}</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {form.description || 'Vui lòng điền đầy đủ các thông tin cần thiết bên dưới.'}
+                {form.description || t('myForm.generated.vuiLongDienDayDuCacThongTinCan')}
               </p>
             </div>
 
@@ -85,15 +87,15 @@ export function PreviewFormModal({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-semibold">
-                    Họ và tên người điền <span className="text-destructive">*</span>
+                    {t('myForm.generated.hoVaTenNguoiDien')} <span className="text-destructive">*</span>
                   </Label>
-                  <span className="text-[10px] text-muted-foreground font-normal">Text Input</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">{t('myForm.generated.textInput')}</span>
                 </div>
                 <div
                   className="h-8 rounded-md border border-border bg-muted/30
                   px-3 text-xs text-muted-foreground flex items-center"
                 >
-                  Nhập câu trả lời...
+                  {t('myForm.generated.nhapCauTraLoi')}
                 </div>
               </div>
 
@@ -101,15 +103,15 @@ export function PreviewFormModal({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-semibold">
-                    Bộ phận / Phòng ban <span className="text-destructive">*</span>
+                    {t('myForm.generated.boPhanPhongBan')} <span className="text-destructive">*</span>
                   </Label>
-                  <span className="text-[10px] text-muted-foreground font-normal">Select Box</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">{t('myForm.generated.selectBox')}</span>
                 </div>
                 <div
                   className="h-8 rounded-md border border-border bg-muted/30
                   px-3 text-xs text-muted-foreground flex items-center justify-between"
                 >
-                  <span>Chọn phòng ban...</span>
+                  <span>{t('myForm.generated.chonPhongBan')}</span>
                   <ChevronDown className="size-3.5" />
                 </div>
               </div>
@@ -118,9 +120,9 @@ export function PreviewFormModal({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-semibold">
-                    Ngày thực hiện
+                    {t('myForm.generated.ngayThucHien')}
                   </Label>
-                  <span className="text-[10px] text-muted-foreground font-normal">Date Picker</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">{t('myForm.generated.datePicker')}</span>
                 </div>
                 <div
                   className="h-8 rounded-md border border-border bg-muted/30
@@ -135,15 +137,15 @@ export function PreviewFormModal({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-semibold">
-                    Nội dung chi tiết
+                    {t('myForm.generated.noiDungChiTiet')}
                   </Label>
-                  <span className="text-[10px] text-muted-foreground font-normal">Text Area</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">{t('myForm.generated.textArea')}</span>
                 </div>
                 <div
                   className="h-16 rounded-md border border-border bg-muted/30
                   p-2.5 text-xs text-muted-foreground"
                 >
-                  Ghi chú hoặc ý kiến đóng góp...
+                  {t('myForm.generated.ghiChuHoacYKienDongGop')}
                 </div>
               </div>
             </div>
@@ -152,8 +154,8 @@ export function PreviewFormModal({
 
             {/* Form Footer */}
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-              <span>Được tạo bằng DragForm Canvas</span>
-              <span>Tổng số trường: {form.fieldsCount || 0}</span>
+              <span>{t('myForm.generated.duocTaoBangDndFormCanvas')}</span>
+              <span>{t('myForm.generated.tongSoTruong')} {form.fieldsCount || 0}</span>
             </div>
           </Card>
         </div>
@@ -165,10 +167,10 @@ export function PreviewFormModal({
         >
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <Layers className="size-3.5" /> {form.fieldsCount} trường dữ liệu
+              <Layers className="size-3.5" /> {form.fieldsCount} {t('myForm.generated.truongDuLieu')}
             </span>
             <span className="flex items-center gap-1.5">
-              <Calendar className="size-3.5" /> Cập nhật: {form.formattedUpdatedAt}
+              <Calendar className="size-3.5" /> {t('myForm.generated.capNhat')} {form.formattedUpdatedAt}
             </span>
           </div>
 
@@ -180,7 +182,7 @@ export function PreviewFormModal({
               onClick={() => onOpenChange(false)}
               className="flex-1 sm:flex-none cursor-pointer text-xs"
             >
-              Đóng
+              {t('myForm.generated.dong')}
             </Button>
             <Button
               type="button"
@@ -195,12 +197,12 @@ export function PreviewFormModal({
               ) : (
                 <Download className="size-3.5 text-muted-foreground" />
               )}
-              <span>Tải xuống (PDF)</span>
+              <span>{t('myForm.generated.taiXuongPdf')}</span>
             </Button>
             <Link href={`/editor?formId=${form.id}`} className="flex-1 sm:flex-none">
               <Button size="sm" className="w-full cursor-pointer text-xs">
                 <Pencil data-icon="inline-start" />
-                Mở trong Editor
+                {t('myForm.generated.moTrongEditor')}
               </Button>
             </Link>
           </div>

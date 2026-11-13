@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Card,
   CardHeader,
@@ -21,12 +22,13 @@ export function NotificationPreferences({
   settings,
   onChange,
 }: NotificationPreferencesProps) {
+  const { t } = useTranslation()
   return (
     <Card className="border-border/80 shadow-xs">
       <CardHeader>
-        <CardTitle className="text-base font-bold">Tùy chọn thông báo</CardTitle>
+        <CardTitle className="text-base font-bold">{t('settings.generated.tuyChonThongBao')}</CardTitle>
         <CardDescription className="text-xs">
-          Quản lý các loại thông báo bạn muốn nhận trên hệ thống và qua email
+          {t('settings.generated.quanLyCacLoaiThongBaoBanMuonNhan')}
         </CardDescription>
       </CardHeader>
 
@@ -38,9 +40,9 @@ export function NotificationPreferences({
               <Mail className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Thông báo qua Email</Label>
+              <Label className="text-xs font-semibold">{t('settings.generated.thongBaoQuaEmail')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Nhận email tổng hợp khi có cập nhật quan trọng hoặc biểu mẫu được chia sẻ
+                {t('settings.generated.nhanEmailTongHopKhiCoCapNhatQuan')}
               </p>
             </div>
           </div>
@@ -57,9 +59,9 @@ export function NotificationPreferences({
               <Share2 className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Chia sẻ biểu mẫu</Label>
+              <Label className="text-xs font-semibold">{t('settings.generated.chiaSeBieuMau')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Thông báo ngay khi có thành viên khác mời bạn cộng tác hoặc chỉnh sửa biểu mẫu
+                {t('settings.generated.thongBaoNgayKhiCoThanhVienKhacMoi')}
               </p>
             </div>
           </div>
@@ -76,9 +78,9 @@ export function NotificationPreferences({
               <Globe className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Kết quả xét duyệt cộng đồng</Label>
+              <Label className="text-xs font-semibold">{t('settings.generated.ketQuaXetDuyetCongDong')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Thông báo khi biểu mẫu đóng góp của bạn được phê duyệt hoặc cần chỉnh sửa
+                {t('settings.generated.thongBaoKhiBieuMauDongGopCuaBan')}
               </p>
             </div>
           </div>
@@ -95,9 +97,9 @@ export function NotificationPreferences({
               <Sparkles className="size-4" />
             </div>
             <div>
-              <Label className="text-xs font-semibold">Cập nhật hệ thống & Tính năng mới</Label>
+              <Label className="text-xs font-semibold">{t('settings.generated.capNhatHeThongTinhNangMoi')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Nhận tin tức về các bản cập nhật, mẫu thiết kế mới và mẹo sử dụng DragForm
+                {t('settings.generated.nhanTinTucVeCacBanCapNhatMau')}
               </p>
             </div>
           </div>

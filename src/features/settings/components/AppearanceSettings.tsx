@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import {
@@ -12,6 +13,7 @@ import {
 import { Sun, Moon, Laptop } from 'lucide-react'
 
 export function AppearanceSettings() {
+  const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -26,20 +28,20 @@ export function AppearanceSettings() {
   const themes = [
     {
       id: 'light',
-      label: 'Sáng (Light Mode)',
-      description: 'Giao diện nền sáng phù hợp làm việc ban ngày hoặc nơi đủ ánh sáng',
+      label: t('settings.generated.sangLightMode'),
+      description: t('settings.generated.giaoDienNenSangPhuHopLamViecBan'),
       icon: Sun,
     },
     {
       id: 'dark',
-      label: 'Tối (Dark Mode)',
-      description: 'Giao diện nền tối giúp giảm mỏi mắt khi làm việc trong môi trường tối',
+      label: t('settings.generated.toiDarkMode'),
+      description: t('settings.generated.giaoDienNenToiGiupGiamMoiMatKhi'),
       icon: Moon,
     },
     {
       id: 'system',
-      label: 'Theo hệ thống (System)',
-      description: 'Tự động đồng bộ theo cài đặt giao diện của hệ điều hành / thiết bị',
+      label: t('settings.generated.theoHeThongSystem'),
+      description: t('settings.generated.tuDongDongBoTheoCaiDatGiaoDien'),
       icon: Laptop,
     },
   ]
@@ -47,9 +49,9 @@ export function AppearanceSettings() {
   return (
     <Card className="border-border/80 shadow-xs">
       <CardHeader>
-        <CardTitle className="text-base font-bold">Giao diện (Theme)</CardTitle>
+        <CardTitle className="text-base font-bold">{t('settings.generated.giaoDienTheme')}</CardTitle>
         <CardDescription className="text-xs">
-          Lựa chọn chế độ hiển thị sáng hoặc tối cho ứng dụng
+          {t('settings.generated.luaChonCheDoHienThiSangHoacToi')}
         </CardDescription>
       </CardHeader>
 

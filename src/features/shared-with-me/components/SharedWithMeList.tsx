@@ -14,8 +14,10 @@ import { cn } from '@/lib/utils'
 import { SearchInput, EmptyState, ErrorAlert } from '@/shared/components'
 import { useSharedWithMe } from '../hooks/useSharedWithMe'
 import { SharedWithMeTable } from './SharedWithMeTable'
+import { useTranslation } from 'react-i18next'
 
 export default function SharedWithMeList() {
+  const { t } = useTranslation()
   const {
     forms,
     isLoading,
@@ -38,9 +40,9 @@ export default function SharedWithMeList() {
         sm:items-center w-full border-b border-border pb-3.5 gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Chia sẻ với tôi</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('sharedWithMe.title')}</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Danh sách các biểu mẫu được người dùng khác chia sẻ quyền truy cập với bạn.
+            {t('sharedWithMe.description')}
           </p>
         </div>
       </div>
@@ -49,13 +51,13 @@ export default function SharedWithMeList() {
       <div className="shrink-0 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <SearchInput
           wrapperClassName="w-full sm:w-96"
-          placeholder="Tìm kiếm theo tên biểu mẫu hoặc người chia sẻ..."
+          placeholder={t('sharedWithMe.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
         <span className="text-xs text-muted-foreground self-end sm:self-center">
-          Tổng số: <strong className="font-semibold text-foreground">{totalItems}</strong> biểu mẫu
+          {t('sharedWithMe.totalForms', { count: totalItems })}
         </span>
       </div>
 
@@ -95,11 +97,11 @@ export default function SharedWithMeList() {
         <EmptyState
           className="flex-1 min-h-[260px] py-12"
           icon={FolderOpen}
-          title={searchTerm ? 'Không tìm thấy biểu mẫu phù hợp' : 'Chưa có biểu mẫu nào được chia sẻ'}
+          title={searchTerm ? t('sharedWithMe.noSearchResult') : t('sharedWithMe.noSharedForms')}
           description={
             searchTerm
-              ? `Không tìm thấy kết quả khớp với "${searchTerm}". Hãy thử kiểm tra lại từ khóa.`
-              : 'Hiện tại chưa có ai chia sẻ biểu mẫu nào với bạn.'
+              ? t('sharedWithMe.noMatchingResults', { search: searchTerm })
+              : t('sharedWithMe.generated.hienTaiChuaCoAiChiaSeBieuMau')
           }
         />
       )}
@@ -116,7 +118,7 @@ export default function SharedWithMeList() {
               justify-between gap-3 pt-1 text-xs text-muted-foreground"
             >
               <span>
-                Hiển thị{' '}
+                {t('sharedWithMe.generated.hienThi')}{' '}
                 <strong className="font-semibold text-foreground">
                   {(currentPage - 1) * pageSize + 1}
                 </strong>
@@ -124,11 +126,11 @@ export default function SharedWithMeList() {
                 <strong className="font-semibold text-foreground">
                   {Math.min(currentPage * pageSize, totalItems)}
                 </strong>{' '}
-                trên tổng số{' '}
+                {t('sharedWithMe.generated.trenTongSo')}{' '}
                 <strong className="font-semibold text-foreground">
                   {totalItems}
                 </strong>{' '}
-                biểu mẫu
+                {t('sharedWithMe.generated.bieuMau')}
               </span>
 
               <Pagination className="mx-0 w-auto">
@@ -140,7 +142,7 @@ export default function SharedWithMeList() {
                         'cursor-pointer text-xs h-8',
                         currentPage === 1 && 'pointer-events-none opacity-50'
                       )}
-                      text="Trước"
+                      text={t('sharedWithMe.previous')}
                     />
                   </PaginationItem>
 
@@ -167,7 +169,7 @@ export default function SharedWithMeList() {
                         'cursor-pointer text-xs h-8',
                         currentPage === totalPages && 'pointer-events-none opacity-50'
                       )}
-                      text="Sau"
+                      text={t('sharedWithMe.next')}
                     />
                   </PaginationItem>
                 </PaginationContent>

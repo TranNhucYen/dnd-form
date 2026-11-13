@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import {
   AlertDialog,
@@ -28,6 +29,7 @@ export function DeleteFormModal({
   onOpenChange,
   onConfirmDelete,
 }: DeleteFormModalProps) {
+  const { t } = useTranslation()
   const [isDeleting, setIsDeleting] = useState(false)
 
   if (forms.length === 0) return null
@@ -57,21 +59,23 @@ export function DeleteFormModal({
             <AlertTriangle />
           </AlertDialogMedia>
           <AlertDialogTitle>
-            {forms.length === 1 ? 'Xác nhận xóa biểu mẫu?' : `Xác nhận xóa ${forms.length} biểu mẫu?`}
+            {forms.length === 1
+              ? t('myForm.generated.xacNhanXoaBieuMau')
+              : t('myForm.deleteManyTitle', { count: forms.length })}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {forms.length === 1 ? (
-              <>Bạn có chắc chắn muốn xóa biểu mẫu <strong className="text-foreground font-semibold">&ldquo;{forms[0].name}&rdquo;</strong>?</>
+              <>{t('myForm.generated.banCoChacChanMuonXoaBieuMau')} <strong className="text-foreground font-semibold">&ldquo;{forms[0].name}&rdquo;</strong>?</>
             ) : (
-              <>Bạn có chắc chắn muốn xóa {forms.length} biểu mẫu đã chọn?</>
+              <>{t('myForm.generated.banCoChacChanMuonXoa')} {forms.length} {t('myForm.generated.bieuMauDaChon')}</>
             )}{' '}
-            Mọi dữ liệu cấu trúc trường liên quan sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            {t('myForm.generated.moiDuLieuCauTrucTruongLienQuanSe')}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting} className="cursor-pointer text-xs">
-            Hủy bỏ
+            {t('myForm.generated.huyBo')}
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
@@ -82,10 +86,12 @@ export function DeleteFormModal({
             {isDeleting ? (
               <>
                 <Loader2 data-icon="inline-start" className="animate-spin" />
-                Đang xóa...
+                {t('myForm.generated.dangXoa')}
               </>
             ) : (
-              forms.length === 1 ? 'Xác nhận xóa' : `Xóa ${forms.length} biểu mẫu`
+              forms.length === 1
+                ? t('myForm.generated.xacNhanXoa')
+                : t('myForm.deleteManyAction', { count: forms.length })
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

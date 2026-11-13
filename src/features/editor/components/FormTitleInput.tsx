@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef } from "react";
 import type React from "react";
 import { toast } from "sonner";
@@ -18,13 +19,15 @@ export interface FormTitleInputProps {
 
 export function FormTitleInput({
   inputRef,
-  defaultValue = "Biểu mẫu chưa đặt tên",
+  defaultValue,
   savedTitle,
   className,
   disabled,
   onTitleChange,
 }: FormTitleInputProps) {
-  const currentSavedTitle = (savedTitle ?? defaultValue).trim();
+  const { t } = useTranslation()
+  const resolvedDefaultValue = defaultValue || t('editor.untitledForm');
+  const currentSavedTitle = (savedTitle ?? resolvedDefaultValue).trim();
   const lastAlertedValueRef = useRef<string>(currentSavedTitle);
 
   // Cập nhật mốc kiểm tra khi savedTitle từ server thay đổi (khi load form hoặc khi save thành công)
@@ -34,10 +37,10 @@ export function FormTitleInput({
 
   // Đồng bộ giá trị input khi defaultValue thay đổi từ bên ngoài (ví dụ nạp form hoặc lưu thành công)
   useEffect(() => {
-    if (inputRef.current && inputRef.current.value !== defaultValue) {
-      inputRef.current.value = defaultValue;
+    if (inputRef.current && inputRef.current.value !== resolvedDefaultValue) {
+      inputRef.current.value = resolvedDefaultValue;
     }
-  }, [defaultValue, inputRef]);
+  }, [inputRef, resolvedDefaultValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.currentTarget.value.trim();
@@ -58,7 +61,7 @@ export function FormTitleInput({
     }
 
     const trimmed = e.currentTarget.value.trim();
-    const finalValue = trimmed || defaultValue || "Biểu mẫu chưa đặt tên";
+    const finalValue = trimmed || resolvedDefaultValue;
 
     // Nếu tên khác với tên thật sự đã lưu trên hệ thống
     if (finalValue !== currentSavedTitle) {
@@ -67,7 +70,7 @@ export function FormTitleInput({
       onTitleChange?.(currentSavedTitle);
 
       // Thông báo cho người dùng biết cần bấm Lưu để áp dụng tên mới
-      toast.info("Cần bấm lưu để đổi tên");
+      toast.info(t('editor.generated.canBamLuuDeDoiTen'));
     }
   };
 
@@ -75,7 +78,7 @@ export function FormTitleInput({
     if (e.key === "Enter") {
       e.preventDefault();
       const trimmed = e.currentTarget.value.trim();
-      const finalValue = trimmed || defaultValue || "Biểu mẫu chưa đặt tên";
+      const finalValue = trimmed || resolvedDefaultValue;
 
       if (finalValue !== currentSavedTitle) {
         onTitleChange?.(finalValue);
@@ -94,11 +97,11 @@ export function FormTitleInput({
     <Input
       ref={inputRef}
       data-form-title-input
-      defaultValue={defaultValue}
+      defaultValue={resolvedDefaultValue}
       disabled={disabled}
       maxLength={150}
-      placeholder="Nhập tên biểu mẫu..."
-      title={disabled ? "Chế độ chỉ xem" : "Nhấp đúp chuột để đổi tên"}
+      placeholder={t('editor.generated.nhapTenBieuMau')}
+      title={disabled ? t('editor.generated.cheDoChiXem') : t('editor.generated.nhapDupChuotDeDoiTen')}
       onDoubleClick={(e) => e.currentTarget.select()}
       onChange={handleChange}
       onBlur={handleBlur}

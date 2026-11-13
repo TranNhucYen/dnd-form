@@ -1,5 +1,6 @@
   'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import {
   Card,
@@ -23,6 +24,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState(initialProfile.name)
   const [isSaving, setIsSaving] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
@@ -53,9 +55,9 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
             <User className="size-4" />
           </div>
           <div>
-            <CardTitle className="text-sm font-bold">Thông tin cá nhân</CardTitle>
+            <CardTitle className="text-sm font-bold">{t('account.generated.thongTinCaNhan')}</CardTitle>
             <CardDescription className="text-xs mt-0.5">
-              Cập nhật tên hiển thị liên kết với tài khoản của bạn
+              {t('account.generated.capNhatTenHienThiLienKetVoiTai')}
             </CardDescription>
           </div>
         </div>
@@ -70,7 +72,7 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
                 htmlFor="fullname"
                 className="text-xs font-semibold flex items-center gap-1"
               >
-                <span>Họ và tên</span>
+                <span>{t('account.generated.hoVaTen')}</span>
                 <span className="text-destructive">*</span>
               </Label>
             </div>
@@ -80,7 +82,7 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
                 id="fullname"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Nhập họ và tên của bạn..."
+                placeholder={t('account.generated.nhapHoVaTenCuaBan')}
                 className="pl-9 text-xs"
                 required
               />
@@ -91,14 +93,14 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between h-5">
               <Label htmlFor="email" className="text-xs font-semibold">
-                Địa chỉ Email
+                {t('account.generated.diaChiEmail')}
               </Label>
               <Badge
                 variant="outline"
                 className="text-xs font-medium text-primary border-primary/30 gap-1 py-0 h-5"
               >
                 <ShieldCheck className="size-3" />
-                Đã xác thực
+                {t('account.generated.daXacThuc')}
               </Badge>
             </div>
             <div className="relative">
@@ -114,7 +116,7 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Email dùng để đăng nhập và nhận thông báo phân quyền biểu mẫu.
+              {t('account.generated.emailDungDeDangNhapVaNhanThongBao')}
             </p>
           </div>
         </CardContent>
@@ -134,7 +136,7 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
                 )}
               >
                 <Check className="size-3.5" />
-                Đã lưu thay đổi thành công!
+                {t('account.generated.daLuuThayDoiThanhCong')}
               </span>
             )}
           </div>
@@ -147,10 +149,10 @@ export function ProfileForm({ initialProfile, onSave }: ProfileFormProps) {
             {isSaving ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                Đang lưu...
+                {t('account.generated.dangLuu')}
               </>
             ) : (
-              'Lưu hồ sơ'
+              t('account.saveProfile')
             )}
           </Button>
         </CardFooter>

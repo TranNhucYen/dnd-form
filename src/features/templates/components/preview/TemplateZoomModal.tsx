@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -36,6 +37,7 @@ export function TemplateZoomModal({
   onUseTemplate,
   isCopying = false,
 }: TemplateZoomModalProps) {
+  const { t } = useTranslation()
   const [zoomIndex, setZoomIndex] = useState(3) // 1.0 (100%) mặc định
   const currentScale = ZOOM_STEPS[zoomIndex]
 
@@ -72,12 +74,12 @@ export function TemplateZoomModal({
               </DialogTitle>
               {totalPages > 1 && (
                 <Badge variant="outline" className="text-xs font-normal">
-                  {totalPages} trang
+                  {totalPages} {t('templates.generated.trang')}
                 </Badge>
               )}
             </div>
             <DialogDescription className="text-xs text-muted-foreground">
-              Bản xem trước biểu mẫu chuẩn (Read-only)
+              {t('templates.generated.banXemTruocBieuMauChuanReadOnly')}
             </DialogDescription>
           </div>
 
@@ -91,7 +93,7 @@ export function TemplateZoomModal({
                 onClick={() => setZoomIndex((i) => Math.max(i - 1, 0))}
                 disabled={zoomIndex === 0}
                 className="size-7 cursor-pointer"
-                title="Thu nhỏ"
+                title={t('templates.generated.thuNho')}
               >
                 <ZoomOut className="size-3.5" />
               </Button>
@@ -100,7 +102,7 @@ export function TemplateZoomModal({
                 type="button"
                 onClick={() => setZoomIndex(3)}
                 className="text-xs font-semibold px-2 py-0.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                title="Đặt lại 100%"
+                title={t('templates.generated.datLai100')}
               >
                 {Math.round(currentScale * 100)}%
               </button>
@@ -112,7 +114,7 @@ export function TemplateZoomModal({
                 onClick={() => setZoomIndex((i) => Math.min(i + 1, ZOOM_STEPS.length - 1))}
                 disabled={zoomIndex === ZOOM_STEPS.length - 1}
                 className="size-7 cursor-pointer"
-                title="Phóng to"
+                title={t('templates.generated.phongTo')}
               >
                 <ZoomIn className="size-3.5" />
               </Button>
@@ -131,7 +133,7 @@ export function TemplateZoomModal({
                 ) : (
                   <Copy className="size-3.5" />
                 )}
-                <span>{isCopying ? 'Đang tạo bản sao...' : 'Sử dụng biểu mẫu'}</span>
+                <span>{isCopying ? t('templates.generated.dangTaoBanSao') : t('templates.generated.suDungBieuMau')}</span>
               </Button>
             )}
           </div>

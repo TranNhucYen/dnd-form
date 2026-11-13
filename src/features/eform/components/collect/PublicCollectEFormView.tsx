@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { useMemo, useRef, useState } from "react";
 import { CheckCircle2, Loader2, RefreshCw, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +15,7 @@ interface PublicCollectEFormViewProps {
 }
 
 export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
+  const { t } = useTranslation()
   const layout = useMemo(() => {
     return transformSchemaToEForm(form.schemaContent);
   }, [form.schemaContent]);
@@ -38,13 +40,13 @@ export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
         submittedDataRef.current,
       );
       if (!res.success) {
-        toast.error(res.error || "Không thể gửi biểu mẫu. Vui lòng thử lại.");
+        toast.error(res.error || t('eform.generated.khongTheGuiBieuMauVuiLongThuLai'));
         return;
       }
       setIsSubmitted(true);
-      toast.success("Gửi biểu mẫu thành công!");
+      toast.success(t('eform.generated.guiBieuMauThanhCong'));
     } catch {
-      toast.error("Đã xảy ra lỗi khi gửi biểu mẫu.");
+      toast.error(t('eform.generated.daXayRaLoiKhiGuiBieuMau'));
     } finally {
       setIsSubmitting(false);
     }
@@ -64,12 +66,10 @@ export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
             <CheckCircle2 className="size-6" />
           </div>
           <h2 className="text-xl font-bold text-neutral-900">
-            Đã gửi biểu mẫu thành công
+            {t('eform.generated.daGuiBieuMauThanhCong')}
           </h2>
           <p className="text-sm text-neutral-500">
-            Thông tin bạn điền cho biểu mẫu{" "}
-            <strong className="text-neutral-900">{form.name}</strong> đã được tự
-            động điền vào biểu mẫu gốc.
+            {t('eform.submittedDescription', { name: form.name })}
           </p>
           <Button
             type="button"
@@ -79,7 +79,7 @@ export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
             className="mt-2 gap-2 cursor-pointer"
           >
             <RefreshCw className="size-3.5" />
-            <span>Điền thêm một bản khác</span>
+            <span>{t('eform.generated.dienThemMotBanKhac')}</span>
           </Button>
         </div>
       </div>
@@ -124,12 +124,12 @@ export function PublicCollectEFormView({ form }: PublicCollectEFormViewProps) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  <span>Đang gửi...</span>
+                  <span>{t('eform.generated.dangGui')}</span>
                 </>
               ) : (
                 <>
                   <Send className="size-4" />
-                  <span>Gửi biểu mẫu</span>
+                  <span>{t('eform.generated.guiBieuMau')}</span>
                 </>
               )}
             </Button>

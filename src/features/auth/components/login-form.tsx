@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from 'react-i18next'
 import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -11,6 +12,7 @@ import { UserRole } from "@/shared/types/user.type"
 import { useLogin } from "../hooks/useLogin"
 
 export function LoginForm() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -35,7 +37,7 @@ export function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-87.5 space-y-6 rounded-lg border bg-card p-6 shadow-sm">
         <div className="space-y-1.5 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Đăng nhập</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('auth.generated.dangNhap')}</h1>
           <div className="flex items-center justify-center gap-1.5 py-1">
             <Image
               src="/icon.svg"
@@ -60,7 +62,7 @@ export function LoginForm() {
               <label className="text-sm font-medium">Email</label>
               <Input
                 type="email"
-                placeholder="name@example.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -70,8 +72,8 @@ export function LoginForm() {
             </div>
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Mật khẩu</label>
-                <Link href="#" className="text-xs text-muted-foreground hover:underline">Quên mật khẩu?</Link>
+                <label className="text-sm font-medium">{t('auth.generated.matKhau')}</label>
+                <Link href="#" className="text-xs text-muted-foreground hover:underline">{t('auth.generated.quenMatKhau')}</Link>
               </div>
               <Input
                 type="password"
@@ -85,19 +87,19 @@ export function LoginForm() {
             </div>
           </div>
           <Button type="submit" disabled={isLoading} className="w-full h-9.5">
-            {isLoading ? "Đang xử lý..." : "Đăng nhập"}
+            {isLoading ? t('auth.generated.dangXuLy') : t('auth.generated.dangNhap')}
           </Button>
         </form>
         <div className="relative">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Hoặc</span></div>
+          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">{t('auth.generated.hoac')}</span></div>
         </div>
         <Button variant="outline" type="button" className="w-full h-9.5">
           Google
         </Button>
         <div className="text-center text-sm text-muted-foreground">
-          Chưa có tài khoản?{" "}
-          <Link href={ROUTES.REGISTER} className="font-semibold text-primary hover:underline">Đăng ký</Link>
+          {t('auth.generated.chuaCoTaiKhoan')}{" "}
+          <Link href={ROUTES.REGISTER} className="font-semibold text-primary hover:underline">{t('auth.generated.dangKy')}</Link>
         </div>
       </div>
     </div>

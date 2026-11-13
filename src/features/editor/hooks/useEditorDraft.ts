@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   createDefaultBlankPage,
   useFormBuilderStore,
@@ -44,6 +45,7 @@ export function useEditorDraft({
   setTitle,
   titleInputRef,
 }: UseEditorDraftOptions) {
+  const { t } = useTranslation();
   const pages = useFormBuilderStore((state) => state.pages);
   const getFormSchema = useFormBuilderStore((state) => state.getFormSchema);
   const loadFormSchema = useFormBuilderStore((state) => state.loadFormSchema);
@@ -97,7 +99,7 @@ export function useEditorDraft({
 
         if (!hasAlertedNewDraftToastRef.current) {
           hasAlertedNewDraftToastRef.current = true;
-          toast.info("Đã khôi phục bản nháp chưa lưu", {
+          toast.info(t("editor.draftRestored"), {
             id: "restore-draft-new-toast",
           });
         }
@@ -124,7 +126,7 @@ export function useEditorDraft({
       }
       sessionRef.current.isInitialLoadDone = true;
     }, 250);
-  }, [clearSettleTimer, loadFormSchema, resetForm, setIsDirty, setTitle, titleInputRef]);
+  }, [clearSettleTimer, loadFormSchema, resetForm, setIsDirty, setTitle, t, titleInputRef]);
 
   /** Xử lý nạp dữ liệu form từ server và kiểm tra bản nháp cũ */
   const handleServerFormLoaded = useCallback(
@@ -164,7 +166,7 @@ export function useEditorDraft({
 
         lastSavedSnapshotRef.current = canonicalServerSnapshot;
         setIsDirty(true);
-        toast.info("Đã khôi phục bản nháp chưa lưu từ phiên trước", {
+        toast.info(t("editor.previousDraftRestored"), {
           id: "restore-draft-saved-toast",
         });
       } else {
@@ -196,7 +198,7 @@ export function useEditorDraft({
         sessionRef.current.isInitialLoadDone = true;
       }, 300);
     },
-    [clearSettleTimer, loadFormSchema, setIsDirty, setTitle, titleInputRef],
+    [clearSettleTimer, loadFormSchema, setIsDirty, setTitle, t, titleInputRef],
   );
 
   /** Cập nhật snapshot khi lưu form lên server thành công */

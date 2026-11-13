@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from 'react-i18next'
 import { Download, Loader2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PrintCanvas } from "@/features/form-builder/print/PrintCanvas";
@@ -19,6 +20,7 @@ export function SubmissionPrintViewer({
   submittedAt,
   schema,
 }: SubmissionPrintViewerProps) {
+  const { t } = useTranslation()
   const { isExporting, downloadSubmissionPdf } = useExportSubmissionPdf();
 
   return (
@@ -30,7 +32,7 @@ export function SubmissionPrintViewer({
             {formName} (#{submissionId})
           </h1>
           <p className="text-xs text-neutral-500 truncate">
-            Thời gian nộp: {submittedAt}
+            {t('eform.generated.thoiGianNop2')} {submittedAt}
           </p>
         </div>
 
@@ -42,7 +44,7 @@ export function SubmissionPrintViewer({
             className="cursor-pointer gap-2"
           >
             <Printer className="size-4" />
-            <span>In biểu mẫu</span>
+            <span>{t('eform.generated.inBieuMau')}</span>
           </Button>
 
           <Button
@@ -56,7 +58,7 @@ export function SubmissionPrintViewer({
             ) : (
               <Download className="size-4" />
             )}
-            <span>{isExporting ? "Đang xuất PDF..." : "Tải xuống PDF"}</span>
+            <span>{isExporting ? t('eform.generated.dangXuatPdf') : t('eform.generated.taiXuongPdf')}</span>
           </Button>
         </div>
       </header>

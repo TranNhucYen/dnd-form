@@ -19,6 +19,7 @@ import { mainNavItems, personalNavItems } from "@/shared/config/nav"
 import { ROUTES } from "@/shared/constants/routes"
 import { AuthUser } from "@/features/auth/types/auth.type"
 import { getInitials } from "@/shared/utils"
+import { useTranslation } from 'react-i18next'
 
 interface AppSidebarProps {
   user?: Partial<AuthUser> | null
@@ -26,8 +27,9 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
+  const { t } = useTranslation()
 
-  const displayName = user?.fullName?.trim() || "Người dùng"
+  const displayName = user?.fullName?.trim() || t('nav.defaultUser')
   const displayEmail = user?.email?.trim() || ""
 
   const initials = getInitials(user?.fullName)
@@ -43,13 +45,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       <SidebarContent className="p-2 space-y-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ứng dụng</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('nav.app')}</SidebarGroupLabel>
           <SidebarGroupContent className="mt-2">
             <SidebarMenu>
               {mainNavItems.map((item) => {
                 const isActive = pathname === item.url || pathname.startsWith(item.url + "/")
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.titleKey}>
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link
                         href={item.url}
@@ -59,7 +61,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         )}
                       >
                         <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <span>{t(item.titleKey)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -70,13 +72,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cá nhân</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('nav.personal')}</SidebarGroupLabel>
           <SidebarGroupContent className="mt-2">
             <SidebarMenu>
               {personalNavItems.map((item) => {
                 const isActive = pathname === item.url || pathname.startsWith(item.url + "/")
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.titleKey}>
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link
                         href={item.url}
@@ -86,7 +88,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         )}
                       >
                         <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <span>{t(item.titleKey)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

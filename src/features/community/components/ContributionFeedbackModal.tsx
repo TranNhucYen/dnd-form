@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ export function ContributionFeedbackModal({
   open,
   onOpenChange,
 }: ContributionFeedbackModalProps) {
+  const { t } = useTranslation()
   if (!item) return null
 
   const isRejected = item.status === ContributionStatus.REJECTED
@@ -62,10 +64,10 @@ export function ContributionFeedbackModal({
             </div>
             <div>
               <DialogTitle className="text-base font-bold text-foreground">
-                Chi tiết phản hồi từ Ban Quản trị
+                {t('community.generated.chiTietPhanHoiTuBanQuanTri')}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Xem thông tin đánh giá và hướng dẫn điều chỉnh biểu mẫu cộng đồng
+                {t('community.generated.xemThongTinDanhGiaVaHuongDanDieu')}
               </DialogDescription>
             </div>
           </div>
@@ -98,15 +100,15 @@ export function ContributionFeedbackModal({
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground pt-2.5 border-t border-border/60">
-              <span>Danh mục: <strong className="font-medium text-foreground">{item.categoryName}</strong></span>
+              <span>{t('community.generated.danhMuc2')} <strong className="font-medium text-foreground">{item.categoryName}</strong></span>
               <span className="flex items-center gap-1">
                 <Calendar className="size-3" />
-                Ngày gửi: {formatDate(item.submittedAt)}
+                {t('community.generated.ngayGui2')} {formatDate(item.submittedAt)}
               </span>
               {item.reviewedAt && (
                 <span className="flex items-center gap-1">
                   <Clock className="size-3" />
-                  Ngày duyệt: {formatDate(item.reviewedAt)}
+                  {t('community.generated.ngayDuyet')} {formatDate(item.reviewedAt)}
                 </span>
               )}
             </div>
@@ -116,7 +118,7 @@ export function ContributionFeedbackModal({
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
               <MessageSquare className="size-3.5 text-muted-foreground" />
-              Nội dung nhận xét & Góp ý:
+              {t('community.generated.noiDungNhanXetGopY')}
             </label>
 
             {item.feedback ? (
@@ -134,7 +136,7 @@ export function ContributionFeedbackModal({
                   p-4 rounded-lg border border-dashed border-border bg-muted/20 
                   text-center text-xs text-muted-foreground italic"
               >
-                Chưa có ghi chú hoặc biểu mẫu đang trong hàng đợi kiểm duyệt.
+                {t('community.generated.chuaCoGhiChuHoacBieuMauDangTrong')}
               </div>
             )}
           </div>
@@ -150,7 +152,7 @@ export function ContributionFeedbackModal({
             onClick={() => onOpenChange(false)}
             className="text-xs cursor-pointer"
           >
-            Đóng
+            {t('community.generated.dong')}
           </Button>
         </DialogFooter>
       </DialogContent>

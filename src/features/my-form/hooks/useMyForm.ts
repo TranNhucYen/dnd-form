@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import type { MyForm, CreateBlankFormInput } from '../types/my-form.type'
 import {
   getMyFormsAction,
@@ -22,6 +23,7 @@ async function fetchMyForms(): Promise<MyForm[]> {
 }
 
 export function useMyFormList() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [searchTerm, setSearchTermState] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -91,10 +93,10 @@ export function useMyFormList() {
       }
       updateLocalList((prev) => [res.data!, ...prev])
       invalidateHome()
-      toast.success('Tạo biểu mẫu mới thành công')
+      toast.success(t('myForm.createSuccess'))
       return res.data
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Không thể tạo biểu mẫu')
+      toast.error(err instanceof Error ? err.message : t('myForm.createError'))
       throw err
     }
   }
@@ -105,14 +107,14 @@ export function useMyFormList() {
       if (res.success && res.data) {
         updateLocalList((prev) => [res.data!, ...prev])
         invalidateHome()
-        toast.success('Nhân bản biểu mẫu thành công')
+        toast.success(t('myForm.duplicateSuccess'))
         return res.data
       } else {
-        toast.error(res.error || 'Không thể nhân bản biểu mẫu')
+        toast.error(res.error || t('myForm.duplicateError'))
         return null
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Lỗi khi nhân bản biểu mẫu')
+      toast.error(err instanceof Error ? err.message : t('myForm.duplicateFailed'))
       return null
     }
   }
@@ -123,14 +125,14 @@ export function useMyFormList() {
       if (res.success) {
         updateLocalList((prev) => prev.filter((f) => f.id !== id))
         invalidateHome()
-        toast.success('Xóa biểu mẫu thành công')
+        toast.success(t('myForm.deleteSuccess'))
         return true
       } else {
-        toast.error(res.error || 'Không thể xóa biểu mẫu')
+        toast.error(res.error || t('myForm.deleteError'))
         return false
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Lỗi khi xóa biểu mẫu')
+      toast.error(err instanceof Error ? err.message : t('myForm.deleteFailed'))
       return false
     }
   }
